@@ -1,0 +1,6 @@
+.installed.cfg
+.idea
+
+# Byte-compiled / optimized / DLL files
+*.py[cod]
+.idea/*
