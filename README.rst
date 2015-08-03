@@ -32,6 +32,7 @@ Configuration in the including apps *.ini files
 -----------------------------------------------
 
 Possible parameters are:
+
 * pyramid_rest_support_mail => This will be used as mail adress in HTML documents created by the REST-API
 * pyramid_rest_support_name => This will be used as alias in HTML documents created by the REST-API
 
