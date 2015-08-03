@@ -3,8 +3,8 @@ Pyramid REST interface
 
 This little package gives shortcuts to create a restful api to database sources. It provides a url pattern to serve the
 sources.
-It is meant to be used in a pyramid web framework ecosystem. It uses pyramid and sqlalchemy logic as well. Its goal is
-to extend the database usage in pyramid frameworks. This way, it will be possible to serve different data sources from
+It is meant to be used in a pyramid web framework eco system. It uses pyramid and sqlalchemy logic as well. Its goal is
+to extend the database usage in pyramid frameworks. This way, it will be possible to serve data sources from
 different databases.
 
 Main features:
@@ -26,6 +26,9 @@ TODO
 
 Usage in a special geomapfish web app
 -------------------------------------
+
+Please refer to the original `Documentation <http://docs.camptocamp.net/c2cgeoportal/1.5/>`_ of geomapfish to
+learn more about this package.
 
 TODO
 
