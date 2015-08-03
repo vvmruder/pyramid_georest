@@ -42,34 +42,4 @@ Checkout
 
 .. code:: bash
 
-   git clone https://github.com/camptocamp/bl_geoview.git geoview
-
-Initial Build
--------------
-
-.. code:: bash
-
-  cd geoview
-
-  git submodule update --init
-
-  git submodule foreach git submodule update --init
-
-  python bootstrap.py --version 1.5.2 --distribute --download-base \
-        http://pypi.camptocamp.net/distribute-0.6.22_fix-issue-227/ --setup-source \
-        http://pypi.camptocamp.net/distribute-0.6.22_fix-issue-227/distribute_setup.py
-
-  unset http_proxy
-
-  ./buildout/bin/buildout -c buildout_<user>.cfg
-
-Updating an Instance
---------------------
-
-.. code:: bash
-
-  cd geoview
-  ./update
-  ./refresh <user>
-
-.. Feel free to add project-specific things.
+   git clone https://github.com/vvmruder/pyramid_rest.git pyramid_rest
