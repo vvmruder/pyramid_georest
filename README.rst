@@ -8,6 +8,7 @@ to extend the database usage in pyramid frameworks. This way, it will be possibl
 different databases.
 
 Main features:
+
 * read (json, xml, geojson) + filtering via json parameters
 * count  + filtering via json parameters
 * read one (json, xml, geojson)
