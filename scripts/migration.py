@@ -24,7 +24,7 @@ _schema = 'webservices_v1'
 
 
 def tutorial(create=False):
-    from .models import Webservice, Base
+    from pyramid_rest.models import Webservice, Base
 
     engine1 = create_engine('postgresql://postgres:p1MJcc3$@localhost:5432/gdwh', echo=True)
 
