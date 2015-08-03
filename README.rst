@@ -27,6 +27,9 @@ TODO
 Usage in a special geomapfish web app
 -------------------------------------
 
+Please refer to the original `documentation <(http://docs.camptocamp.net/c2cgeoportal/master/)>`_ of geomapfish to learn
+ more about this package.
+
 TODO
 
 Configuration in the including apps *.ini files
