@@ -20,11 +20,15 @@ Created by vvmruder on 29.07.15.
 -->
 <%inherit file="pyramid_rest:templates/layout.mako"/>
 
-<div class="container-fluid">
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <h1 class="navbar-text">Dokumentation zur Rest-Schnittstelle</h1>
+</nav>
+
+<div class="container-fluid" style="margin-top: 100px;">
     <div class="panel panel-default center-block" style="width: 80%;">
+
         <div class="panel-body" ng-app>
 
-            <h1>Dokumentation zur Rest-Schnittstelle</h1>
             <p>
                 Über diese Schnittstelle erhalten Sie Zugriff auf Daten verschiedenster Datenbanken. Die Funktionen dieser
                 Schnittstelle sind im Folgenden kurz dargelegt.
