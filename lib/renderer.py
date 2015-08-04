@@ -46,7 +46,7 @@ class RestfulJson(JSON):
 
         request = system['request']
         features = []
-        for o in objects:
+        for o in objects.get('features'):
             features.append(o.as_dict())
         val = json.dumps(features)
         callback = request.GET.get('callback')
