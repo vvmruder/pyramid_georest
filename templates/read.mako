@@ -19,7 +19,38 @@ portions of the Software.
 Created by vvmruder on 29.07.15.
 -->
 <%inherit file="pyramid_rest:templates/layout.mako"/>
-Das ist die Read-Seite
-% for feature in features:
-    <p>${feature.as_dict()}</p>
-% endfor
+
+% if len(features) > 0:
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <h1 class="navbar-text">${features[0].__class__.__name__}</h1>
+    </nav>
+
+    <div class="container-fluid" style="margin-top: 100px;">
+
+        <div class="panel panel-default center-block" style="width: 80%;">
+
+            <div class="panel-body">
+
+                <table class="table table-striped table-hover">
+                    <tr>
+                        % for key, value in features[0].as_dict().iteritems():
+                            <th>${key}</th>
+                        % endfor
+                    </tr>
+                % for feature in features:
+                    <tr>
+                        % for key, value in feature.as_dict().iteritems():
+                            <td>${value}</td>
+                        % endfor
+                    </tr>
+                % endfor
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+% endif
