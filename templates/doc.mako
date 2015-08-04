@@ -68,13 +68,13 @@ Created by vvmruder on 29.07.15.
             <p>
                 <div class="list-group">
                     % for service in request.registry.pyramid_rest_services:
-                        <a href="#" target="_blank" class="list-group-item">
+                        <a href=${'/' + service.path} target="_blank" class="list-group-item">
                             <h4 class="list-group-item-heading">
-                                <span class="text-left text-capitalize">${service} </span>
+                                <span>${service.name} </span>
                                 <span class="glyphicon glyphicon-circle-arrow-right pull-right"></span>
                             </h4>
                             <p class="list-group-item-text">
-                                Beschreibung der Schnittstelle...
+                                ${service.short_description}
                             </p>
                         </a>
                     % endfor
