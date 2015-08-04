@@ -38,7 +38,8 @@ Created by vvmruder on 29.07.15.
                 (siehe  <a href="https://de.wikipedia.org/wiki/Representational_State_Transfer">Wikipedia</a>). Im Grossen und
                 Ganzen lässt sich diese Methode auf folgenden Grundsatz reduzieren:
             </p>
-            <h4>Jede Tabelle hat eine eigene Grund-URL (Ressource)</h4>
+
+            <div class="well well-sm lead text-center">Jede Tabelle hat eine eigene Grund-URL (Ressource)</div>
 
             <p>
                 Jede dieser Ressourcen ist wiederum unterteilt um Zugriff auf die verschiedenen Methoden zu ermöglichen. Diese
@@ -65,18 +66,28 @@ Created by vvmruder on 29.07.15.
                 Zum jetzigen Zeitpunkt können über diese Schnittstelle folgende Datensätze angesprochen werden:
             </p>
             <p>
-                <select class="form-control" ng-model="service">
+                <div class="list-group">
                     % for service in request.registry.pyramid_rest_services:
-                        <option value=${service}>${service}</option>
+                        <a href="#" target="_blank" class="list-group-item">
+                            <h4 class="list-group-item-heading">
+                                <span class="text-left text-capitalize">${service} </span>
+                                <span class="glyphicon glyphicon-circle-arrow-right pull-right"></span>
+                            </h4>
+                            <p class="list-group-item-text">
+                                Beschreibung der Schnittstelle...
+                            </p>
+                        </a>
                     % endfor
-                </select>
+                </div>
             </p>
-            <p>
-                Bitte bedenken Sie, dass für alle Datensätze Berechtigungen eingeholt werden müssen. Es werden über diese
-                Schnittstelle keine Daten öffentlich und frei zugänglich angeboten. Sollten Sie Interesse an dem Zugriff haben
-                wenden Sie sich bitte an den <a href="mailto:${request.registry.pyramid_rest_support_mail}">
-                ${request.registry.pyramid_rest_support_name}</a>.
-            </p>
+            <div class="alert alert-warning">
+                Bitte bedenken Sie, dass für alle Datensätze Berechtigungen eingeholt werden müssen. Es werden über
+                diese Schnittstelle keine Daten öffentlich und frei zugänglich angeboten. Sollten Sie Interesse an
+                dem Zugriff haben wenden Sie sich bitte an den
+                <a href="mailto:${request.registry.pyramid_rest_support_mail}">
+                    ${request.registry.pyramid_rest_support_name}
+                </a>.
+            </div>
 
         </div>
     </div>
