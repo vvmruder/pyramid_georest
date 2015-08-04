@@ -108,7 +108,7 @@ class Rest(object):
         config.add_route(read_one_html_path, read_one_html_path)
         config.add_view(
             self.read_one,
-            renderer='pyramid_rest:templates/read.mako',
+            renderer='pyramid_rest:templates/read_one.mako',
             route_name=read_one_html_path,
             request_method='GET'
         )
