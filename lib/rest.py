@@ -37,7 +37,7 @@ class Rest(object):
     integrity_error_txt = u'<h2>Your submitted data was corrupt. This usually means your data hurts some database ' \
                           u'constrains</h2>'
 
-    def __init__(self, engine, model, config):
+    def __init__(self, engine, model, config, short_description='', name=''):
         """
 
         Creates an object which handles all things to do to provide an rest interface for the passed:
@@ -57,24 +57,29 @@ class Rest(object):
 
         self.engine = engine
         self.model = model
+        self.name = name
+        self.short_description = short_description
+        self.path = model.database_path().replace('.', '/')
 
-        read_json_path = '/' + model.database_path().replace('.', '/') + '/read.json'
+        read_json_path = '/' + self.path + '/read.json'
 
-        read_html_path = '/' + model.database_path().replace('.', '/') + '/read'
+        read_html_path = '/' + self.path + '/read'
 
-        read_one_json_path = '/' + model.database_path().replace('.', '/') + '/read' + self.primary_key_to_url() + '.json'
+        read_one_json_path = '/' + self.path + '/read' + self.primary_key_to_url() + '.json'
 
-        read_one_html_path = '/' + model.database_path().replace('.', '/') + '/read' + self.primary_key_to_url()
+        read_one_html_path = '/' + self.path + '/read' + self.primary_key_to_url()
 
-        create_path = '/' + model.database_path().replace('.', '/') + '/create'
+        create_path = '/' + self.path + '/create'
 
-        update_path = '/' + model.database_path().replace('.', '/') + '/update' + self.primary_key_to_url()
+        update_path = '/' + self.path + '/update' + self.primary_key_to_url()
 
-        delete_path = '/' + model.database_path().replace('.', '/') + '/delete' + self.primary_key_to_url()
+        delete_path = '/' + self.path + '/delete' + self.primary_key_to_url()
 
-        count = '/' + model.database_path().replace('.', '/') + '/count'
+        count_path = '/' + self.path + '/count'
 
-        model_json = '/' + model.database_path().replace('.', '/') + '/model.json'
+        model_json_path = '/' + self.path + '/model.json'
+
+        doc_path = '/' + self.path
 
         config.add_route(read_json_path, read_json_path)
         config.add_view(self.read, renderer='restful_json', route_name=read_json_path, request_method='GET')
@@ -91,11 +96,11 @@ class Rest(object):
         config.add_route(delete_path, delete_path)
         config.add_view(self.delete, renderer='restful_json', route_name=delete_path, request_method='GET')
 
-        config.add_route(count, count)
-        config.add_view(self.count, renderer='jsonp', route_name=count, request_method='GET')
+        config.add_route(count_path, count_path)
+        config.add_view(self.count, renderer='jsonp', route_name=count_path, request_method='GET')
 
-        config.add_route(model_json, model_json)
-        config.add_view(self.description, renderer='jsonp', route_name=model_json, request_method='GET')
+        config.add_route(model_json_path, model_json_path)
+        config.add_view(self.description, renderer='jsonp', route_name=model_json_path, request_method='GET')
 
         config.add_route(read_html_path, read_html_path)
         config.add_view(
@@ -113,7 +118,15 @@ class Rest(object):
             request_method='GET'
         )
 
-        config.registry.pyramid_rest_services.append(model.database_path().replace('.', '/'))
+        config.add_route(doc_path, doc_path)
+        config.add_view(
+            self.doc,
+            renderer='pyramid_rest:templates/doc_specific.mako',
+            route_name=doc_path,
+            request_method='GET'
+        )
+        # Add the Webservice Object to the registry, so it can be addressed for meta_info in the main doc
+        config.registry.pyramid_rest_services.append(self)
 
     def primary_key_to_url(self):
         """
@@ -323,3 +336,10 @@ class Rest(object):
                 text_list.append('{0}: {1}'.format(column_name, str(pk_id)))
             text = ', '.join(text_list)
             raise HTTPNotFound(body_template=self.not_found_text.format(text))
+
+    def doc(self, request):
+        return {
+            'name': self.name,
+            'short_description': self.short_description,
+            'path': self.path
+        }
