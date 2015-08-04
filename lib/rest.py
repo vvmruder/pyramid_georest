@@ -1,6 +1,6 @@
 # -*- coding: iso-8859-1 -*-
 
-# Copyright (c) 2012 - 2015, GIS-Fachstelle des Amtes fÃ¼r Geoinformation des Kantons Basel-Landschaft
+# Copyright (c) 2012 - 2015, GIS-Fachstelle des Amtes für Geoinformation des Kantons Basel-Landschaft
 # All rights reserved.
 #
 # This program is free software and completes the GeoMapFish License for the geoview.bl.ch specific
@@ -60,7 +60,11 @@ class Rest(object):
 
         read_json_path = '/' + model.database_path().replace('.', '/') + '/read.json'
 
+        read_html_path = '/' + model.database_path().replace('.', '/') + '/read'
+
         read_one_json_path = '/' + model.database_path().replace('.', '/') + '/read' + self.primary_key_to_url() + '.json'
+
+        read_one_html_path = '/' + model.database_path().replace('.', '/') + '/read' + self.primary_key_to_url()
 
         create_path = '/' + model.database_path().replace('.', '/') + '/create'
 
@@ -92,6 +96,22 @@ class Rest(object):
 
         config.add_route(model_json, model_json)
         config.add_view(self.description, renderer='jsonp', route_name=model_json, request_method='GET')
+
+        config.add_route(read_html_path, read_html_path)
+        config.add_view(
+            self.read,
+            renderer='pyramid_rest:templates/read.mako',
+            route_name=read_html_path,
+            request_method='GET'
+        )
+
+        config.add_route(read_one_html_path, read_one_html_path)
+        config.add_view(
+            self.read_one,
+            renderer='pyramid_rest:templates/read.mako',
+            route_name=read_one_html_path,
+            request_method='GET'
+        )
 
         config.registry.pyramid_rest_services.append(model.database_path().replace('.', '/'))
 
@@ -143,12 +163,12 @@ class Rest(object):
 
         :param request: The request of the pyramid web framework
         :type request: Request
-        :return: a list of objects read from the database
-        :rtype : list of self
+        :return: a dict where the database results are mapped to 'features' attribute as a list
+        :rtype : dict of 'features': [Object]
         """
         session = self.provide_session(request)
         objects = session.query(self.model).all()
-        return objects
+        return {'features': objects}
 
     def read_one(self, request):
         """
@@ -157,8 +177,8 @@ class Rest(object):
 
         :param request: The request of the pyramid web framework
         :type request: Request
-        :return: a list containing exactly one object from database or HTTPNotFound
-        :rtype : list of self or HTTPNotFound
+        :return: a dict where the database results are mapped to 'features' attribute as a list (contains exactly one)
+        :rtype : dict of 'features': [Object] or HTTPNotFound
         :raises: HTTPNotFound
         """
         try:
@@ -168,7 +188,7 @@ class Rest(object):
                 pk_id = request.matchdict.get(column_name, None)
                 query = query.filter(self.model.pk_columns().get(column_name) == pk_id)
                 # return list because the renderer accepts list as input only
-            return [query.one()]
+            return {'features': [query.one()]}
         except NoResultFound, e:
             print e
             text_list = []
@@ -208,8 +228,8 @@ class Rest(object):
 
         :param request: The request of the pyramid web framework
         :type request: Request
-        :return: a list containing exactly one object which was created or HTTPNotFound
-        :rtype: list of self or HTTPNotFound
+        :return: a dict where the database results are mapped to 'features' attribute as a list (contains exactly one)
+        :rtype : dict of 'features': [Object] or HTTPNotFound
         :raises: HTTPBadRequest or HTTPServerError
         """
         try:
@@ -226,12 +246,21 @@ class Rest(object):
                 session.add(new_record)
                 session.flush()
                 request.response.status_int = 201
-                return [new_record]
+                return {'features': [new_record]}
         except IntegrityError, e:
             print e
             raise HTTPServerError(detail='Integrity Error', body_template=self.integrity_error_txt)
 
     def update(self, request):
+        """
+        Updates a record in the corresponding database table.
+
+        :param request: The request of the pyramid web framework
+        :type request: Request
+        :return: a dict where the database results are mapped to 'features' attribute as a list (contains exactly one)
+        :rtype : dict of 'features': [Object] or HTTPNotFound
+        :raises: HTTPBadRequest or HTTPServerError
+        """
         try:
             data = request.json_body.get('features')
             if data is None:
@@ -250,7 +279,7 @@ class Rest(object):
                     setattr(element, key, value)
                 session.flush()
                 request.response.status_int = 202
-                return [element]
+                return {'features': [element]}
         except NoResultFound, e:
             print e
             text_list = []
@@ -261,6 +290,15 @@ class Rest(object):
             raise HTTPNotFound(body_template=self.not_found_text.format(text))
 
     def delete(self, request):
+        """
+        Deletes a record in the corresponding database table.
+
+        :param request: The request of the pyramid web framework
+        :type request: Request
+        :return: a dict where the database results are mapped to 'features' attribute as a list (contains exactly one)
+        :rtype : dict of 'features': [Object] or HTTPNotFound
+        :raises: HTTPBadRequest or HTTPServerError
+        """
         try:
             data = request.json_body.get('features')
             if data is None:
@@ -276,7 +314,7 @@ class Rest(object):
                 session.delete(element)
                 session.flush()
                 request.response.status_int = 202
-                return [element]
+                return {'features': [element]}
         except NoResultFound, e:
             print e
             text_list = []
