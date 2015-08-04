@@ -37,7 +37,7 @@ class Rest(object):
     integrity_error_txt = u'<h2>Your submitted data was corrupt. This usually means your data hurts some database ' \
                           u'constrains</h2>'
 
-    def __init__(self, engine, model, config, short_description='', name=''):
+    def __init__(self, engine, model, config, description='', name=''):
         """
 
         Creates an object which handles all things to do to provide an rest interface for the passed:
@@ -57,72 +57,99 @@ class Rest(object):
 
         self.engine = engine
         self.model = model
-        self.name = name
-        self.short_description = short_description
-        self.path = model.database_path().replace('.', '/')
+        path = model.database_path().replace('.', '/')
+        self.config = {
+            'name': name,
+            'description': description,
+            'path': path,
+            'read_json_path': '/' + path + '/read.json',
+            'read_html_path': '/' + path + '/read',
+            'read_one_json_path': '/' + path + '/read' + self.primary_key_to_url() + '.json',
+            'read_one_html_path': '/' + path + '/read' + self.primary_key_to_url(),
+            'create_path': '/' + path + '/create',
+            'update_path': '/' + path + '/update' + self.primary_key_to_url(),
+            'delete_path': '/' + path + '/delete' + self.primary_key_to_url(),
+            'count_path': '/' + path + '/count',
+            'model_json_path': '/' + path + '/model.json',
+            'doc_path': '/' + path
+        }
 
-        read_json_path = '/' + self.path + '/read.json'
+        config.add_route(self.config.get('read_json_path'), self.config.get('read_json_path'))
+        config.add_view(
+            self.read,
+            renderer='restful_json',
+            route_name=self.config.get('read_json_path'),
+            request_method='GET'
+        )
 
-        read_html_path = '/' + self.path + '/read'
+        config.add_route(self.config.get('read_one_json_path'), self.config.get('read_one_json_path'))
+        config.add_view(
+            self.read_one,
+            renderer='restful_json',
+            route_name=self.config.get('read_one_json_path'),
+            request_method='GET'
+        )
 
-        read_one_json_path = '/' + self.path + '/read' + self.primary_key_to_url() + '.json'
+        config.add_route(self.config.get('create_path'), self.config.get('create_path'))
+        config.add_view(
+            self.create,
+            renderer='restful_json',
+            route_name=self.config.get('create_path'),
+            request_method='POST'
+        )
 
-        read_one_html_path = '/' + self.path + '/read' + self.primary_key_to_url()
+        config.add_route(self.config.get('update_path'), self.config.get('update_path'))
+        config.add_view(
+            self.update,
+            renderer='restful_json',
+            route_name=self.config.get('update_path'),
+            request_method='POST'
+        )
 
-        create_path = '/' + self.path + '/create'
+        config.add_route(self.config.get('delete_path'), self.config.get('delete_path'))
+        config.add_view(
+            self.delete,
+            renderer='restful_json',
+            route_name=self.config.get('delete_path'),
+            request_method='GET'
+        )
 
-        update_path = '/' + self.path + '/update' + self.primary_key_to_url()
+        config.add_route(self.config.get('count_path'), self.config.get('count_path'))
+        config.add_view(
+            self.count,
+            renderer='jsonp',
+            route_name=self.config.get('count_path'),
+            request_method='GET'
+        )
 
-        delete_path = '/' + self.path + '/delete' + self.primary_key_to_url()
+        config.add_route(self.config.get('model_json_path'), self.config.get('model_json_path'))
+        config.add_view(
+            self.description,
+            renderer='jsonp',
+            route_name=self.config.get('model_json_path'),
+            request_method='GET')
 
-        count_path = '/' + self.path + '/count'
-
-        model_json_path = '/' + self.path + '/model.json'
-
-        doc_path = '/' + self.path
-
-        config.add_route(read_json_path, read_json_path)
-        config.add_view(self.read, renderer='restful_json', route_name=read_json_path, request_method='GET')
-
-        config.add_route(read_one_json_path, read_one_json_path)
-        config.add_view(self.read_one, renderer='restful_json', route_name=read_one_json_path, request_method='GET')
-
-        config.add_route(create_path, create_path)
-        config.add_view(self.create, renderer='restful_json', route_name=create_path, request_method='POST')
-
-        config.add_route(update_path, update_path)
-        config.add_view(self.update, renderer='restful_json', route_name=update_path, request_method='POST')
-
-        config.add_route(delete_path, delete_path)
-        config.add_view(self.delete, renderer='restful_json', route_name=delete_path, request_method='GET')
-
-        config.add_route(count_path, count_path)
-        config.add_view(self.count, renderer='jsonp', route_name=count_path, request_method='GET')
-
-        config.add_route(model_json_path, model_json_path)
-        config.add_view(self.description, renderer='jsonp', route_name=model_json_path, request_method='GET')
-
-        config.add_route(read_html_path, read_html_path)
+        config.add_route(self.config.get('read_html_path'), self.config.get('read_html_path'))
         config.add_view(
             self.read,
             renderer='pyramid_rest:templates/read.mako',
-            route_name=read_html_path,
+            route_name=self.config.get('read_html_path'),
             request_method='GET'
         )
 
-        config.add_route(read_one_html_path, read_one_html_path)
+        config.add_route(self.config.get('read_one_html_path'), self.config.get('read_one_html_path'))
         config.add_view(
             self.read_one,
             renderer='pyramid_rest:templates/read_one.mako',
-            route_name=read_one_html_path,
+            route_name=self.config.get('read_one_html_path'),
             request_method='GET'
         )
 
-        config.add_route(doc_path, doc_path)
+        config.add_route(self.config.get('doc_path'), self.config.get('doc_path'))
         config.add_view(
             self.doc,
             renderer='pyramid_rest:templates/doc_specific.mako',
-            route_name=doc_path,
+            route_name=self.config.get('doc_path'),
             request_method='GET'
         )
         # Add the Webservice Object to the registry, so it can be addressed for meta_info in the main doc
@@ -338,8 +365,4 @@ class Rest(object):
             raise HTTPNotFound(body_template=self.not_found_text.format(text))
 
     def doc(self, request):
-        return {
-            'name': self.name,
-            'short_description': self.short_description,
-            'path': self.path
-        }
+        return self.config

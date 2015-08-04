@@ -36,7 +36,7 @@ Created by vvmruder on 29.07.15.
                             <span class="glyphicon glyphicon-circle-arrow-right pull-right"></span>
                         </h4>
                         <p class="list-group-item-text">
-                            ${short_description}
+                            ${description}
                         </p>
                     </a>
                 </div>
