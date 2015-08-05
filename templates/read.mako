@@ -26,7 +26,7 @@ Created by vvmruder on 29.07.15.
         <h1 class="navbar-text">${features[0].__class__.__name__}</h1>
     </nav>
 
-    <div class="container-fluid" style="margin-top: 100px;">
+    <div class="container-fluid" style="margin-top: 100px;" ng-app="blRestRead" ng-controller="BLRestReadCtrl">
 
         <div class="panel panel-default center-block" style="width: 80%;">
 
@@ -39,7 +39,7 @@ Created by vvmruder on 29.07.15.
                         % endfor
                     </tr>
                 % for feature in features:
-                    <tr>
+                    <tr ng-click="goTo('${'/'.join(str(feature.as_dict().get(pk)) for pk in feature.pk_column_names())}')">
                         % for key, value in feature.as_dict().iteritems():
                             <td>${value}</td>
                         % endfor
@@ -54,3 +54,5 @@ Created by vvmruder on 29.07.15.
     </div>
 
 % endif
+
+<script src="${request.static_url('pyramid_rest:static/js/bl-rest-read/bl-rest-read.js')}"></script>

@@ -34,7 +34,7 @@ Created by vvmruder on 29.07.15.
             <h3 class="panel-title">
                 Datensatz
                 % for pk in feature.pk_column_names():
-                    &nbsp;${feature.as_dict().get(pk)}
+                    &nbsp;#${feature.as_dict().get(pk)}
                 % endfor
             </h3>
         </div>
@@ -47,6 +47,14 @@ Created by vvmruder on 29.07.15.
                     <dd>${value}</dd>
                 % endfor
             </dl>
+
+        </div>
+
+        <div class="panel-footer text-right">
+
+            <button type="button" class="btn btn-default" onclick="history.go(-1);">
+                <span class="glyphicon glyphicon-circle-arrow-left"> Zurück</span>
+            </button>
 
         </div>
 
