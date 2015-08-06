@@ -54,7 +54,8 @@ Created by vvmruder on 29.07.15.
             </p>
 
             <p>
-                Zusätzlich zu diesen Möglichkeiten (die zu den Standards gehören) bietet diese REST-Schnittstelle einiges mehr:
+                Zusätzlich zu diesen Möglichkeiten (die zu den Standards gehören) bietet diese REST-Schnittstelle
+                einiges mehr:
                 <ol>
                     <li>alle Elemente der Tabelle lesen (read) + Filterung über Attributwerte der Tabelle</li>
                     <li>alle Elemente der Tabelle zählen (count) + Filterung über Attributwerte der Tabelle</li>
@@ -63,12 +64,26 @@ Created by vvmruder on 29.07.15.
             </p>
 
             <p>
-                Zum jetzigen Zeitpunkt können über diese Schnittstelle folgende Datensätze angesprochen werden:
+                Zu jedem Service gibt es eine seperate Dokumentation. Wollen Sie erfahren, wie ein konkreter Service zu
+                nutzen ist? Dann können Sie die jeweilige Dokumentation aufrufen, indem Sie auf den Eintrag in der
+                folgenden Auflistung klicken.
+            <p>
+            <div class="alert alert-warning">
+                Bitte beachten Sie, dass für manche Datensätze Berechtigungen eingeholt werden müssen. Es werden über
+                diese Schnittstelle nur manche Daten öffentlich und frei zugänglich angeboten. Sollten Sie Interesse an
+                dem Zugriff haben wenden Sie sich bitte an den
+                <a href="mailto:${request.registry.pyramid_rest_support_mail}">
+                    ${request.registry.pyramid_rest_support_name}
+                </a>
+                Berechtigungen sind in der Auflistung ersichtlich.
+            </div>
+            <p>
+                Zur Zeit stehen über diese Schnittstelle folgende Datensätze zur Verfügung:
             </p>
             <p>
                 <div class="list-group">
                     % for service in request.registry.pyramid_rest_services:
-                        <a href=${'/' + service.config.get('path')} target="_blank" class="list-group-item">
+                        <a href=${request.route_url('/' + service.config.get('path'))} class="list-group-item">
                             <h4 class="list-group-item-heading">
                                 <span>${service.config.get('name')} </span>
                                 <span class="glyphicon glyphicon-circle-arrow-right pull-right"></span>
@@ -80,15 +95,6 @@ Created by vvmruder on 29.07.15.
                     % endfor
                 </div>
             </p>
-            <div class="alert alert-warning">
-                Bitte bedenken Sie, dass für alle Datensätze Berechtigungen eingeholt werden müssen. Es werden über
-                diese Schnittstelle keine Daten öffentlich und frei zugänglich angeboten. Sollten Sie Interesse an
-                dem Zugriff haben wenden Sie sich bitte an den
-                <a href="mailto:${request.registry.pyramid_rest_support_mail}">
-                    ${request.registry.pyramid_rest_support_name}
-                </a>.
-            </div>
-
         </div>
     </div>
 </div>
