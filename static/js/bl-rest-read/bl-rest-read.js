@@ -17,4 +17,13 @@
  * Created by u207027 on 04.08.15.
  */
 
-var blRestDoc = angular.module('blRestDoc', []);
+var blRestDoc = angular.module('blRestRead', [])
+    .controller('BLRestReadCtrl', ['$scope', '$location', function($scope, $location) {
+
+        // Open url is same window
+        $scope.goTo = function(target) {
+            var current = $location.absUrl();
+            window.location = current + '/' + target;
+        };
+
+    }]);

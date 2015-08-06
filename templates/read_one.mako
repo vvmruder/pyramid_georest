@@ -19,7 +19,47 @@ portions of the Software.
 Created by vvmruder on 29.07.15.
 -->
 <%inherit file="pyramid_rest:templates/layout.mako"/>
-Das ist die Read-One-Seite
-% for feature in features:
-    <p>${feature.as_dict()}</p>
-% endfor
+
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <h1 class="navbar-text">${features[0].__class__.__name__}</h1>
+</nav>
+
+<div class="container-fluid" style="margin-top: 100px;">
+
+    % for feature in features:
+
+    <div class="panel panel-default center-block" style="width: 80%;">
+
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                Datensatz
+                % for pk in feature.pk_column_names():
+                    &nbsp;#${feature.as_dict().get(pk)}
+                % endfor
+            </h3>
+        </div>
+
+        <div class="panel-body">
+
+            <dl class="dl-horizontal">
+                % for key, value in feature.as_dict().iteritems():
+                    <dt>${key}</dt>
+                    <dd>${value}</dd>
+                % endfor
+            </dl>
+
+        </div>
+
+        <div class="panel-footer text-right">
+
+            <button type="button" class="btn btn-default" onclick="history.go(-1);">
+                <span class="glyphicon glyphicon-circle-arrow-left"> Zurück</span>
+            </button>
+
+        </div>
+
+    </div>
+
+    % endfor
+
+</div>

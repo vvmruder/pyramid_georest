@@ -27,7 +27,7 @@ Created by vvmruder on 29.07.15.
 <div class="container-fluid" style="margin-top: 100px;">
     <div class="panel panel-default center-block" style="width: 80%;">
 
-        <div class="panel-body" ng-app>
+        <div class="panel-body">
 
             <p>
                 Über diese Schnittstelle erhalten Sie Zugriff auf Daten verschiedenster Datenbanken. Die Funktionen dieser
