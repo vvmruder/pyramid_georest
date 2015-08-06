@@ -21,35 +21,178 @@ Created by vvmruder on 29.07.15.
 <%inherit file="pyramid_rest:templates/layout.mako"/>
 
 <nav class="navbar navbar-inverse navbar-fixed-top">
-    <h1 class="navbar-text">Dokumentation zur Rest-Schnittstelle</h1>
+    <button type="button" class="btn btn-default btn-lg"
+            onclick="location.href='${request.route_url('pyramid_rest_doc')}';">
+        <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+    </button>
+    <h1 class="navbar-text">Kurzdokumentation zur Ressource ${name}</h1>
 </nav>
-
 <div class="container-fluid" style="margin-top: 100px;">
     <div class="panel panel-default center-block" style="width: 80%;">
 
         <div class="panel-body" ng-app>
+
             <p>
-                <div class="list-group">
-                    <a href=${path} target="_blank" class="list-group-item">
-                        <h4 class="list-group-item-heading">
-                            <span>${name} </span>
-                            <span class="glyphicon glyphicon-circle-arrow-right pull-right"></span>
-                        </h4>
-                        <p class="list-group-item-text">
-                            ${description}
-                        </p>
-                    </a>
-                </div>
+                Diese Ressource bietet Ihnen direkten Zugriff auf die Datenbank. Diese Dokumentation wird automatisch
+                erstellt. Ihnen wird im nachfolgenden Bereich deshalb auch ausgewiesen, ob Sie entsprechende
+                Berechtigungen im Umgang mit der Ressource besitzen.
             </p>
+
+            <p>
+                Die Ressource verfügt über folgende Möglichkeiten:
+            </p>
+
+            <h4 class="alert alert-success" role="alert">
+                <span>Datenmodell der Ressource abrufen, Datensatz/ -sätze zählen/lesen (model, count/read).</span>
+                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+            </h4>
+            <h4 class="alert alert-success" role="alert">
+                <span>Datensatz/ -sätze neu erzeugen/ändern/löschen (create/update/delete).</span>
+                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+            </h4>
+
             <div class="alert alert-warning">
-                Bitte bedenken Sie, dass für alle Datensätze Berechtigungen eingeholt werden müssen. Es werden über
-                diese Schnittstelle keine Daten öffentlich und frei zugänglich angeboten. Sollten Sie Interesse an
-                dem Zugriff haben wenden Sie sich bitte an den
+                Bitte beachten Sie, dass für manche Datensätze Berechtigungen eingeholt werden müssen. Es werden über
+                diese Schnittstelle nur manche Daten öffentlich und frei zugänglich angeboten. Sollten Sie Interesse an
+                dem Zugriff haben, wenden Sie sich bitte an den
                 <a href="mailto:${request.registry.pyramid_rest_support_mail}">
-                    ${request.registry.pyramid_rest_support_name}
-                </a>.
+                    ${request.registry.pyramid_rest_support_name}.
+                </a>
             </div>
 
+            <h2>Datenmodell der Ressource abrufen</h2>
+
+            <p>
+                Folgende Formate sind abrufbar:
+            </p>
+            <p>
+                <ul>
+                    <li>JSON - <a target="_blank" href="${request.route_url(model_json_path)}">
+                        ${request.route_url(model_json_path)}</a>, HTML-Methode: GET
+                    </li>
+                </ul>
+            </p>
+
+            <h2>Datensätze der Ressource zählen</h2>
+
+            <p>
+                <ul>
+                    <li>JSON - <a target="_blank" href="${request.route_url(count_path)}">
+                        ${request.route_url(count_path)}</a>, HTML-Methode: GET
+                    </li>
+                </ul>
+            </p>
+
+            <h2>Datensätze der Ressource lesen</h2>
+            <p>Sie haben die Möglichkeit über diese Schnittstelle Daten zu lesen.</p>
+            <h3>Einen einzelnen Datensatz lesen</h3>
+            <p>
+                <ul>
+                    <li>
+                        JSON - ${request.application_url}${read_one_json_path}, HTML-Methode: GET
+                    </li>
+                    <li>
+                        HTML - ${request.application_url}${read_one_html_path}, HTML-Methode: GET
+                    </li>
+                </ul>
+            </p>
+            <h3>Alle Datensätze lesen</h3>
+            <p>
+                <ul>
+                    <li>
+                        JSON - ${request.application_url}${read_json_path}, HTML-Methode: GET
+                    </li>
+                    <li>
+                        HTML - ${request.application_url}${read_html_path}, HTML-Methode: GET
+                    </li>
+                </ul>
+            </p>
+            <h3>Datensatz neu erzeugen</h3>
+            <p>
+                <ul>
+                    <li>
+                        JSON - ${request.application_url}${create_path}, HTML-Methode: POST
+                    </li>
+                </ul>
+            </p>
+            <p>
+                Mit diesem Dienst haben Sie die Möglichkeit einen neuen Datensatz zu erzeugen. Dazu müssen Sie einen
+                POST-Request an den Dienst absetzen, der die Daten zum Erzeugen in folgender Form und im
+                <u>Request-Body</u> enthält.
+            </p>
+            <p>
+                Das JSON-Objekt "features" enthält jede Spalte einzeln als Eintrag mit Spaltenname und Wert:
+            </p>
+            <p>
+                <code>
+                    <p style="text-indent:30px;">features:{</p>
+                    <p style="text-indent:50px;">column-1: <span style="font-style: italic;">value-1</span>,</p>
+                    <p style="text-indent:50px;">column-2: <span style="font-style: italic;">value-2</span>,</p>
+                    <p style="text-indent:50px;">column-3: <span style="font-style: italic;">value-3</span>,</p>
+                    <p style="text-indent:50px;">...,</p>
+                    <p style="text-indent:50px;">column-n: <span style="font-style: italic;">value-n</span></p>
+                    <p style="text-indent:30px;">}</p>
+
+                </code>
+            </p>
+            <p>
+                Dieser Dienst muss unbedingt mit der HTML-Methode <u>POST</u> angefragt werden. Andere Anfragen werden
+                mit "404 Not found" vom Server beantwortet.
+            </p>
+            <h3>Datensatz editieren</h3>
+            <p>
+                <ul>
+                    <li>
+                        JSON - ${request.application_url}${update_path}, HTML-Methode: POST
+                    </li>
+                </ul>
+            </p>
+            <p>
+                Mit diesem Dienst haben Sie die Möglichkeit einen neuen Datensatz zu erzeugen. Dazu müssen Sie einen
+                POST-Request an den Dienst absetzen, der die Daten zum Erzeugen in folgender Form und im
+                <u>Request-Body</u> enthält.
+            </p>
+            <p>
+                Das JSON-Objekt "features" enthält jede Spalte einzeln als Eintrag mit Spaltenname und Wert:
+            </p>
+            <p>
+                <code>
+                    <p style="text-indent:30px;">features:{</p>
+                    <p style="text-indent:50px;">column-1: <span style="font-style: italic;">value-1</span>,</p>
+                    <p style="text-indent:50px;">column-2: <span style="font-style: italic;">value-2</span>,</p>
+                    <p style="text-indent:50px;">column-3: <span style="font-style: italic;">value-3</span>,</p>
+                    <p style="text-indent:50px;">...,</p>
+                    <p style="text-indent:50px;">column-n: <span style="font-style: italic;">value-n</span></p>
+                    <p style="text-indent:30px;">}</p>
+
+                </code>
+            </p>
+            <p>
+                Dieser Dienst muss unbedingt mit der HTML-Methode <u>POST</u> angefragt werden. Andere Anfragen werden
+                mit "404 Not found" vom Server beantwortet.
+            </p>
+            <h3>Datensatz editieren</h3>
+            <p>
+                <ul>
+                    <li>
+                        JSON - ${request.application_url}${delete_path}, HTML-Methode: GET
+                    </li>
+                </ul>
+            </p>
+            <p>
+                Dieser Dienst ermöglicht es, einen Datensatz in der Datenbank zu löschen.
+            </p>
+            <p>
+                Das JSON-Objekt "features" enthält jede Spalte einzeln als Eintrag mit Spaltenname und Wert:
+            </p>
+            <div class="alert alert-warning">
+                Achtung! Sie löschen einen Datensatz in der Datenbank. Es wird keine Rückfrage gestellt. Es gibt keinen
+                doppelten Boden. Wenn Sie den Dienst aufgerufen haben ist der Datensatz weg!
+            </div>
+            <p>
+                Dieser Dienst muss unbedingt mit der HTML-Methode <u>GET</u> angefragt werden. Andere Anfragen werden
+                mit "404 Not found" vom Server beantwortet.
+            </p>
         </div>
     </div>
 </div>
