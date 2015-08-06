@@ -64,15 +64,16 @@ class Rest(object):
             'path': path,
             'read_json_path': '/' + path + '/read.json',
             'read_html_path': '/' + path + '/read',
-            'read_one_json_path': '/' + path + '/read' + self.primary_key_to_url() + '.json',
-            'read_one_html_path': '/' + path + '/read' + self.primary_key_to_url(),
+            'read_one_json_path': '/' + path + '/read' + self.primary_key_to_path() + '.json',
+            'read_one_html_path': '/' + path + '/read' + self.primary_key_to_path(),
             'create_path': '/' + path + '/create',
-            'update_path': '/' + path + '/update' + self.primary_key_to_url(),
-            'delete_path': '/' + path + '/delete' + self.primary_key_to_url(),
+            'update_path': '/' + path + '/update' + self.primary_key_to_path(),
+            'delete_path': '/' + path + '/delete' + self.primary_key_to_path(),
             'count_path': '/' + path + '/count',
             'model_json_path': '/' + path + '/model.json',
             'doc_path': '/' + path
         }
+        print self.config
 
         config.add_route(self.config.get('read_json_path'), self.config.get('read_json_path'))
         config.add_view(
@@ -82,7 +83,10 @@ class Rest(object):
             request_method='GET'
         )
 
-        config.add_route(self.config.get('read_one_json_path'), self.config.get('read_one_json_path'))
+        config.add_route(
+            self.config.get('read_one_json_path'),
+            '/' + path + '/read' + self.primary_key_to_url() + '.json'
+        )
         config.add_view(
             self.read_one,
             renderer='restful_json',
@@ -98,7 +102,10 @@ class Rest(object):
             request_method='POST'
         )
 
-        config.add_route(self.config.get('update_path'), self.config.get('update_path'))
+        config.add_route(
+            self.config.get('update_path'),
+            '/' + path + '/update' + self.primary_key_to_url()
+        )
         config.add_view(
             self.update,
             renderer='restful_json',
@@ -106,7 +113,10 @@ class Rest(object):
             request_method='POST'
         )
 
-        config.add_route(self.config.get('delete_path'), self.config.get('delete_path'))
+        config.add_route(
+            self.config.get('delete_path'),
+            '/' + path + '/delete' + self.primary_key_to_url()
+        )
         config.add_view(
             self.delete,
             renderer='restful_json',
@@ -137,7 +147,10 @@ class Rest(object):
             request_method='GET'
         )
 
-        config.add_route(self.config.get('read_one_html_path'), self.config.get('read_one_html_path'))
+        config.add_route(
+            self.config.get('read_one_html_path'),
+            '/' + path + '/read' + self.primary_key_to_url()
+        )
         config.add_view(
             self.read_one,
             renderer='pyramid_rest:templates/read_one.mako',
@@ -168,6 +181,21 @@ class Rest(object):
         sub_url = []
         for column_name in self.model.pk_column_names():
             sub_url.append('{' + column_name + ':\\d+}')
+        return '/' + '/'.join(sub_url)
+
+    def primary_key_to_path(self):
+        """
+
+        Small helper method to obtain a path snipped for addressing a database resource by its primary key (it may be a
+        composite one)
+        The result is something like this: '/primary_key_column_name_1/primary_key_column_name_1'
+
+        :return: the string representing the url snippet
+        :rtype : str
+        """
+        sub_url = []
+        for column_name in self.model.pk_column_names():
+            sub_url.append(column_name)
         return '/' + '/'.join(sub_url)
 
     def provide_session(self, request):
@@ -340,21 +368,17 @@ class Rest(object):
         :raises: HTTPBadRequest or HTTPServerError
         """
         try:
-            data = request.json_body.get('features')
-            if data is None:
-                raise HTTPBadRequest(body_template=self.bad_text)
-            else:
-                session = self.provide_session(request)
-                query = session.query(self.model)
-                for column_name in self.model.pk_column_names():
-                    pk_id = request.matchdict.get(column_name, None)
-                    query = query.filter(self.model.pk_columns().get(column_name) == pk_id)
-                    # return list because the renderer accepts list as input only
-                element = query.one()
-                session.delete(element)
-                session.flush()
-                request.response.status_int = 202
-                return {'features': [element]}
+            session = self.provide_session(request)
+            query = session.query(self.model)
+            for column_name in self.model.pk_column_names():
+                pk_id = request.matchdict.get(column_name, None)
+                query = query.filter(self.model.pk_columns().get(column_name) == pk_id)
+                # return list because the renderer accepts list as input only
+            element = query.one()
+            session.delete(element)
+            session.flush()
+            request.response.status_int = 202
+            return {'features': [element]}
         except NoResultFound, e:
             print e
             text_list = []
