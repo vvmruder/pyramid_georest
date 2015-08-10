@@ -28,6 +28,19 @@ __author__ = 'Clemens Rudert'
 __create_date__ = '29.07.2015'
 
 
+class Config(dict):
+
+    def __init__(self, config, **kwargs):
+        """
+
+        :param config:
+        :param kwargs:
+        """
+        super(Config, self).__init__(**kwargs)
+        for key, value in config:
+            setattr(self, key, value)
+
+
 class Rest(object):
     """
     Offers an interface to make SQLAlchemy objects restful in a pyramids web framework way
@@ -37,7 +50,7 @@ class Rest(object):
     integrity_error_txt = u'<h2>Your submitted data was corrupt. This usually means your data hurts some database ' \
                           u'constrains</h2>'
 
-    def __init__(self, engine, model, config, description='', name=''):
+    def __init__(self, engine, model, config, description_text='', name=''):
         """
 
         Creates an object which handles all things to do to provide an rest interface for the passed:
@@ -60,7 +73,7 @@ class Rest(object):
         path = model.database_path().replace('.', '/')
         self.config = {
             'name': name,
-            'description': description,
+            'description': description_text,
             'path': path,
             'read_json_path': '/' + path + '/read.json',
             'read_html_path': '/' + path + '/read',
@@ -73,7 +86,6 @@ class Rest(object):
             'model_json_path': '/' + path + '/model.json',
             'doc_path': '/' + path
         }
-        print self.config
 
         config.add_route(self.config.get('read_json_path'), self.config.get('read_json_path'))
         config.add_view(
