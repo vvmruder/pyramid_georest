@@ -18,7 +18,7 @@ from geoalchemy import WKBSpatialElement
 from shapely import wkt
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
-from pyramid.httpexceptions import HTTPNotFound, HTTPBadRequest, HTTPServerError
+from pyramid.httpexceptions import HTTPNotFound, HTTPBadRequest, HTTPServerError, HTTPUnauthorized
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.orm import sessionmaker, Session
 from pyramid.config import Configurator
@@ -50,7 +50,7 @@ class Rest(object):
     integrity_error_txt = u'<h2>Your submitted data was corrupt. This usually means your data hurts some database ' \
                           u'constrains</h2>'
 
-    def __init__(self, engine, model, config, description_text='', name=''):
+    def __init__(self, engine, model, config, description_text='', name='', with_permission=False):
         """
 
         Creates an object which handles all things to do to provide an rest interface for the passed:
@@ -92,7 +92,8 @@ class Rest(object):
             self.read,
             renderer='restful_json',
             route_name=self.config.get('read_json_path'),
-            request_method='GET'
+            request_method='GET',
+            permission=self.config.get('read_json_path') if with_permission else None
         )
 
         config.add_route(
@@ -103,7 +104,8 @@ class Rest(object):
             self.read_one,
             renderer='restful_json',
             route_name=self.config.get('read_one_json_path'),
-            request_method='GET'
+            request_method='GET',
+            permission=self.config.get('read_one_json_path') if with_permission else None
         )
 
         config.add_route(self.config.get('create_path'), self.config.get('create_path'))
@@ -111,7 +113,8 @@ class Rest(object):
             self.create,
             renderer='restful_json',
             route_name=self.config.get('create_path'),
-            request_method='POST'
+            request_method='POST',
+            permission=self.config.get('create_path') if with_permission else None
         )
 
         config.add_route(
@@ -122,7 +125,8 @@ class Rest(object):
             self.update,
             renderer='restful_json',
             route_name=self.config.get('update_path'),
-            request_method='POST'
+            request_method='POST',
+            permission=self.config.get('update_path') if with_permission else None
         )
 
         config.add_route(
@@ -133,7 +137,8 @@ class Rest(object):
             self.delete,
             renderer='restful_json',
             route_name=self.config.get('delete_path'),
-            request_method='GET'
+            request_method='GET',
+            permission=self.config.get('delete_path') if with_permission else None
         )
 
         config.add_route(self.config.get('count_path'), self.config.get('count_path'))
@@ -141,7 +146,8 @@ class Rest(object):
             self.count,
             renderer='jsonp',
             route_name=self.config.get('count_path'),
-            request_method='GET'
+            request_method='GET',
+            permission=self.config.get('count_path') if with_permission else None
         )
 
         config.add_route(self.config.get('model_json_path'), self.config.get('model_json_path'))
@@ -149,14 +155,17 @@ class Rest(object):
             self.description,
             renderer='jsonp',
             route_name=self.config.get('model_json_path'),
-            request_method='GET')
+            request_method='GET',
+            permission=self.config.get('model_json_path') if with_permission else None
+        )
 
         config.add_route(self.config.get('read_html_path'), self.config.get('read_html_path'))
         config.add_view(
             self.read,
             renderer='pyramid_rest:templates/read.mako',
             route_name=self.config.get('read_html_path'),
-            request_method='GET'
+            request_method='GET',
+            permission=self.config.get('read_html_path') if with_permission else None
         )
 
         config.add_route(
@@ -167,7 +176,8 @@ class Rest(object):
             self.read_one,
             renderer='pyramid_rest:templates/read_one.mako',
             route_name=self.config.get('read_one_html_path'),
-            request_method='GET'
+            request_method='GET',
+            permission=self.config.get('read_one_html_path') if with_permission else None
         )
 
         config.add_route(self.config.get('doc_path'), self.config.get('doc_path'))
@@ -175,7 +185,8 @@ class Rest(object):
             self.doc,
             renderer='pyramid_rest:templates/doc_specific.mako',
             route_name=self.config.get('doc_path'),
-            request_method='GET'
+            request_method='GET',
+            permission=self.config.get('doc_path') if with_permission else None
         )
         # Add the Webservice Object to the registry, so it can be addressed for meta_info in the main doc
         config.registry.pyramid_rest_services.append(self)
