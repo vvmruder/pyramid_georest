@@ -75,118 +75,120 @@ class Rest(object):
             'name': name,
             'description': description_text,
             'path': path,
-            'read_json_path': '/' + path + '/read.json',
-            'read_html_path': '/' + path + '/read',
-            'read_one_json_path': '/' + path + '/read' + self.primary_key_to_path() + '.json',
-            'read_one_html_path': '/' + path + '/read' + self.primary_key_to_path(),
-            'create_path': '/' + path + '/create',
-            'update_path': '/' + path + '/update' + self.primary_key_to_path(),
-            'delete_path': '/' + path + '/delete' + self.primary_key_to_path(),
-            'count_path': '/' + path + '/count',
-            'model_json_path': '/' + path + '/model.json',
-            'doc_path': '/' + path
+            'urls': {
+                'read_json': '/' + path + '/read.json',
+                'read_html': '/' + path + '/read',
+                'read_one_json': '/' + path + '/read' + self.primary_key_to_path() + '.json',
+                'read_one_html': '/' + path + '/read' + self.primary_key_to_path(),
+                'create': '/' + path + '/create',
+                'update': '/' + path + '/update' + self.primary_key_to_path(),
+                'delete': '/' + path + '/delete' + self.primary_key_to_path(),
+                'count': '/' + path + '/count',
+                'model_json': '/' + path + '/model.json',
+                'doc': '/' + path
+            }
         }
 
-        config.add_route(self.config.get('read_json_path'), self.config.get('read_json_path'))
+        config.add_route(self.config.get('urls').get('read_json'), self.config.get('urls').get('read_json'))
         config.add_view(
             self.read,
             renderer='restful_json',
-            route_name=self.config.get('read_json_path'),
+            route_name=self.config.get('urls').get('read_json'),
             request_method='GET',
-            permission=self.config.get('read_json_path') if with_permission else None
+            permission=self.config.get('urls').get('read_json') if with_permission else None
         )
 
         config.add_route(
-            self.config.get('read_one_json_path'),
+            self.config.get('urls').get('read_one_json'),
             '/' + path + '/read' + self.primary_key_to_url() + '.json'
         )
         config.add_view(
             self.read_one,
             renderer='restful_json',
-            route_name=self.config.get('read_one_json_path'),
+            route_name=self.config.get('urls').get('read_one_json'),
             request_method='GET',
-            permission=self.config.get('read_one_json_path') if with_permission else None
+            permission=self.config.get('urls').get('read_one_json') if with_permission else None
         )
 
-        config.add_route(self.config.get('create_path'), self.config.get('create_path'))
+        config.add_route(self.config.get('urls').get('create'), self.config.get('urls').get('create'))
         config.add_view(
             self.create,
             renderer='restful_json',
-            route_name=self.config.get('create_path'),
+            route_name=self.config.get('urls').get('create'),
             request_method='POST',
-            permission=self.config.get('create_path') if with_permission else None
+            permission=self.config.get('urls').get('create') if with_permission else None
         )
 
         config.add_route(
-            self.config.get('update_path'),
+            self.config.get('urls').get('update'),
             '/' + path + '/update' + self.primary_key_to_url()
         )
         config.add_view(
             self.update,
             renderer='restful_json',
-            route_name=self.config.get('update_path'),
+            route_name=self.config.get('urls').get('update'),
             request_method='POST',
-            permission=self.config.get('update_path') if with_permission else None
+            permission=self.config.get('urls').get('update') if with_permission else None
         )
 
         config.add_route(
-            self.config.get('delete_path'),
+            self.config.get('urls').get('delete'),
             '/' + path + '/delete' + self.primary_key_to_url()
         )
         config.add_view(
             self.delete,
             renderer='restful_json',
-            route_name=self.config.get('delete_path'),
+            route_name=self.config.get('urls').get('delete'),
             request_method='GET',
-            permission=self.config.get('delete_path') if with_permission else None
+            permission=self.config.get('urls').get('delete') if with_permission else None
         )
 
-        config.add_route(self.config.get('count_path'), self.config.get('count_path'))
+        config.add_route(self.config.get('urls').get('count'), self.config.get('urls').get('count'))
         config.add_view(
             self.count,
             renderer='jsonp',
-            route_name=self.config.get('count_path'),
+            route_name=self.config.get('urls').get('count'),
             request_method='GET',
-            permission=self.config.get('count_path') if with_permission else None
+            permission=self.config.get('urls').get('count') if with_permission else None
         )
 
-        config.add_route(self.config.get('model_json_path'), self.config.get('model_json_path'))
+        config.add_route(self.config.get('urls').get('model_json'), self.config.get('urls').get('model_json'))
         config.add_view(
             self.description,
             renderer='jsonp',
-            route_name=self.config.get('model_json_path'),
+            route_name=self.config.get('urls').get('model_json'),
             request_method='GET',
-            permission=self.config.get('model_json_path') if with_permission else None
+            permission=self.config.get('urls').get('model_json') if with_permission else None
         )
 
-        config.add_route(self.config.get('read_html_path'), self.config.get('read_html_path'))
+        config.add_route(self.config.get('urls').get('read_html'), self.config.get('urls').get('read_html'))
         config.add_view(
             self.read,
             renderer='pyramid_rest:templates/read.mako',
-            route_name=self.config.get('read_html_path'),
+            route_name=self.config.get('urls').get('read_html'),
             request_method='GET',
-            permission=self.config.get('read_html_path') if with_permission else None
+            permission=self.config.get('urls').get('read_html') if with_permission else None
         )
 
         config.add_route(
-            self.config.get('read_one_html_path'),
+            self.config.get('urls').get('read_one_html'),
             '/' + path + '/read' + self.primary_key_to_url()
         )
         config.add_view(
             self.read_one,
             renderer='pyramid_rest:templates/read_one.mako',
-            route_name=self.config.get('read_one_html_path'),
+            route_name=self.config.get('urls').get('read_one_html'),
             request_method='GET',
-            permission=self.config.get('read_one_html_path') if with_permission else None
+            permission=self.config.get('urls').get('read_one_html') if with_permission else None
         )
 
-        config.add_route(self.config.get('doc_path'), self.config.get('doc_path'))
+        config.add_route(self.config.get('urls').get('doc'), self.config.get('urls').get('doc'))
         config.add_view(
             self.doc,
             renderer='pyramid_rest:templates/doc_specific.mako',
-            route_name=self.config.get('doc_path'),
+            route_name=self.config.get('urls').get('doc'),
             request_method='GET',
-            permission=self.config.get('doc_path') if with_permission else None
+            permission=self.config.get('urls').get('doc') if with_permission else None
         )
         # Add the Webservice Object to the registry, so it can be addressed for meta_info in the main doc
         config.registry.pyramid_rest_services.append(self)

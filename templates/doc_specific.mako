@@ -67,8 +67,8 @@ Created by vvmruder on 29.07.15.
             </p>
             <p>
                 <ul>
-                    <li>JSON - <a target="_blank" href="${request.route_url(model_json_path)}">
-                        ${request.route_url(model_json_path)}</a>, HTML-Methode: GET
+                    <li>JSON - <a target="_blank" href="${request.route_url(urls.get('model_json'))}">
+                        ${request.route_url(urls.get('model_json'))}</a>, HTML-Methode: GET
                     </li>
                 </ul>
             </p>
@@ -77,8 +77,8 @@ Created by vvmruder on 29.07.15.
 
             <p>
                 <ul>
-                    <li>JSON - <a target="_blank" href="${request.route_url(count_path)}">
-                        ${request.route_url(count_path)}</a>, HTML-Methode: GET
+                    <li>JSON - <a target="_blank" href="${request.route_url(urls.get('count'))}">
+                        ${request.route_url(urls.get('count'))}</a>, HTML-Methode: GET
                     </li>
                 </ul>
             </p>
@@ -89,10 +89,10 @@ Created by vvmruder on 29.07.15.
             <p>
                 <ul>
                     <li>
-                        JSON - ${request.application_url}${read_one_json_path}, HTML-Methode: GET
+                        JSON - ${request.application_url}${urls.get('read_one_json')}, HTML-Methode: GET
                     </li>
                     <li>
-                        HTML - ${request.application_url}${read_one_html_path}, HTML-Methode: GET
+                        HTML - ${request.application_url}${urls.get('read_one_html')}, HTML-Methode: GET
                     </li>
                 </ul>
             </p>
@@ -100,10 +100,10 @@ Created by vvmruder on 29.07.15.
             <p>
                 <ul>
                     <li>
-                        JSON - ${request.application_url}${read_json_path}, HTML-Methode: GET
+                        JSON - ${request.application_url}${urls.get('read_one_json')}, HTML-Methode: GET
                     </li>
                     <li>
-                        HTML - ${request.application_url}${read_html_path}, HTML-Methode: GET
+                        HTML - ${request.application_url}${urls.get('read_one_html')}, HTML-Methode: GET
                     </li>
                 </ul>
             </p>
@@ -111,7 +111,7 @@ Created by vvmruder on 29.07.15.
             <p>
                 <ul>
                     <li>
-                        JSON - ${request.application_url}${create_path}, HTML-Methode: POST
+                        JSON - ${request.application_url}${urls.get('create')}, HTML-Methode: POST
                     </li>
                 </ul>
             </p>
@@ -143,7 +143,7 @@ Created by vvmruder on 29.07.15.
             <p>
                 <ul>
                     <li>
-                        JSON - ${request.application_url}${update_path}, HTML-Methode: POST
+                        JSON - ${request.application_url}${urls.get('update')}, HTML-Methode: POST
                     </li>
                 </ul>
             </p>
@@ -175,7 +175,7 @@ Created by vvmruder on 29.07.15.
             <p>
                 <ul>
                     <li>
-                        JSON - ${request.application_url}${delete_path}, HTML-Methode: GET
+                        JSON - ${request.application_url}${urls.get('delete')}, HTML-Methode: GET
                     </li>
                 </ul>
             </p>
