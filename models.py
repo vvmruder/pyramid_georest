@@ -223,21 +223,3 @@ class RestfulBase(object):
         return cls.__table__.primary_key.columns.keys()
 
 Base = declarative_base(cls=RestfulBase)
-
-
-class Webservice(Base):
-        __tablename__ = 'webservice'
-        id = Column(types.Integer, Sequence('webservice_id_seq'), primary_key=True)
-        id_1 = Column(types.Integer, Sequence('webservice_id_1_seq'), primary_key=True)
-        name = Column(types.String(100))
-        floating = Column(types.Float(precision=3))
-        geometry = GeometryColumn(Polygon(srid=2056))
-        __table_args__ = (
-            PrimaryKeyConstraint(id, id_1),
-            {}
-        )
-
-        def __init__(self, name=None):
-            self.name = name
-
-GeometryDDL(Webservice.__table__)
