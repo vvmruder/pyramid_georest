@@ -71,23 +71,24 @@ class Rest(object):
         self.engine = engine
         self.model = model
         path = model.database_path().replace('.', '/')
+        self.route_path = '/' + path
         self.config = {
             'name': name,
             'description': description_text,
             'path': path,
             'urls': {
                 'read_json': '/' + path + '/read.json',
-                'read_xml': '/' + path + '/read.xml',
+                # 'read_xml': '/' + path + '/read.xml',
                 'read_html': '/' + path + '/read',
                 'read_one_json': '/' + path + '/read' + self.primary_key_to_path() + '.json',
-                'read_one_xml': '/' + path + '/read' + self.primary_key_to_path() + '.xml',
+                # 'read_one_xml': '/' + path + '/read' + self.primary_key_to_path() + '.xml',
                 'read_one_html': '/' + path + '/read' + self.primary_key_to_path(),
                 'create': '/' + path + '/create',
                 'update': '/' + path + '/update' + self.primary_key_to_path(),
                 'delete': '/' + path + '/delete' + self.primary_key_to_path(),
                 'count': '/' + path + '/count',
                 'model_json': '/' + path + '/model.json',
-                'model_xml': '/' + path + '/model.xml',
+                # 'model_xml': '/' + path + '/model.xml',
                 'doc': '/' + path
             }
         }
