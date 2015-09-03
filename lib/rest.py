@@ -77,14 +77,17 @@ class Rest(object):
             'path': path,
             'urls': {
                 'read_json': '/' + path + '/read.json',
+                'read_xml': '/' + path + '/read.xml',
                 'read_html': '/' + path + '/read',
                 'read_one_json': '/' + path + '/read' + self.primary_key_to_path() + '.json',
+                'read_one_xml': '/' + path + '/read' + self.primary_key_to_path() + '.xml',
                 'read_one_html': '/' + path + '/read' + self.primary_key_to_path(),
                 'create': '/' + path + '/create',
                 'update': '/' + path + '/update' + self.primary_key_to_path(),
                 'delete': '/' + path + '/delete' + self.primary_key_to_path(),
                 'count': '/' + path + '/count',
                 'model_json': '/' + path + '/model.json',
+                'model_xml': '/' + path + '/model.xml',
                 'doc': '/' + path
             }
         }
@@ -95,7 +98,7 @@ class Rest(object):
             renderer='restful_json',
             route_name=self.config.get('urls').get('read_json'),
             request_method='GET',
-            permission=self.config.get('urls').get('read_json') if with_permission else None
+            permission='read_json' if with_permission else None
         )
 
         config.add_route(
@@ -107,7 +110,7 @@ class Rest(object):
             renderer='restful_json',
             route_name=self.config.get('urls').get('read_one_json'),
             request_method='GET',
-            permission=self.config.get('urls').get('read_one_json') if with_permission else None
+            permission='read_one_json' if with_permission else None
         )
 
         config.add_route(self.config.get('urls').get('create'), self.config.get('urls').get('create'))
@@ -116,7 +119,7 @@ class Rest(object):
             renderer='restful_json',
             route_name=self.config.get('urls').get('create'),
             request_method='POST',
-            permission=self.config.get('urls').get('create') if with_permission else None
+            permission='create' if with_permission else None
         )
 
         config.add_route(
@@ -128,7 +131,7 @@ class Rest(object):
             renderer='restful_json',
             route_name=self.config.get('urls').get('update'),
             request_method='POST',
-            permission=self.config.get('urls').get('update') if with_permission else None
+            permission='update' if with_permission else None
         )
 
         config.add_route(
@@ -140,7 +143,7 @@ class Rest(object):
             renderer='restful_json',
             route_name=self.config.get('urls').get('delete'),
             request_method='GET',
-            permission=self.config.get('urls').get('delete') if with_permission else None
+            permission='delete' if with_permission else None
         )
 
         config.add_route(self.config.get('urls').get('count'), self.config.get('urls').get('count'))
@@ -149,7 +152,7 @@ class Rest(object):
             renderer='jsonp',
             route_name=self.config.get('urls').get('count'),
             request_method='GET',
-            permission=self.config.get('urls').get('count') if with_permission else None
+            permission='count' if with_permission else None
         )
 
         config.add_route(self.config.get('urls').get('model_json'), self.config.get('urls').get('model_json'))
@@ -158,7 +161,7 @@ class Rest(object):
             renderer='jsonp',
             route_name=self.config.get('urls').get('model_json'),
             request_method='GET',
-            permission=self.config.get('urls').get('model_json') if with_permission else None
+            permission='model_json' if with_permission else None
         )
 
         config.add_route(self.config.get('urls').get('read_html'), self.config.get('urls').get('read_html'))
@@ -167,7 +170,7 @@ class Rest(object):
             renderer='pyramid_rest:templates/read.mako',
             route_name=self.config.get('urls').get('read_html'),
             request_method='GET',
-            permission=self.config.get('urls').get('read_html') if with_permission else None
+            permission='read_html' if with_permission else None
         )
 
         config.add_route(
@@ -179,7 +182,7 @@ class Rest(object):
             renderer='pyramid_rest:templates/read_one.mako',
             route_name=self.config.get('urls').get('read_one_html'),
             request_method='GET',
-            permission=self.config.get('urls').get('read_one_html') if with_permission else None
+            permission='read_one_html' if with_permission else None
         )
 
         config.add_route(self.config.get('urls').get('doc'), self.config.get('urls').get('doc'))
@@ -188,7 +191,7 @@ class Rest(object):
             renderer='pyramid_rest:templates/doc_specific.mako',
             route_name=self.config.get('urls').get('doc'),
             request_method='GET',
-            permission=self.config.get('urls').get('doc') if with_permission else None
+            permission='doc' if with_permission else None
         )
         # Add the Webservice Object to the registry, so it can be addressed for meta_info in the main doc
         config.registry.pyramid_rest_services.append(self)
