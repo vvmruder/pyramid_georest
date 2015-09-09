@@ -30,7 +30,8 @@ setup(
         'pyramid',
         'SQLAlchemy',
         'GeoAlchemy',
-        'shapely'
+        'shapely',
+        'dicttoxml'
     ],
     packages=find_packages(),
     zip_safe=False

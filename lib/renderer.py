@@ -102,3 +102,41 @@ class RestfulXML(JSON):
         if response.content_type == response.default_content_type:
             response.content_type = ct
         return body
+
+
+class RestfulModelXML(JSON):
+    """
+    This represents an standard pyramid renderer which can consume a list of database instances and renders them to
+    xml. It is important to use the Base which is provided by this package. Because this class delivers additional
+    methods.
+    """
+
+    def __init__(self, info):
+        """ Constructor: info will be an object having the
+        following attributes: name (the renderer name), package
+        (the package that was 'current' at the time the
+        renderer was registered), type (the renderer type
+        name), registry (the current application registry) and
+        settings (the deployment settings dictionary). """
+
+    def __call__(self, objects, system):
+        """ Call the renderer implementation with the value
+        and the system value passed in as arguments and return
+        the result (a string or unicode object).  The value is
+        the return value of a view.  The system value is a
+        dictionary containing available system values
+        (e.g. view, context, and request). """
+
+        request = system['request']
+        val = dicttoxml(objects, attr_type=False)
+        callback = request.GET.get('callback')
+        if callback is None:
+            ct = 'text/xml'
+            body = val
+        else:
+            ct = 'text/xml'
+            body = '%s(%s);' % (callback, val)
+        response = request.response
+        if response.content_type == response.default_content_type:
+            response.content_type = ct
+        return body
