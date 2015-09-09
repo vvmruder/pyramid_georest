@@ -92,7 +92,7 @@ class RestfulXML(JSON):
             features.append(o.as_dict())
         dicttoxml.set_debug(False)
         val = dicttoxml.dicttoxml(features, attr_type=False)
-        print val
+        # print val
         callback = request.GET.get('callback')
         if callback is None:
             ct = 'text/xml'
@@ -132,7 +132,7 @@ class RestfulModelXML(JSON):
         request = system['request']
         dicttoxml.set_debug(False)
         val = dicttoxml.dicttoxml(objects, attr_type=False)
-        print val
+        # print val
         callback = request.GET.get('callback')
         if callback is None:
             ct = 'text/xml'
