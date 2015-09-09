@@ -78,17 +78,17 @@ class Rest(object):
             'path': path,
             'urls': {
                 'read_json': '/' + path + '/read.json',
-                # 'read_xml': '/' + path + '/read.xml',
+                'read_xml': '/' + path + '/read.xml',
                 'read_html': '/' + path + '/read',
                 'read_one_json': '/' + path + '/read' + self.primary_key_to_path() + '.json',
-                # 'read_one_xml': '/' + path + '/read' + self.primary_key_to_path() + '.xml',
+                'read_one_xml': '/' + path + '/read' + self.primary_key_to_path() + '.xml',
                 'read_one_html': '/' + path + '/read' + self.primary_key_to_path(),
                 'create': '/' + path + '/create',
                 'update': '/' + path + '/update' + self.primary_key_to_path(),
                 'delete': '/' + path + '/delete' + self.primary_key_to_path(),
                 'count': '/' + path + '/count',
                 'model_json': '/' + path + '/model.json',
-                # 'model_xml': '/' + path + '/model.xml',
+                'model_xml': '/' + path + '/model.xml',
                 'doc': '/' + path
             }
         }
@@ -102,6 +102,15 @@ class Rest(object):
             permission='read_json' if with_permission else None
         )
 
+        config.add_route(self.config.get('urls').get('read_xml'), self.config.get('urls').get('read_xml'))
+        config.add_view(
+            self.read,
+            renderer='restful_xml',
+            route_name=self.config.get('urls').get('read_xml'),
+            request_method='GET',
+            permission='read_xml' if with_permission else None
+        )
+
         config.add_route(
             self.config.get('urls').get('read_one_json'),
             '/' + path + '/read' + self.primary_key_to_url() + '.json'
@@ -112,6 +121,18 @@ class Rest(object):
             route_name=self.config.get('urls').get('read_one_json'),
             request_method='GET',
             permission='read_one_json' if with_permission else None
+        )
+
+        config.add_route(
+            self.config.get('urls').get('read_one_xml'),
+            '/' + path + '/read' + self.primary_key_to_url() + '.xml'
+        )
+        config.add_view(
+            self.read_one,
+            renderer='restful_xml',
+            route_name=self.config.get('urls').get('read_one_xml'),
+            request_method='GET',
+            permission='read_one_xml' if with_permission else None
         )
 
         config.add_route(self.config.get('urls').get('create'), self.config.get('urls').get('create'))
@@ -163,6 +184,15 @@ class Rest(object):
             route_name=self.config.get('urls').get('model_json'),
             request_method='GET',
             permission='model_json' if with_permission else None
+        )
+
+        config.add_route(self.config.get('urls').get('model_xml'), self.config.get('urls').get('model_xml'))
+        config.add_view(
+            self.description,
+            renderer='model_restful_xml',
+            route_name=self.config.get('urls').get('model_xml'),
+            request_method='GET',
+            permission='model_xml' if with_permission else None
         )
 
         config.add_route(self.config.get('urls').get('read_html'), self.config.get('urls').get('read_html'))
