@@ -16,7 +16,7 @@
 # portions of the Software.
 import json
 from pyramid.renderers import JSON
-from dicttoxml import dicttoxml
+import dicttoxml
 
 __author__ = 'Clemens Rudert'
 __create_date__ = '29.07.2015'
@@ -90,7 +90,9 @@ class RestfulXML(JSON):
         features = []
         for o in objects.get('features'):
             features.append(o.as_dict())
-        val = dicttoxml(features, attr_type=False)
+        dicttoxml.set_debug(False)
+        val = dicttoxml.dicttoxml(features, attr_type=False)
+        print val
         callback = request.GET.get('callback')
         if callback is None:
             ct = 'text/xml'
@@ -128,7 +130,9 @@ class RestfulModelXML(JSON):
         (e.g. view, context, and request). """
 
         request = system['request']
-        val = dicttoxml(objects, attr_type=False)
+        dicttoxml.set_debug(False)
+        val = dicttoxml.dicttoxml(objects, attr_type=False)
+        print val
         callback = request.GET.get('callback')
         if callback is None:
             ct = 'text/xml'
