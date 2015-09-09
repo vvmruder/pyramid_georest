@@ -14,6 +14,7 @@
 # 
 # The above copyright notice and this permission notice shall be included in all copies or substantial
 # portions of the Software.
+import json
 from geoalchemy import WKBSpatialElement
 from shapely import wkt
 from sqlalchemy.exc import IntegrityError
@@ -23,6 +24,7 @@ from sqlalchemy.engine.base import Engine
 from sqlalchemy.orm import sessionmaker, Session
 from pyramid.config import Configurator
 from pyramid.request import Request
+from pyramid_rest.lib.filter import Filter
 
 __author__ = 'Clemens Rudert'
 __create_date__ = '29.07.2015'
@@ -294,7 +296,17 @@ class Rest(object):
         :rtype : dict of 'features': [Object]
         """
         session = self.provide_session(request)
-        objects = session.query(self.model).all()
+        filter_definition = request.params.get('filter', default=None)
+        if filter_definition is not None:
+            try:
+                filter_dict = json.loads(filter_definition)
+                filter_instance = Filter(filter_dict, self.model, session)
+                objects = filter_instance.do_filter().all()
+            except ValueError, e:
+                print e
+                return HTTPBadRequest(body_template=self.bad_text)
+        else:
+            objects = session.query(self.model).all()
         return {'features': objects}
 
     def read_one(self, request):
