@@ -31,7 +31,8 @@ setup(
         'SQLAlchemy',
         'GeoAlchemy',
         'shapely',
-        'dicttoxml'
+        'dicttoxml',
+        'json'
     ],
     packages=find_packages(),
     zip_safe=False
