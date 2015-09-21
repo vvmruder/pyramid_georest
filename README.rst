@@ -26,15 +26,22 @@ The pyramid framework for web apps provides an easy way for including standalone
 
 In a nutshell (inside the __init__.py of your pyramids project in the main method ):
 
-1. configure the services which you want to be served via this api. Look at the following example to see how: 
+Configure the services which you want to be served via this api. Look at the following example to see how: 
 
-```ruby
-require 'redcarpet'
-markdown = Redcarpet.new("Hello World!")
-puts markdown.to_html
 ```
+   from pyramid_rest.lib.rest import Rest
+   from pyramid_rest import prepare_models
+   restful_services = [
+      Rest(<your_engine>, <your_model>, <your_description_text>, <service_name>, <with_permission>),
+      ...
+   ]
+   prepare_models(restful_services)
+   config.include('pyramid_rest', route_prefix='api')
+```
+   
+First you need to import the Rest class from the pyramid_rest package. This class is kind of a wrapper. It holds the configuration for the service, like the database connection in form of an sqlalchemy engine, the model which is the underlaying python-class-representation, and so on. Please see the class's documentation for further information. Once you have defined your service objects in a python list, you have to call the prepare_models method from this package. It is like a pre config of the package.
 
-2. add a "config.include('pyramid_rest', route_prefix='api')" line. This will include the rest api to your project and creates all the services as configured before.
+Add a "config.include('pyramid_rest', route_prefix='api')" line. This will include the rest api to your project and creates all the services as configured before.
 
 Usage in a special geomapfish web app
 -------------------------------------
