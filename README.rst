@@ -22,7 +22,7 @@ Special thing of this api: It can serve geometric extension objects too (PostGIS
 Usage in a standard pyramid web app
 -----------------------------------
 
-The pyramid framework for web apps provides an easy way for including standalone packages in its eco system. To learn more about that, please refer to the `pyramid documentation <http://docs.pylonsproject.org/projects/pyramid//en/latest/narr/extending.html>`_ to learn more about that.
+The pyramid framework for web apps provides an easy way for including standalone packages in its eco system. To learn more about that, please refer to the http://docs.pylonsproject.org/projects/pyramid//en/latest/narr/extending.html to learn more about that.
 
 In a nutshell (inside the __init__.py of your pyramids project in the main method ):
 
@@ -46,7 +46,7 @@ Add a "config.include('pyramid_rest', route_prefix='api')" line. This will inclu
 Usage in a special geomapfish web app
 -------------------------------------
 
-Please refer to the original `Documentation <http://docs.camptocamp.net/c2cgeoportal/1.5/>`_ of geomapfish to
+Please refer to the original http://docs.camptocamp.net/c2cgeoportal/1.5/> of geomapfish to
 learn more about this package.
 
 TODO
