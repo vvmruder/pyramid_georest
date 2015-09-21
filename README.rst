@@ -22,7 +22,19 @@ Special thing of this api: It can serve geometric extension objects too (PostGIS
 Usage in a standard pyramid web app
 -----------------------------------
 
-TODO
+The pyramid framework for web apps provides an easy way for including standalone packages in its eco system. To learn more about that, please refer to the `pyramid documentation <http://docs.pylonsproject.org/projects/pyramid//en/latest/narr/extending.html>`_ to learn more about that.
+
+In a nutshell (inside the __init__.py of your pyramids project in the main method ):
+
+1. configure the services which you want to be served via this api. Look at the following example to see how: 
+
+```python
+from pyramid_rest.lib.rest import Rest
+
+print s
+```
+
+2. add a "config.include('pyramid_rest', route_prefix='api')" line. This will include the rest api to your project and creates all the services as configured before.
 
 Usage in a special geomapfish web app
 -------------------------------------
