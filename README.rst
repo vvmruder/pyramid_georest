@@ -30,7 +30,6 @@ In a nutshell (inside the __init__.py of your pyramids project in the main metho
 
 ```python
 from pyramid_rest.lib.rest import Rest
-
 print s
 ```
 
