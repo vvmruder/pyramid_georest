@@ -223,11 +223,3 @@ class RestfulBase(object):
         return cls.__table__.primary_key.columns.keys()
 
 Base = declarative_base(cls=RestfulBase)
-
-
-class GemeindeTest(Base):
-    __tablename__ = 'gemeinde'
-    __table_args__ = {'schema': 'wh_comon'}
-    gemeinde_id_bfs = Column(types.Integer, primary_key=True)
-    kanton_id_bfs = Column(types.Integer)
-    name = Column(types.Unicode)
