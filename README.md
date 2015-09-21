@@ -89,8 +89,8 @@ This way enables you to have two different versions running on the same server. 
 ```
    
 ```python
-   from pyramid_rest_v1.lib.rest import Rest_v1
-   from pyramid_rest_v2.lib.rest import Rest_v2
+   from pyramid_rest_v1.lib.rest import Rest as Rest_v1
+   from pyramid_rest_v2.lib.rest import Rest as Rest_v2
    from pyramid_rest_v1 import prepare as prepare_v1
    from pyramid_rest_v2 import prepare as prepare_v2
    
