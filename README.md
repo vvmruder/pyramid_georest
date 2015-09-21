@@ -57,7 +57,7 @@ In addition it creates all the urls/services which are needed.
 Usage in a special geomapfish web app
 -------------------------------------
 
-Please refer to the original http://docs.camptocamp.net/c2cgeoportal/1.5/> of geomapfish to
+Please refer to the original http://docs.camptocamp.net/c2cgeoportal/1.5/ of geomapfish to
 learn more about this package.
 
 TODO
