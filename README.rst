@@ -28,9 +28,10 @@ In a nutshell (inside the __init__.py of your pyramids project in the main metho
 
 1. configure the services which you want to be served via this api. Look at the following example to see how: 
 
-```python
-from pyramid_rest.lib.rest import Rest
-print s
+```ruby
+require 'redcarpet'
+markdown = Redcarpet.new("Hello World!")
+puts markdown.to_html
 ```
 
 2. add a "config.include('pyramid_rest', route_prefix='api')" line. This will include the rest api to your project and creates all the services as configured before.
