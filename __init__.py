@@ -24,14 +24,14 @@ __create_date__ = '23.07.2015'
 restful_models = []
 
 
-def prepare_models(models):
+def prepare(rest_services):
     """
 
-    :param models: the models which should be available for
-    :type models: list
+    :param rest_services: a list with the configured rest objects
+    :type rest_services: list of Rest
     """
     global restful_models
-    restful_models = models
+    restful_models = rest_services
 
 
 def includeme(config):

@@ -22,7 +22,9 @@ Special thing of this api: It can serve geometric extension objects too (PostGIS
 Usage in a standard pyramid web app
 -----------------------------------
 
-The pyramid framework for web apps provides an easy way for including standalone packages in its eco system. To learn more about that, please refer to the http://docs.pylonsproject.org/projects/pyramid//en/latest/narr/extending.html to learn more about that.
+The pyramid framework for web apps provides an easy way for including standalone packages in its eco system. To learn
+more about that, please refer to the http://docs.pylonsproject.org/projects/pyramid//en/latest/narr/extending.html to
+learn more about that.
 
 In a nutshell (inside the __init__.py of your pyramids project in the main method ):
 
@@ -30,18 +32,27 @@ Configure the services which you want to be served via this api. Look at the fol
 
 ```python
    from pyramid_rest.lib.rest import Rest
-   from pyramid_rest import prepare_models
+   from pyramid_rest import prepare
    restful_services = [
       Rest(<your_engine>, <your_model>, <your_description_text>, <service_name>, <with_permission>),
       ...
    ]
-   prepare_models(restful_services)
+   prepare(restful_services)
    config.include('pyramid_rest', route_prefix='api')
 ```
    
-First you need to import the Rest class from the pyramid_rest package. This class is kind of a wrapper. It holds the configuration for the service, like the database connection in form of an sqlalchemy engine, the model which is the underlaying python-class-representation, and so on. Please see the class's documentation for further information. Once you have defined your service objects in a python list, you have to call the prepare_models method from this package. It is like a pre config of the package. Once you defined all your restful services gather them in a python list and call the prepare_models method of this package. This provides your configuration to the package for later.
+First you need to import the Rest class from the pyramid_rest package. This class is kind of a wrapper. It holds the
+configuration for the service, like the database connection in form of an sqlalchemy engine, the model which is the
+underlaying python-class-representation, and so on. Please see the class's documentation for further information.
+Once you have defined your service objects in a python list, you have to call the prepare_models method from this
+package. It is like a pre config of the package. Once you defined all your restful services gather them in a python list
+ and call the prepare method of this package. This provides your configuration to the package for later.
 
-Add a "config.include('pyramid_rest', route_prefix='api')" line. This will include the rest api to your project and creates all the services as configured before.
+Calling the config.include method with the packages name will do some initializing stuff (Note that the optional
+paramter 'route_prefix' can be used to set the restful interface below a fix name space. This may be helpful especially
+in big applications.). Mainly it creates access to a standard documentation (once the Server is started it will be
+available at .../<route_prefix>/pyramid_rest_doc or .../pyramid_rest_doc if route_prefix was not set).
+In addition it creates all the urls/services which are needed.
 
 Usage in a special geomapfish web app
 -------------------------------------
