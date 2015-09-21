@@ -77,16 +77,16 @@ Checkout
 
 Manage this package directly in your pyramid project folder as an subrepository. For that clone this repository to your projects home as follows:
 
-.. code:: bash
-
+```bash
    git clone https://github.com/vvmruder/pyramid_rest.git pyramid_rest
+```
 
 This way enables you to have two different versions running on the same server. This is very usefull when you have customers which are bound to the interface already. Then you can establish a new version of the api without break the old customers way of access. If you want that, act as follows:
 
-.. code:: bash
-
+```bash
    git clone https://github.com/vvmruder/pyramid_rest.git pyramid_rest_v1
    git clone https://github.com/vvmruder/pyramid_rest.git pyramid_rest_v2
+```
    
 ```python
    from pyramid_rest_v1.lib.rest import Rest_v1
