@@ -21,6 +21,18 @@ from pyramid_rest.lib.rest import Rest
 __author__ = 'Clemens Rudert'
 __create_date__ = '23.07.2015'
 
+restful_models = []
+
+
+def prepare_models(models):
+    """
+
+    :param models: the models which should be available for
+    :type models: list
+    """
+    global restful_models
+    restful_models = models
+
 
 def includeme(config):
     """
@@ -29,7 +41,9 @@ def includeme(config):
     :param config: The pyramid apps config object
     :type config: Configurator
     """
+
     settings = config.get_settings()
+
     config.include('pyramid_mako')
     config.add_static_view('pyramid_rest', 'pyramid_rest:static',
         cache_max_age=int(config.get_settings()["default_max_age"])
@@ -52,3 +66,9 @@ def includeme(config):
         config.registry.pyramid_rest_support_name = settings.get('pyramid_rest_support_name')
     else:
         config.registry.pyramid_rest_support_name = 'NO SUPPORT MAIL ADRESS WAS SET IN THE USED *.INI FILE'
+
+    # note: this creates all restful services if they where configured before the include method was called. Maybe there
+    # a more elegant way for that. But this seems the only way to provide the passed route_prefix to the restful urls
+    # also.
+    for restful_model in restful_models:
+        restful_model.bind(config)
