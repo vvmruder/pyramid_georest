@@ -52,13 +52,12 @@ class Rest(object):
     integrity_error_txt = u'<h2>Your submitted data was corrupt. This usually means your data hurts some database ' \
                           u'constrains</h2>'
 
-    def __init__(self, engine, model, config, description_text='', name='', with_permission=False):
+    def __init__(self, engine, model, description_text='', name='', with_permission=False):
         """
 
-        Creates an object which handles all things to do to provide an rest interface for the passed:
-         - sql-alchemy database engine
-         - sql-alchemy model (which MUST be created with the Base class provided in this package's models script!!!)
-         - the pyramid config object
+        Creates an object which handles all things to do to provide an rest interface for the passed model. Please note
+        that the object which is created represents an service. This service must be bound to an pyramid apps
+        configurator see the bind() method at this class.
 
         Please refer to the README.rst of this package to learn more about the usage.
 
@@ -66,34 +65,35 @@ class Rest(object):
         :type engine: Engine
         :param model: The mapper representing the database table, this must be an child class of the Base defined in .models!
         :type model: Base
-        :param config: The Configurator of the underling pyramid web app
-        :type config: Configurator
         """
 
         self.engine = engine
         self.model = model
-        path = model.database_path().replace('.', '/')
-        self.route_path = '/' + path
+        self.path = model.database_path().replace('.', '/')
+        self.route_path = '/' + self.path
+        self.with_permission = with_permission
         self.config = {
             'name': name,
             'description': description_text,
-            'path': path,
+            'path': self.path,
             'urls': {
-                'read_json': '/' + path + '/read.json',
-                'read_xml': '/' + path + '/read.xml',
-                'read_html': '/' + path + '/read',
-                'read_one_json': '/' + path + '/read' + self.primary_key_to_path() + '.json',
-                'read_one_xml': '/' + path + '/read' + self.primary_key_to_path() + '.xml',
-                'read_one_html': '/' + path + '/read' + self.primary_key_to_path(),
-                'create': '/' + path + '/create',
-                'update': '/' + path + '/update' + self.primary_key_to_path(),
-                'delete': '/' + path + '/delete' + self.primary_key_to_path(),
-                'count': '/' + path + '/count',
-                'model_json': '/' + path + '/model.json',
-                'model_xml': '/' + path + '/model.xml',
-                'doc': '/' + path
+                'read_json': '/' + self.path + '/read.json',
+                'read_xml': '/' + self.path + '/read.xml',
+                'read_html': '/' + self.path + '/read',
+                'read_one_json': '/' + self.path + '/read' + self.primary_key_to_path() + '.json',
+                'read_one_xml': '/' + self.path + '/read' + self.primary_key_to_path() + '.xml',
+                'read_one_html': '/' + self.path + '/read' + self.primary_key_to_path(),
+                'create': '/' + self.path + '/create',
+                'update': '/' + self.path + '/update' + self.primary_key_to_path(),
+                'delete': '/' + self.path + '/delete' + self.primary_key_to_path(),
+                'count': '/' + self.path + '/count',
+                'model_json': '/' + self.path + '/model.json',
+                'model_xml': '/' + self.path + '/model.xml',
+                'doc': '/' + self.path
             }
         }
+
+    def bind(self, config):
 
         config.add_route(self.config.get('urls').get('read_json'), self.config.get('urls').get('read_json'))
         config.add_view(
@@ -101,7 +101,7 @@ class Rest(object):
             renderer='restful_json',
             route_name=self.config.get('urls').get('read_json'),
             request_method='GET',
-            permission='read_json' if with_permission else None
+            permission='read_json' if self.with_permission else None
         )
 
         config.add_route(self.config.get('urls').get('read_xml'), self.config.get('urls').get('read_xml'))
@@ -110,31 +110,31 @@ class Rest(object):
             renderer='restful_xml',
             route_name=self.config.get('urls').get('read_xml'),
             request_method='GET',
-            permission='read_xml' if with_permission else None
+            permission='read_xml' if self.with_permission else None
         )
 
         config.add_route(
             self.config.get('urls').get('read_one_json'),
-            '/' + path + '/read' + self.primary_key_to_url() + '.json'
+            '/' + self.path + '/read' + self.primary_key_to_url() + '.json'
         )
         config.add_view(
             self.read_one,
             renderer='restful_json',
             route_name=self.config.get('urls').get('read_one_json'),
             request_method='GET',
-            permission='read_one_json' if with_permission else None
+            permission='read_one_json' if self.with_permission else None
         )
 
         config.add_route(
             self.config.get('urls').get('read_one_xml'),
-            '/' + path + '/read' + self.primary_key_to_url() + '.xml'
+            '/' + self.path + '/read' + self.primary_key_to_url() + '.xml'
         )
         config.add_view(
             self.read_one,
             renderer='restful_xml',
             route_name=self.config.get('urls').get('read_one_xml'),
             request_method='GET',
-            permission='read_one_xml' if with_permission else None
+            permission='read_one_xml' if self.with_permission else None
         )
 
         config.add_route(self.config.get('urls').get('create'), self.config.get('urls').get('create'))
@@ -143,31 +143,31 @@ class Rest(object):
             renderer='restful_json',
             route_name=self.config.get('urls').get('create'),
             request_method='POST',
-            permission='create' if with_permission else None
+            permission='create' if self.with_permission else None
         )
 
         config.add_route(
             self.config.get('urls').get('update'),
-            '/' + path + '/update' + self.primary_key_to_url()
+            '/' + self.path + '/update' + self.primary_key_to_url()
         )
         config.add_view(
             self.update,
             renderer='restful_json',
             route_name=self.config.get('urls').get('update'),
             request_method='POST',
-            permission='update' if with_permission else None
+            permission='update' if self.with_permission else None
         )
 
         config.add_route(
             self.config.get('urls').get('delete'),
-            '/' + path + '/delete' + self.primary_key_to_url()
+            '/' + self.path + '/delete' + self.primary_key_to_url()
         )
         config.add_view(
             self.delete,
             renderer='restful_json',
             route_name=self.config.get('urls').get('delete'),
             request_method='GET',
-            permission='delete' if with_permission else None
+            permission='delete' if self.with_permission else None
         )
 
         config.add_route(self.config.get('urls').get('count'), self.config.get('urls').get('count'))
@@ -176,7 +176,7 @@ class Rest(object):
             renderer='jsonp',
             route_name=self.config.get('urls').get('count'),
             request_method='GET',
-            permission='count' if with_permission else None
+            permission='count' if self.with_permission else None
         )
 
         config.add_route(self.config.get('urls').get('model_json'), self.config.get('urls').get('model_json'))
@@ -185,7 +185,7 @@ class Rest(object):
             renderer='jsonp',
             route_name=self.config.get('urls').get('model_json'),
             request_method='GET',
-            permission='model_json' if with_permission else None
+            permission='model_json' if self.with_permission else None
         )
 
         config.add_route(self.config.get('urls').get('model_xml'), self.config.get('urls').get('model_xml'))
@@ -194,7 +194,7 @@ class Rest(object):
             renderer='model_restful_xml',
             route_name=self.config.get('urls').get('model_xml'),
             request_method='GET',
-            permission='model_xml' if with_permission else None
+            permission='model_xml' if self.with_permission else None
         )
 
         config.add_route(self.config.get('urls').get('read_html'), self.config.get('urls').get('read_html'))
@@ -203,19 +203,19 @@ class Rest(object):
             renderer='pyramid_rest:templates/read.mako',
             route_name=self.config.get('urls').get('read_html'),
             request_method='GET',
-            permission='read_html' if with_permission else None
+            permission='read_html' if self.with_permission else None
         )
 
         config.add_route(
             self.config.get('urls').get('read_one_html'),
-            '/' + path + '/read' + self.primary_key_to_url()
+            '/' + self.path + '/read' + self.primary_key_to_url()
         )
         config.add_view(
             self.read_one,
             renderer='pyramid_rest:templates/read_one.mako',
             route_name=self.config.get('urls').get('read_one_html'),
             request_method='GET',
-            permission='read_one_html' if with_permission else None
+            permission='read_one_html' if self.with_permission else None
         )
 
         config.add_route(self.config.get('urls').get('doc'), self.config.get('urls').get('doc'))
@@ -224,7 +224,7 @@ class Rest(object):
             renderer='pyramid_rest:templates/doc_specific.mako',
             route_name=self.config.get('urls').get('doc'),
             request_method='GET',
-            permission='doc' if with_permission else None
+            permission='doc' if self.with_permission else None
         )
         # Add the Webservice Object to the registry, so it can be addressed for meta_info in the main doc
         config.registry.pyramid_rest_services.append(self)
