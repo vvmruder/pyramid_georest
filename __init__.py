@@ -23,6 +23,11 @@ __create_date__ = '23.07.2015'
 
 restful_models = []
 
+_READ = 'GET'
+_UPDATE = 'PUT'
+_CREATE = 'POST'
+_DELETE = 'DELETE'
+
 
 def prepare(rest_services):
     """
@@ -41,6 +46,7 @@ def includeme(config):
     :param config: The pyramid apps config object
     :type config: Configurator
     """
+    global _CREATE, _DELETE, _READ, _UPDATE
 
     settings = config.get_settings()
 
@@ -66,6 +72,13 @@ def includeme(config):
         config.registry.pyramid_rest_support_name = settings.get('pyramid_rest_support_name')
     else:
         config.registry.pyramid_rest_support_name = 'NO SUPPORT MAIL ADRESS WAS SET IN THE USED *.INI FILE'
+
+    _READ = settings.get('rest_read_http_method') if settings.get('rest_read_http_method') is not None else 'GET'
+    _UPDATE = settings.get('rest_update_http_method') if \
+        settings.get('rest_update_http_method') is not None else 'UPDATE'
+    _CREATE = settings.get('rest_create_http_method') if settings.get('rest_create_http_method') is not None else 'POST'
+    _DELETE = settings.get('rest_delete_http_method') if \
+        settings.get('rest_delete_http_method') is not None else 'DELETE'
 
     # note: this creates all restful services if they where configured before the include method was called. Maybe there
     # a more elegant way for that. But this seems the only way to provide the passed route_prefix to the restful urls
