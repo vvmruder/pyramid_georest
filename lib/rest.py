@@ -20,7 +20,7 @@ from shapely import wkt
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
 from pyramid.httpexceptions import HTTPNotFound, HTTPBadRequest, HTTPServerError, HTTPUnauthorized
-from sqlalchemy.engine.base import Engine
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from pyramid.config import Configurator
 from pyramid.request import Request
@@ -52,7 +52,7 @@ class Rest(object):
     integrity_error_txt = u'<h2>Your submitted data was corrupt. This usually means your data hurts some database ' \
                           u'constrains</h2>'
 
-    def __init__(self, engine, model, description_text='', name='', with_permission=False):
+    def __init__(self, database_connection, model, description_text=u'', name=u'', with_permission=False, debug=False):
         """
 
         Creates an object which handles all things to do to provide an rest interface for the passed model. Please note
@@ -61,13 +61,60 @@ class Rest(object):
 
         Please refer to the README.rst of this package to learn more about the usage.
 
-        :param engine: The engine which the RESTful interface should be bound to
-        :type engine: Engine
-        :param model: The mapper representing the database table, this must be an child class of the Base defined in .models!
+        :param database_connection: A sqlalchemy compatible string. It is used to build an engine (see:
+        http://docs.sqlalchemy.org/en/latest/core/engines.html).
+        :type database_connection: str
+        :param model: The mapper representing the database table, this must be an child class of the Base defined in
+        .models!
         :type model: Base
-        """
+        :param description_text: A description of the resource. It will be used for the automatic generated
+        documentation.
+        :type description_text: unicode
+        :param name: The spoken and shown Name of the resource. It will be used for the automatic generated
+        documentation.
+        :type name: unicode
+        :param with_permission: With this parameter you can decide, if this service is under authorisation or not. It is
+         very important to know how this works. So keep tuned and read on: This Package is an addition to the wonderful
+         Python WebFrameWork pyramid. So it is not that far, to not reinvent the wheel for restrict access to resources
+         which are provided by this package. Because the only thing this package does, is to offer some URLs to access
+         database resources. Pyramid has a very well developed way of restricting access to specific URLs. So we will
+         use this mechanism to achieve it.
 
-        self.engine = engine
+         Once you have set this parameter to true, all services are closed. They check if the asking has permission via
+         the pyramid way. Each URL will be created with an permission named as follows (they should be self explaining):
+         - read_json
+         - read_xml
+         - read_html
+         - read_one_json
+         - read_one_xml
+         - read_one_html
+         - create
+         - update
+         - delete
+         - count
+         - model_json
+         - model_xml
+         - doc
+         Since we do it this way, it is all up to you decide in your own pyramid application and in the resource (model)
+         of cause who can access what. The only thing you have to do is to define your model right. It could be as
+         follows:
+
+         class Blog(object):
+            def __acl__(self):
+                return [
+                    (Allow, Everyone, 'read_json'),
+                    (Allow, self.owner, 'create'),
+                    (Allow, 'group:editors', 'model_json'),
+                ]
+
+            def __init__(self, owner):
+                self.owner = owner
+        This gives you full power. Use it.
+        :type with_permission: bool
+        :param debug: Turn on, to see a more detailed information in the log.
+        :type debug: bool
+        """
+        self.engine = create_engine(database_connection, echo=debug)
         self.model = model
         self.path = model.database_path().replace('.', '/')
         self.route_path = '/' + self.path
@@ -95,6 +142,13 @@ class Rest(object):
 
     def bind(self, config):
 
+        """
+        The bind method is the point, where all views and routes (URL-Resources) will be created. It is called from
+        the includeme method of this package. You can call it manually of cause if you don't use this package via the
+        pyramid extension way.
+        :param config: The Configurator of the underling pyramid web app
+        :type config: Configurator
+        """
         config.add_route(self.config.get('urls').get('read_json'), self.config.get('urls').get('read_json'))
         config.add_view(
             self.read,
