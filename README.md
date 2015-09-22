@@ -57,7 +57,7 @@ In addition it creates all the urls/services which are needed.
 Usage in a special geomapfish web app
 -------------------------------------
 
-Please refer to the original http://docs.camptocamp.net/c2cgeoportal/1.5/> of geomapfish to
+Please refer to the original http://docs.camptocamp.net/c2cgeoportal/1.5/ of geomapfish to
 learn more about this package.
 
 TODO
@@ -75,6 +75,35 @@ Read the `Documentation <(LINK TO THE DOC)>`_
 Checkout
 --------
 
-.. code:: bash
+Manage this package directly in your pyramid project folder as an subrepository. For that clone this repository to your projects home as follows:
 
+```bash
    git clone https://github.com/vvmruder/pyramid_rest.git pyramid_rest
+```
+
+This way enables you to have two different versions running on the same server. This is very usefull when you have customers which are bound to the interface already. Then you can establish a new version of the api without break the old customers way of access. If you want that, act as follows:
+
+```bash
+   git clone https://github.com/vvmruder/pyramid_rest.git pyramid_rest_v1
+   git clone https://github.com/vvmruder/pyramid_rest.git pyramid_rest_v2
+```
+   
+```python
+   from pyramid_rest_v1.lib.rest import Rest as Rest_v1
+   from pyramid_rest_v2.lib.rest import Rest as Rest_v2
+   from pyramid_rest_v1 import prepare as prepare_v1
+   from pyramid_rest_v2 import prepare as prepare_v2
+   
+   restful_services_v1 = [
+      Rest_v1(<your_engine>, <your_model>, <your_description_text>, <service_name>, <with_permission>),
+      ...
+   ]
+   prepare_v1(restful_services)
+   
+   restful_services_v2 = [
+      Rest_v2(<your_engine>, <your_model>, <your_description_text>, <service_name>, <with_permission>),
+      ...
+   ]
+   prepare_v2(restful_services)
+   config.include('pyramid_rest_v2', route_prefix='api/v2')
+```
