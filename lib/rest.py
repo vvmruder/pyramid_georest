@@ -17,7 +17,7 @@
 import json
 from geoalchemy import WKBSpatialElement
 from shapely import wkt
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, DatabaseError
 from sqlalchemy.orm.exc import NoResultFound
 from pyramid.httpexceptions import HTTPNotFound, HTTPBadRequest, HTTPServerError, HTTPUnauthorized
 from sqlalchemy import create_engine
@@ -47,10 +47,10 @@ class Rest(object):
     """
     Offers an interface to make SQLAlchemy objects restful in a pyramids web framework way
     """
-    not_found_text = u'<h2>No element was found in database, with primary key: ({0})</h2>'
-    bad_text = u'<h2>You submitted data which is incorrect. Please check the shipped parameter of your request.</h2>'
-    integrity_error_txt = u'<h2>Your submitted data was corrupt. This usually means your data hurts some database ' \
-                          u'constrains</h2>'
+    not_found_text = u'No element was found in database, with primary key: ({0})'
+    bad_text = u'You submitted data which is incorrect. Please check the shipped parameter of your request.'
+    integrity_error_txt = u'Your submitted data was corrupt. This usually means your data hurts some database ' \
+                          u'constrains'
 
     def __init__(self, database_connection, model, description_text=u'', name=u'', with_permission=False, debug=False):
         """
@@ -115,6 +115,7 @@ class Rest(object):
         :type debug: bool
         """
         self.engine = create_engine(database_connection, echo=debug)
+        self.database_connection = database_connection
         self.model = model
         self.path = model.database_path().replace('.', '/')
         self.route_path = '/' + self.path
@@ -141,6 +142,7 @@ class Rest(object):
         }
 
     def bind(self, config):
+        from pyramid_rest import _CREATE, _DELETE, _READ, _UPDATE
 
         """
         The bind method is the point, where all views and routes (URL-Resources) will be created. It is called from
@@ -154,7 +156,7 @@ class Rest(object):
             self.read,
             renderer='restful_json',
             route_name=self.config.get('urls').get('read_json'),
-            request_method='GET',
+            request_method=_READ,
             permission='read_json' if self.with_permission else None
         )
 
@@ -163,7 +165,7 @@ class Rest(object):
             self.read,
             renderer='restful_xml',
             route_name=self.config.get('urls').get('read_xml'),
-            request_method='GET',
+            request_method=_READ,
             permission='read_xml' if self.with_permission else None
         )
 
@@ -175,7 +177,7 @@ class Rest(object):
             self.read_one,
             renderer='restful_json',
             route_name=self.config.get('urls').get('read_one_json'),
-            request_method='GET',
+            request_method=_READ,
             permission='read_one_json' if self.with_permission else None
         )
 
@@ -187,7 +189,7 @@ class Rest(object):
             self.read_one,
             renderer='restful_xml',
             route_name=self.config.get('urls').get('read_one_xml'),
-            request_method='GET',
+            request_method=_READ,
             permission='read_one_xml' if self.with_permission else None
         )
 
@@ -196,7 +198,7 @@ class Rest(object):
             self.create,
             renderer='restful_json',
             route_name=self.config.get('urls').get('create'),
-            request_method='POST',
+            request_method=_CREATE,
             permission='create' if self.with_permission else None
         )
 
@@ -208,7 +210,7 @@ class Rest(object):
             self.update,
             renderer='restful_json',
             route_name=self.config.get('urls').get('update'),
-            request_method='POST',
+            request_method=_UPDATE,
             permission='update' if self.with_permission else None
         )
 
@@ -220,7 +222,7 @@ class Rest(object):
             self.delete,
             renderer='restful_json',
             route_name=self.config.get('urls').get('delete'),
-            request_method='GET',
+            request_method=_DELETE,
             permission='delete' if self.with_permission else None
         )
 
@@ -229,7 +231,7 @@ class Rest(object):
             self.count,
             renderer='jsonp',
             route_name=self.config.get('urls').get('count'),
-            request_method='GET',
+            request_method=_READ,
             permission='count' if self.with_permission else None
         )
 
@@ -238,7 +240,7 @@ class Rest(object):
             self.description,
             renderer='jsonp',
             route_name=self.config.get('urls').get('model_json'),
-            request_method='GET',
+            request_method=_READ,
             permission='model_json' if self.with_permission else None
         )
 
@@ -247,7 +249,7 @@ class Rest(object):
             self.description,
             renderer='model_restful_xml',
             route_name=self.config.get('urls').get('model_xml'),
-            request_method='GET',
+            request_method=_READ,
             permission='model_xml' if self.with_permission else None
         )
 
@@ -256,7 +258,7 @@ class Rest(object):
             self.read,
             renderer='pyramid_rest:templates/read.mako',
             route_name=self.config.get('urls').get('read_html'),
-            request_method='GET',
+            request_method=_READ,
             permission='read_html' if self.with_permission else None
         )
 
@@ -268,7 +270,7 @@ class Rest(object):
             self.read_one,
             renderer='pyramid_rest:templates/read_one.mako',
             route_name=self.config.get('urls').get('read_one_html'),
-            request_method='GET',
+            request_method=_READ,
             permission='read_one_html' if self.with_permission else None
         )
 
@@ -277,7 +279,7 @@ class Rest(object):
             self.doc,
             renderer='pyramid_rest:templates/doc_specific.mako',
             route_name=self.config.get('urls').get('doc'),
-            request_method='GET',
+            request_method=_READ,
             permission='doc' if self.with_permission else None
         )
         # Add the Webservice Object to the registry, so it can be addressed for meta_info in the main doc
@@ -358,10 +360,16 @@ class Rest(object):
                 objects = filter_instance.do_filter().all()
             except ValueError, e:
                 print e
+                print 'filter definition: ', filter_definition
                 return HTTPBadRequest(body_template=self.bad_text)
         else:
-            objects = session.query(self.model).all()
-        return {'features': objects}
+            try:
+                objects = session.query(self.model).all()
+                return {'features': objects}
+            except DatabaseError, e:
+                print e
+                print 'used connection: ', self.database_connection
+                return HTTPServerError()
 
     def read_one(self, request):
         """
@@ -390,6 +398,10 @@ class Rest(object):
                 text_list.append('{0}: {1}'.format(column_name, str(pk_id)))
             text = ', '.join(text_list)
             raise HTTPNotFound(body_template=self.not_found_text.format(text))
+        except DatabaseError, e:
+                print e
+                print 'used connection: ', self.database_connection
+                return HTTPServerError()
 
     def count(self, request):
         """
@@ -401,8 +413,13 @@ class Rest(object):
         :rtype : int
         """
         session = self.provide_session(request)
-        count = session.query(self.model).count()
-        return count
+        try:
+            count = session.query(self.model).count()
+            return count
+        except DatabaseError, e:
+                print e
+                print 'used connection: ', self.database_connection
+                return HTTPServerError()
 
     def description(self, request):
         """
@@ -443,6 +460,10 @@ class Rest(object):
         except IntegrityError, e:
             print e
             raise HTTPServerError(detail='Integrity Error', body_template=self.integrity_error_txt)
+        except DatabaseError, e:
+                print e
+                print 'used connection: ', self.database_connection
+                return HTTPServerError()
 
     def update(self, request):
         """
@@ -481,6 +502,10 @@ class Rest(object):
                 text_list.append('{0}: {1}'.format(column_name, str(pk_id)))
             text = ', '.join(text_list)
             raise HTTPNotFound(body_template=self.not_found_text.format(text))
+        except DatabaseError, e:
+                print e
+                print 'used connection: ', self.database_connection
+                return HTTPServerError()
 
     def delete(self, request):
         """
@@ -512,6 +537,10 @@ class Rest(object):
                 text_list.append('{0}: {1}'.format(column_name, str(pk_id)))
             text = ', '.join(text_list)
             raise HTTPNotFound(body_template=self.not_found_text.format(text))
+        except DatabaseError, e:
+                print e
+                print 'used connection: ', self.database_connection
+                return HTTPServerError()
 
     def doc(self, request):
         return self.config
