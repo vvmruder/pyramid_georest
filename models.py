@@ -64,6 +64,8 @@ class RestfulBase(object):
                 if column.primary_key:
                     model['pk_names'].append(column.name)
             else:
+                # TODO: make relationship properties part of the model description. This can be helpful for dropdowns
+                #  etc.
                 """
                 if p.uselist:
                     fk_path = [
