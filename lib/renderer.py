@@ -15,11 +15,20 @@
 # The above copyright notice and this permission notice shall be included in all copies or substantial
 # portions of the Software.
 import json
+from pyramid.httpexceptions import HTTPServerError
 from pyramid.renderers import JSON
 import dicttoxml
+from pyramid_rest.lib.mapper import do_mapping
 
 __author__ = 'Clemens Rudert'
 __create_date__ = '29.07.2015'
+
+
+def get_mapping_from_request(request):
+    if request.params is not None:
+        return request.params.get('mapping')
+    else:
+        return None
 
 
 class RestfulJson(JSON):
@@ -106,6 +115,49 @@ class RestfulXML(JSON):
         return body
 
 
+class RestfulModelJSON(JSON):
+    """
+    This represents an standard pyramid renderer which can consume a list of database instances and renders them to
+    xml. It is important to use the Base which is provided by this package. Because this class delivers additional
+    methods.
+    """
+
+    def __init__(self, info):
+        """ Constructor: info will be an object having the
+        following attributes: name (the renderer name), package
+        (the package that was 'current' at the time the
+        renderer was registered), type (the renderer type
+        name), registry (the current application registry) and
+        settings (the deployment settings dictionary). """
+
+    def __call__(self, objects, system):
+        """ Call the renderer implementation with the value
+        and the system value passed in as arguments and return
+        the result (a string or unicode object).  The value is
+        the return value of a view.  The system value is a
+        dictionary containing available system values
+        (e.g. view, context, and request). """
+
+        request = system['request']
+        columns = objects.get('columns')
+        for column in columns:
+            column['type'] = do_mapping(column.get('type'), get_mapping_from_request(request))
+        objects['columns'] = columns
+        val = json.dumps(objects)
+        # print val
+        callback = request.GET.get('callback')
+        if callback is None:
+            ct = 'application/json'
+            body = val
+        else:
+            ct = 'application/javascript'
+            body = '%s(%s);' % (callback, val)
+        response = request.response
+        if response.content_type == response.default_content_type:
+            response.content_type = ct
+        return body
+
+
 class RestfulModelXML(JSON):
     """
     This represents an standard pyramid renderer which can consume a list of database instances and renders them to
@@ -131,6 +183,10 @@ class RestfulModelXML(JSON):
 
         request = system['request']
         dicttoxml.set_debug(False)
+        columns = objects.get('columns')
+        for column in columns:
+            column['type'] = do_mapping(column.get('type'), get_mapping_from_request(request))
+        objects['columns'] = columns
         val = dicttoxml.dicttoxml(objects, attr_type=False)
         # print val
         callback = request.GET.get('callback')

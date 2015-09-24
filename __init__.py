@@ -15,7 +15,7 @@
 # The above copyright notice and this permission notice shall be included in all copies or substantial
 # portions of the Software.
 from pyramid.config import Configurator
-from .lib.renderer import RestfulJson, RestfulXML, RestfulModelXML
+from .lib.renderer import RestfulJson, RestfulXML, RestfulModelJSON, RestfulModelXML
 from pyramid_rest.lib.rest import Rest
 
 __author__ = 'Clemens Rudert'
@@ -62,6 +62,7 @@ def includeme(config):
     )
     config.add_renderer(name='restful_json', factory=RestfulJson)
     config.add_renderer(name='restful_xml', factory=RestfulXML)
+    config.add_renderer(name='model_restful_json', factory=RestfulModelJSON)
     config.add_renderer(name='model_restful_xml', factory=RestfulModelXML)
     config.registry.pyramid_rest_services = []
     if settings.get('pyramid_rest_support_mail') is not None:
