@@ -88,9 +88,9 @@ class Rest(object):
          - read_one_json
          - read_one_xml
          - read_one_html
-         - create
-         - update
-         - delete
+         - create_one
+         - update_one
+         - delete_one
          - count
          - model_json
          - model_xml
@@ -131,9 +131,9 @@ class Rest(object):
                 'read_one_json': '/' + self.path + '/read' + self.primary_key_to_path() + '.json',
                 'read_one_xml': '/' + self.path + '/read' + self.primary_key_to_path() + '.xml',
                 'read_one_html': '/' + self.path + '/read' + self.primary_key_to_path(),
-                'create': '/' + self.path + '/create',
-                'update': '/' + self.path + '/update' + self.primary_key_to_path(),
-                'delete': '/' + self.path + '/delete' + self.primary_key_to_path(),
+                'create_one': '/' + self.path + '/create',
+                'update_one': '/' + self.path + '/update' + self.primary_key_to_path(),
+                'delete_one': '/' + self.path + '/delete' + self.primary_key_to_path(),
                 'count': '/' + self.path + '/count',
                 'model_json': '/' + self.path + '/model.json',
                 'model_xml': '/' + self.path + '/model.xml',
@@ -193,37 +193,37 @@ class Rest(object):
             permission='read_one_xml' if self.with_permission else None
         )
 
-        config.add_route(self.config.get('urls').get('create'), self.config.get('urls').get('create'))
+        config.add_route(self.config.get('urls').get('create_one'), self.config.get('urls').get('create_one'))
         config.add_view(
             self.create,
             renderer='restful_json',
-            route_name=self.config.get('urls').get('create'),
+            route_name=self.config.get('urls').get('create_one'),
             request_method=_CREATE,
-            permission='create' if self.with_permission else None
+            permission='create_one' if self.with_permission else None
         )
 
         config.add_route(
-            self.config.get('urls').get('update'),
+            self.config.get('urls').get('update_one'),
             '/' + self.path + '/update' + self.primary_key_to_url()
         )
         config.add_view(
             self.update,
             renderer='restful_json',
-            route_name=self.config.get('urls').get('update'),
+            route_name=self.config.get('urls').get('update_one'),
             request_method=_UPDATE,
-            permission='update' if self.with_permission else None
+            permission='update_one' if self.with_permission else None
         )
 
         config.add_route(
-            self.config.get('urls').get('delete'),
+            self.config.get('urls').get('delete_one'),
             '/' + self.path + '/delete' + self.primary_key_to_url()
         )
         config.add_view(
             self.delete,
             renderer='restful_json',
-            route_name=self.config.get('urls').get('delete'),
+            route_name=self.config.get('urls').get('delete_one'),
             request_method=_DELETE,
-            permission='delete' if self.with_permission else None
+            permission='delete_one' if self.with_permission else None
         )
 
         config.add_route(self.config.get('urls').get('count'), self.config.get('urls').get('count'))
@@ -238,7 +238,7 @@ class Rest(object):
         config.add_route(self.config.get('urls').get('model_json'), self.config.get('urls').get('model_json'))
         config.add_view(
             self.description,
-            renderer='jsonp',
+            renderer='model_restful_json',
             route_name=self.config.get('urls').get('model_json'),
             request_method=_READ,
             permission='model_json' if self.with_permission else None
