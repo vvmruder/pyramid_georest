@@ -64,6 +64,7 @@ class RestfulBase(object):
                 if column.primary_key:
                     model['pk_names'].append(column.name)
             else:
+                """
                 if p.uselist:
                     fk_path = [
                         p.argument.__table_args__.get('schema'),
@@ -85,7 +86,8 @@ class RestfulBase(object):
                         'default': [],
                         'is_m_to_n': True
                     }
-                    model.get('columns').append(column_dict)
+                    model.get('relations').append(column_dict)
+                """
         model['columns_count'] = len(model.get('columns'))
         return model
 
