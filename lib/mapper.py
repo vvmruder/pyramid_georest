@@ -25,6 +25,8 @@ def do_mapping(type_name, mapping=None):
             type_name = TypeMapperEXT(type_name).type
         elif mapping == 'geoext':
             type_name = TypeMapperGeoEXT(type_name).type
+        elif mapping is None:
+            type_name = TypeMapper(type_name).type
     return type_name
 
 
