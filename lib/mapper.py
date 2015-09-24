@@ -19,15 +19,20 @@ __author__ = 'Clemens Rudert'
 __create_date__ = '27.10.2014'
 
 
-def do_mapping(type_name, mapping=None):
-    if mapping is not None:
-        if mapping == 'extjs':
-            type_name = TypeMapperEXT(type_name).type
-        elif mapping == 'geoext':
-            type_name = TypeMapperGeoEXT(type_name).type
-        elif mapping is None:
-            type_name = TypeMapper(type_name).type
-    return type_name
+def do_mapping(type_name, mapping):
+    from pyramid_rest import additional_mappers
+    if mapping == 'extjs':
+        return TypeMapperEXT(type_name).type
+    elif mapping == 'geoext':
+        return TypeMapperGeoEXT(type_name).type
+    elif mapping is None:
+        return TypeMapper(type_name).type
+
+    # use the maybe passed additional mappers
+    for name, additional_mapper in additional_mappers:
+        if mapping == name:
+            return additional_mapper(type_name).type
+
 
 
 class TypeMapper():
@@ -68,15 +73,53 @@ class TypeMapper():
             'TEXT',
             'LONG',
             'CLOB',
-            'NCLOB'
+            'NCLOB',
+            'GEOMETRY'
+        ],
+        'Date': [
+            'DATE'
+        ],
+        'DateTime': [
+            'DATETIME',
+            'TIMESTAMP'
+        ],
+        'Time': [
+            'TIME'
+        ],
+        'Point': [
+            'POINT'
+        ],
+        'Polygon': [
+            'POLYGON'
+        ],
+        'Linestring': [
+            'LINESTRING'
+        ],
+        'Curve': [
+            'CURVE'
+        ],
+        'Multipoint': [
+            'MULTIPOINT'
+        ],
+        'Multilinestring': [
+            'MULTILINESTRING'
+        ],
+        'Multipolygon': [
+            'MULTIPOLYGON'
+        ],
+        'Geometrycollection': [
+            'GEOMETRYCOLLECTION'
         ]
     }
 
     def __init__(self, input_type):
+        self.type = None
         for map_type, test_types in self.__types__.iteritems():
             for tt in test_types:
                 if input_type.upper() == tt:
                     self.type = map_type
+        if self.type is None:
+            self.type = input_type
 
 
 class TypeMapperEXT(TypeMapper):

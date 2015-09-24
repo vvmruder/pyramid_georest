@@ -28,6 +28,8 @@ _UPDATE = 'PUT'
 _CREATE = 'POST'
 _DELETE = 'DELETE'
 
+additional_mappers = []
+
 
 def prepare(rest_services):
     """
