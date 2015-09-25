@@ -56,7 +56,7 @@ def includeme(config):
     config.add_static_view('pyramid_rest', 'pyramid_rest:static',
         cache_max_age=int(config.get_settings()["default_max_age"])
     )
-    config.add_route('pyramid_rest_doc', '/pyramid_rest_doc')
+    config.add_route('pyramid_rest_doc', '')
     config.add_view(
         'pyramid_rest.views.doc',
         renderer='pyramid_rest:templates/doc.mako',
