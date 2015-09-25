@@ -52,7 +52,8 @@ class Rest(object):
     integrity_error_txt = u'Your submitted data was corrupt. This usually means your data hurts some database ' \
                           u'constrains'
 
-    def __init__(self, database_connection, model, description_text=u'', name=u'', with_permission=False, debug=False):
+    def __init__(self, database_connection, model, description_text=u'', name=u'', with_permission=False,
+                 debug=False, inner_route_prefix='', outer_use=False):
         """
 
         Creates an object which handles all things to do to provide an rest interface for the passed model. Please note
@@ -113,12 +114,20 @@ class Rest(object):
         :type with_permission: bool
         :param debug: Turn on, to see a more detailed information in the log.
         :type debug: bool
+        :param inner_route_prefix: Add additional sub url to have api ressources e.g. for tool which should be not
+        available for the common use via the api. please provide like 'bla/bla/bla/'
+        :type inner_route_prefix: str
         """
+        self.outer_use = outer_use
         self.engine = create_engine(database_connection, echo=debug)
         self.database_connection = database_connection
         self.model = model
-        self.path = model.database_path().replace('.', '/')
+        if inner_route_prefix == '':
+            self.path = model.database_path().replace('.', '/')
+        else:
+            self.path = inner_route_prefix + model.database_path().replace('.', '/')
         self.route_path = '/' + self.path
+        print self.route_path
         self.with_permission = with_permission
         self.config = {
             'name': name,
@@ -137,7 +146,7 @@ class Rest(object):
                 'count': '/' + self.path + '/count',
                 'model_json': '/' + self.path + '/model.json',
                 'model_xml': '/' + self.path + '/model.xml',
-                'doc': '/' + self.path
+                'doc': '/' + self.path if outer_use else ''
             }
         }
 
@@ -273,15 +282,16 @@ class Rest(object):
             request_method=_READ,
             permission='read_one_html' if self.with_permission else None
         )
-
-        config.add_route(self.config.get('urls').get('doc'), self.config.get('urls').get('doc'))
-        config.add_view(
-            self.doc,
-            renderer='pyramid_rest:templates/doc_specific.mako',
-            route_name=self.config.get('urls').get('doc'),
-            request_method=_READ,
-            permission='doc' if self.with_permission else None
-        )
+        # create doc url only for services which are intended to be used as external api
+        if self.outer_use:
+            config.add_route(self.config.get('urls').get('doc'), self.config.get('urls').get('doc'))
+            config.add_view(
+                self.doc,
+                renderer='pyramid_rest:templates/doc_specific.mako',
+                route_name=self.config.get('urls').get('doc'),
+                request_method=_READ,
+                permission='doc' if self.with_permission else None
+            )
         # Add the Webservice Object to the registry, so it can be addressed for meta_info in the main doc
         config.registry.pyramid_rest_services.append(self)
 
