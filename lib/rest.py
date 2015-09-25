@@ -53,7 +53,7 @@ class Rest(object):
                           u'constrains'
 
     def __init__(self, database_connection, model, description_text=u'', name=u'', with_permission=False,
-                 debug=False, inner_route_prefix='', outer_use=False):
+                 debug=False, outer_use=False):
         """
 
         Creates an object which handles all things to do to provide an rest interface for the passed model. Please note
@@ -114,20 +114,15 @@ class Rest(object):
         :type with_permission: bool
         :param debug: Turn on, to see a more detailed information in the log.
         :type debug: bool
-        :param inner_route_prefix: Add additional sub url to have api ressources e.g. for tool which should be not
-        available for the common use via the api. please provide like 'bla/bla/bla/'
-        :type inner_route_prefix: str
+        :param outer_use: Switch to configure if this resource is a common available one or not
+        :type outer_use: bool
         """
         self.outer_use = outer_use
         self.engine = create_engine(database_connection, echo=debug)
         self.database_connection = database_connection
         self.model = model
-        if inner_route_prefix == '':
-            self.path = model.database_path().replace('.', '/')
-        else:
-            self.path = inner_route_prefix + model.database_path().replace('.', '/')
+        self.path = model.database_path().replace('.', '/')
         self.route_path = '/' + self.path
-        print self.route_path
         self.with_permission = with_permission
         self.config = {
             'name': name,
