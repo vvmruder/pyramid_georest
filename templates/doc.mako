@@ -83,15 +83,29 @@ Created by vvmruder on 29.07.15.
             <p>
                 <div class="list-group">
                     % for service in request.registry.pyramid_rest_services:
-                        <a href=${request.route_url('/' + service.config.get('path'))} class="list-group-item">
-                            <h4 class="list-group-item-heading">
-                                <span>${service.config.get('name')} </span>
-                                <span class="glyphicon glyphicon-circle-arrow-right pull-right"></span>
-                            </h4>
-                            <p class="list-group-item-text">
-                                ${service.config.get('description')}
-                            </p>
-                        </a>
+                        % if not service.outer_use:
+                            <a href="mailto:${request.registry.pyramid_rest_support_mail}?subject=Access to ${service\
+                            .config.get('name')}" class="list-group-item list-group-item-warning">
+                                <h4 class="list-group-item-heading">
+                                    <span>${service.config.get('name')} </span>
+                                    <span class="glyphicon glyphicon-envelope pull-right"></span>
+                                    <span class="glyphicon glyphicon-warning-sign pull-right"></span>
+                                </h4>
+                                <p class="list-group-item-text">
+                                    ${service.config.get('description')}
+                                </p>
+                            </a>
+                        % else:
+                            <a href=${request.route_url('/' + service.config.get('path'))} class="list-group-item">
+                                <h4 class="list-group-item-heading">
+                                    <span>${service.config.get('name')} </span>
+                                    <span class="glyphicon glyphicon-circle-arrow-right pull-right"></span>
+                                </h4>
+                                <p class="list-group-item-text">
+                                    ${service.config.get('description')}
+                                </p>
+                            </a>
+                        % endif
                     % endfor
                 </div>
             </p>
