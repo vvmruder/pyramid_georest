@@ -14,11 +14,15 @@
 # 
 # The above copyright notice and this permission notice shall be included in all copies or substantial
 # portions of the Software.
+import datetime
+import decimal
+from sqlalchemy.ext.associationproxy import _AssociationList
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql.expression import ColumnCollection
 from sqlalchemy.orm import class_mapper, RelationshipProperty
 from sqlalchemy import Column, types, ColumnDefault, PrimaryKeyConstraint, Sequence
-from geoalchemy import GeometryColumn, Polygon, GeometryDDL
+from geoalchemy import GeometryColumn, Polygon, GeometryDDL, PersistentSpatialElement
+from shapely.wkb import loads as loadsWKB
 
 __author__ = 'Clemens Rudert'
 __create_date__ = '23.07.2015'
@@ -207,7 +211,23 @@ class RestfulBase(object):
         """
         result = {}
         for column in self.__table__.columns:
-            result[column.name] = getattr(self, column.name)
+            value = getattr(self, column.name)
+            if isinstance(value, (datetime.date, datetime.datetime, datetime.time)):
+                value = value.isoformat()
+            elif isinstance(value, _AssociationList):
+                value = list(value)
+            elif isinstance(value, PersistentSpatialElement):
+                value = loadsWKB(str(value.geom_wkb)).wkt
+            elif isinstance(value, decimal.Decimal):
+                value = float(value)
+            elif isinstance(value, list):
+                value_list = []
+                for value_list_element in value:
+                    pk_name = value_list_element.__model__().get('pk_name')
+                    pk_value = getattr(value_list_element, pk_name)
+                    value_list.append(str(pk_value))
+                value = ','.join(value_list)
+            result[column.name] = value
         return result
 
     @classmethod
