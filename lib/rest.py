@@ -16,6 +16,7 @@
 # portions of the Software.
 import json
 from geoalchemy import WKBSpatialElement
+from pyramid_rest.lib.filter import Filter
 from shapely import wkt
 from sqlalchemy.exc import IntegrityError, DatabaseError
 from sqlalchemy.orm.exc import NoResultFound
@@ -24,7 +25,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from pyramid.config import Configurator
 from pyramid.request import Request
-from pyramid_rest.lib.filter import Filter
 
 __author__ = 'Clemens Rudert'
 __create_date__ = '29.07.2015'
@@ -142,6 +142,12 @@ class Rest(object):
                 'model_json': '/' + self.path + '/model.json',
                 'model_xml': '/' + self.path + '/model.xml',
                 'doc': '/' + self.path if outer_use else '',
+                'filter_provider_json': '/' + self.path + '/filter_provider.json',
+                'filter_provider_xml': '/' + self.path + '/filter_provider.xml',
+                'filter_provider_html': '/' + self.path + '/filter_provider.html',
+                'foreign_key_provider_json': '/' + self.path + '/foreign_key_provider.json',
+                'foreign_key_provider_xml': '/' + self.path + '/foreign_key_provider.xml',
+                'foreign_key_provider_html': '/' + self.path + '/foreign_key_provider.html',
                 'create_one': '/' + self.path + '/create',
                 'update_one': '/' + self.path + '/update' + self.primary_key_to_path(),
                 'delete_one': '/' + self.path + '/delete' + self.primary_key_to_path()
@@ -280,6 +286,72 @@ class Rest(object):
             request_method=_READ,
             permission='read_one_html' if self.with_read_permission else None
         )
+        config.add_route(
+            self.config.get('urls').get('filter_provider_json'),
+            self.config.get('urls').get('filter_provider_json')
+        )
+        config.add_view(
+            self.filter_values,
+            renderer='restful_json',
+            route_name=self.config.get('urls').get('filter_provider_json'),
+            request_method=_READ,
+            permission='filter_provider_json' if self.with_read_permission else None
+        )
+        config.add_route(
+            self.config.get('urls').get('filter_provider_xml'),
+            self.config.get('urls').get('filter_provider_xml')
+        )
+        config.add_view(
+            self.filter_values,
+            renderer='restful_xml',
+            route_name=self.config.get('urls').get('filter_provider_xml'),
+            request_method=_READ,
+            permission='filter_provider_xml' if self.with_read_permission else None
+        )
+        config.add_route(
+            self.config.get('urls').get('filter_provider_html'),
+            self.config.get('urls').get('filter_provider_html')
+        )
+        config.add_view(
+            self.filter_values,
+            renderer='pyramid_rest:templates/read.mako',
+            route_name=self.config.get('urls').get('filter_provider_html'),
+            request_method=_READ,
+            permission='filter_provider_html' if self.with_read_permission else None
+        )
+        config.add_route(
+            self.config.get('urls').get('foreign_key_provider_json'),
+            self.config.get('urls').get('foreign_key_provider_json')
+        )
+        config.add_view(
+            self.foreign_key_values,
+            renderer='restful_json',
+            route_name=self.config.get('urls').get('foreign_key_provider_json'),
+            request_method=_READ,
+            permission='foreign_key_provider_json' if self.with_read_permission else None
+        )
+        config.add_route(
+            self.config.get('urls').get('foreign_key_provider_xml'),
+            self.config.get('urls').get('foreign_key_provider_xml')
+        )
+        config.add_view(
+            self.foreign_key_values,
+            renderer='restful_xml',
+            route_name=self.config.get('urls').get('foreign_key_provider_xml'),
+            request_method=_READ,
+            permission='foreign_key_provider_xml' if self.with_read_permission else None
+        )
+        config.add_route(
+            self.config.get('urls').get('foreign_key_provider_html'),
+            self.config.get('urls').get('foreign_key_provider_html')
+        )
+        config.add_view(
+            self.foreign_key_values,
+            renderer='pyramid_rest:templates/read.mako',
+            route_name=self.config.get('urls').get('foreign_key_provider_html'),
+            request_method=_READ,
+            permission='foreign_key_provider_html' if self.with_read_permission else None
+        )
         # create doc url only for services which are intended to be used as external api
         if self.outer_use:
             config.add_route(self.config.get('urls').get('doc'), self.config.get('urls').get('doc'))
@@ -366,6 +438,7 @@ class Rest(object):
                 filter_dict = json.loads(filter_definition)
                 filter_instance = Filter(filter_dict, self.model, session)
                 objects = filter_instance.do_filter().all()
+                return {'features': objects}
             except ValueError, e:
                 print e
                 print 'filter definition: ', filter_definition
@@ -552,3 +625,45 @@ class Rest(object):
 
     def doc(self, request):
         return self.config
+
+    def filter_values(self, request):
+        if request.params.get('filter_column') is None:
+            return HTTPBadRequest(body_template=self.bad_text)
+        else:
+            filter_column = request.params.get('filter_column')
+        if request.params.get('limit') is None:
+            limit = 20
+        else:
+            limit = request.params.get('limit')
+        filter_definition = request.params.get('filter', default=None)
+        if filter_definition is not None:
+            session = self.provide_session(request)
+            filter_instance = Filter(json.loads(filter_definition), self.model, session)
+            filter_query = filter_instance.do_filter()
+            query = filter_query.limit(limit)
+            if len(filter_instance.filter_list) == 0 and len(filter_instance.filter_list_and) == 0 and len(
+                    filter_instance.filter_list_or) == 0:
+                print 'Leerer Filter bei Filterwerten'
+                return HTTPServerError()
+            else:
+                column = getattr(self.model, filter_column)
+                objects = query.distinct(column).all()
+                return {'features': objects}
+
+    def foreign_key_values(self, request):
+        if request.params.get('limit') is None:
+            limit = 20
+        else:
+            limit = request.params.get('limit')
+        filter_definition = request.params.get('filter', default=None)
+        session = self.provide_session(request)
+        if filter_definition is None:
+            query = session.query(self.model)
+            query = query.limit(limit)
+        else:
+            filter_query = Filter(json.loads(filter_definition), self.model, session)
+            filter_query.do_filter()
+            query = filter_query.query.limit(limit)
+        for column_name in self.model.pk_column_names():
+            query = query.distinct(self.model.pk_columns().get(column_name))
+        return {'features': query.all()}
