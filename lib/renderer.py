@@ -58,7 +58,8 @@ class RestfulJson(JSON):
         features = []
         for o in objects.get('features'):
             features.append(o.as_dict())
-        val = json.dumps(features)
+        objects['features'] = features
+        val = json.dumps(objects)
         callback = request.GET.get('callback')
         if callback is None:
             ct = 'application/json'
@@ -99,8 +100,9 @@ class RestfulXML(JSON):
         features = []
         for o in objects.get('features'):
             features.append(o.as_dict())
+        objects['features'] = features
         dicttoxml.set_debug(False)
-        val = dicttoxml.dicttoxml(features, attr_type=False)
+        val = dicttoxml.dicttoxml(objects, attr_type=False)
         # print val
         callback = request.GET.get('callback')
         if callback is None:
