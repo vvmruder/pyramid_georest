@@ -53,7 +53,7 @@ class Rest(object):
                           u'constrains'
 
     def __init__(self, database_connection, model, description_text=u'', name=u'', with_read_permission=False,
-                 with_write_permission=False, debug=False, outer_use=False):
+                 with_write_permission=False, debug=False, outer_use=False, dictionary=None):
         """
 
         Creates an object which handles all things to do to provide an rest interface for the passed model. Please note
@@ -118,7 +118,10 @@ class Rest(object):
         :type debug: bool
         :param outer_use: Switch to configure if this resource is a common available one or not
         :type outer_use: bool
+        :param dictionary: The pythonic path to a lookup like: '<package_name>:lang/dict.yaml'.
+        :type dictionary: str
         """
+        self.dictionary = dictionary
         self.outer_use = outer_use
         self.engine = create_engine(database_connection, echo=debug)
         self.database_connection = database_connection
@@ -494,10 +497,22 @@ class Rest(object):
         :rtype : int
         """
         session = self.provide_session(request)
-        try:
-            count = session.query(self.model).count()
-            return count
-        except DatabaseError, e:
+        filter_definition = request.params.get('filter', default=None)
+        if filter_definition is not None:
+            try:
+                filter_dict = json.loads(filter_definition)
+                filter_instance = Filter(filter_dict, self.model, session)
+                count = filter_instance.do_filter().count()
+                return count
+            except ValueError, e:
+                print e
+                print 'filter definition: ', filter_definition
+                return HTTPBadRequest(body_template=self.bad_text)
+        else:
+            try:
+                count = session.query(self.model).count()
+                return count
+            except DatabaseError, e:
                 print e
                 print 'used connection: ', self.database_connection
                 return HTTPServerError()
@@ -511,7 +526,7 @@ class Rest(object):
         :return: the number of found database records
         :rtype : dict
         """
-        return self.model.description()
+        return self.model.description(self.dictionary)
 
     def create(self, request):
         """
