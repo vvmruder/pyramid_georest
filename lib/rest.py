@@ -148,9 +148,9 @@ class Rest(object):
                 'filter_provider_json': '/' + self.path + '/filter_provider.json',
                 'filter_provider_xml': '/' + self.path + '/filter_provider.xml',
                 'filter_provider_html': '/' + self.path + '/filter_provider.html',
-                'foreign_key_provider_json': '/' + self.path + '/foreign_key_provider.json',
-                'foreign_key_provider_xml': '/' + self.path + '/foreign_key_provider.xml',
-                'foreign_key_provider_html': '/' + self.path + '/foreign_key_provider.html',
+                'fkey_provider_json': '/' + self.path + '/fkey_provider.json',
+                'fkey_provider_xml': '/' + self.path + '/fkey_provider.xml',
+                'fkey_provider_html': '/' + self.path + '/fkey_provider.html',
                 'create_one': '/' + self.path + '/create',
                 'update_one': '/' + self.path + '/update' + self.primary_key_to_path(),
                 'delete_one': '/' + self.path + '/delete' + self.primary_key_to_path()
@@ -323,37 +323,37 @@ class Rest(object):
             permission='filter_provider_html' if self.with_read_permission else None
         )
         config.add_route(
-            self.config.get('urls').get('foreign_key_provider_json'),
-            self.config.get('urls').get('foreign_key_provider_json')
+            self.config.get('urls').get('fkey_provider_json'),
+            self.config.get('urls').get('fkey_provider_json')
         )
         config.add_view(
             self.foreign_key_values,
             renderer='restful_json',
-            route_name=self.config.get('urls').get('foreign_key_provider_json'),
+            route_name=self.config.get('urls').get('fkey_provider_json'),
             request_method=_READ,
-            permission='foreign_key_provider_json' if self.with_read_permission else None
+            permission='fkey_provider_json' if self.with_read_permission else None
         )
         config.add_route(
-            self.config.get('urls').get('foreign_key_provider_xml'),
-            self.config.get('urls').get('foreign_key_provider_xml')
+            self.config.get('urls').get('fkey_provider_xml'),
+            self.config.get('urls').get('fkey_provider_xml')
         )
         config.add_view(
             self.foreign_key_values,
             renderer='restful_xml',
-            route_name=self.config.get('urls').get('foreign_key_provider_xml'),
+            route_name=self.config.get('urls').get('fkey_provider_xml'),
             request_method=_READ,
-            permission='foreign_key_provider_xml' if self.with_read_permission else None
+            permission='fkey_provider_xml' if self.with_read_permission else None
         )
         config.add_route(
-            self.config.get('urls').get('foreign_key_provider_html'),
-            self.config.get('urls').get('foreign_key_provider_html')
+            self.config.get('urls').get('fkey_provider_html'),
+            self.config.get('urls').get('fkey_provider_html')
         )
         config.add_view(
             self.foreign_key_values,
             renderer='pyramid_rest:templates/read.mako',
-            route_name=self.config.get('urls').get('foreign_key_provider_html'),
+            route_name=self.config.get('urls').get('fkey_provider_html'),
             request_method=_READ,
-            permission='foreign_key_provider_html' if self.with_read_permission else None
+            permission='fkey_provider_html' if self.with_read_permission else None
         )
         # create doc url only for services which are intended to be used as external api
         if self.outer_use:

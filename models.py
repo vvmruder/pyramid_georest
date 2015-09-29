@@ -16,6 +16,7 @@
 # portions of the Software.
 import datetime
 import decimal
+from pyramid.path import AssetResolver
 from sqlalchemy.ext.associationproxy import _AssociationList
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql.expression import ColumnCollection
@@ -23,6 +24,7 @@ from sqlalchemy.orm import class_mapper, RelationshipProperty
 from sqlalchemy import Column, types, ColumnDefault, PrimaryKeyConstraint, Sequence
 from geoalchemy import GeometryColumn, Polygon, GeometryDDL, PersistentSpatialElement
 from shapely.wkb import loads as loadsWKB
+from yaml import load
 
 __author__ = 'Clemens Rudert'
 __create_date__ = '23.07.2015'
@@ -31,15 +33,25 @@ __create_date__ = '23.07.2015'
 class RestfulBase(object):
 
     @classmethod
-    def description(cls):
+    def translate(cls, string_to_translate, dictionary, lang='de'):
+        dictionary = load(open(AssetResolver().resolve(dictionary).abspath()))
+        if string_to_translate in dictionary.get(lang):
+            return dictionary.get(lang).get(string_to_translate)
+        else:
+            return string_to_translate
+
+    @classmethod
+    def description(cls, dictionary=None):
         """
         :returns: An python dict with the description of the mapped database table
         :rtype : dict
         """
+
+
+        primary_keys = []
         model = {
             'model_name': cls.__name__,
             'columns': [],
-            'pk_names': [],
             'relations': []
         }
         for p in class_mapper(cls).iterate_properties:
@@ -53,6 +65,7 @@ class RestfulBase(object):
 
                 column_dict = {
                     'column_name': column.name,
+                    'header': column.name if dictionary is None else cls.translate(column.name, dictionary),
                     'type': str(column.type),
                     'pk': column.primary_key,
                     'fk': fk,
@@ -66,11 +79,14 @@ class RestfulBase(object):
                 }
                 model.get('columns').append(column_dict)
                 if column.primary_key:
-                    model['pk_names'].append(column.name)
+                    primary_keys.append(column.name)
+                if len(primary_keys) == 1:
+                    model['pk_name'] = primary_keys[0]
+                elif len(primary_keys) > 1:
+                    model['pk_names'] = primary_keys
             else:
                 # TODO: make relationship properties part of the model description. This can be helpful for dropdowns
                 #  etc.
-                """
                 if p.uselist:
                     fk_path = [
                         p.argument.__table_args__.get('schema'),
@@ -93,7 +109,6 @@ class RestfulBase(object):
                         'is_m_to_n': True
                     }
                     model.get('relations').append(column_dict)
-                """
         model['columns_count'] = len(model.get('columns'))
         return model
 
