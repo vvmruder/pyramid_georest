@@ -62,11 +62,10 @@ class RestfulBase(object):
                     #raise NotImplementedError
                 column = p.columns[0]
                 fk, fks = cls.column_fk(column)
-
                 column_dict = {
                     'column_name': column.name,
                     'header': column.name if dictionary is None else cls.translate(column.name, dictionary),
-                    'type': str(column.type.__visit_name__),
+                    'type': str(column.type.__visit_name__ if column.type.__visit_name__ != 'user_defined' else column.type),
                     'pk': column.primary_key,
                     'fk': fk,
                     'fk_names': fks,
