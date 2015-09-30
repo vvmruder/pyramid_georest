@@ -414,11 +414,11 @@ class Rest(object):
 
         def cleanup(request):
             if request.exception is not None:
-                print request.exception
-                print 'rollback session because request error was thrown'
+                # print request.exception
+                # print 'rollback session because request error was thrown'
                 session_instance.rollback()
             else:
-                print 'commit session, everything is ok'
+                # print 'commit session, everything is ok'
                 session_instance.commit()
             session_instance.close()
         request.add_finished_callback(cleanup)
