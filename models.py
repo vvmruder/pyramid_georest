@@ -66,7 +66,7 @@ class RestfulBase(object):
                 column_dict = {
                     'column_name': column.name,
                     'header': column.name if dictionary is None else cls.translate(column.name, dictionary),
-                    'type': str(column.type),
+                    'type': str(column.type.__visit_name__),
                     'pk': column.primary_key,
                     'fk': fk,
                     'fk_names': fks,
