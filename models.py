@@ -54,17 +54,18 @@ class RestfulBase(object):
             'columns': [],
             'relations': []
         }
-        for p in class_mapper(cls).iterate_properties:
-            if type(p) is not RelationshipProperty:
-                #print p.columns
-                if len(p.columns) != 1:
+        for name, value in class_mapper(cls)._props.iteritems():
+
+            if type(value) is not RelationshipProperty:
+                if len(value.columns) != 1:
+                    # print name, value.columns
+                    # raise NotImplementedError
                     pass
-                    #raise NotImplementedError
-                column = p.columns[0]
+                column = value.columns[0]
                 fk, fks = cls.column_fk(column)
                 column_dict = {
-                    'column_name': column.name,
-                    'header': column.name if dictionary is None else cls.translate(column.name, dictionary),
+                    'column_name': name,
+                    'header': name if dictionary is None else cls.translate(name, dictionary),
                     'type': str(column.type.__visit_name__ if column.type.__visit_name__ != 'user_defined' else column.type),
                     'pk': column.primary_key,
                     'fk': fk,
@@ -78,7 +79,7 @@ class RestfulBase(object):
                 }
                 model.get('columns').append(column_dict)
                 if column.primary_key:
-                    primary_keys.append(column.name)
+                    primary_keys.append(name)
                 if len(primary_keys) == 1:
                     model['pk_name'] = primary_keys[0]
                 elif len(primary_keys) > 1:
@@ -86,14 +87,14 @@ class RestfulBase(object):
             else:
                 # TODO: make relationship properties part of the model description. This can be helpful for dropdowns
                 #  etc.
-                if p.uselist:
+                if value.uselist:
                     fk_path = [
-                        p.argument.__table_args__.get('schema'),
-                        p.argument.__table__.name,
-                        p.argument.__model__().get('pk_name')
+                        value.argument.__table_args__.get('schema'),
+                        value.argument.__table__.name,
+                        value.argument.description().get('pk_name')
                     ]
                     column_dict = {
-                        'column_name': str(p).split('.')[-1],
+                        'column_name': name,
                         'type': 'String',
                         'pk': False,
                         'fk': True,
@@ -107,7 +108,7 @@ class RestfulBase(object):
                         'default': [],
                         'is_m_to_n': True
                     }
-                    model.get('relations').append(column_dict)
+                    model.get('columns').append(column_dict)
         model['columns_count'] = len(model.get('columns'))
         return model
 
@@ -224,8 +225,9 @@ class RestfulBase(object):
         :return: a dict representing the key value pairs of corresponding database entity
         """
         result = {}
-        for column in self.__table__.columns:
-            value = getattr(self, column.name.lower())
+        for column in self.description().get('columns', []):
+            name = column.get('column_name')
+            value = getattr(self, name)
             if isinstance(value, (datetime.date, datetime.datetime, datetime.time)):
                 value = value.isoformat()
             elif isinstance(value, _AssociationList):
@@ -237,11 +239,11 @@ class RestfulBase(object):
             elif isinstance(value, list):
                 value_list = []
                 for value_list_element in value:
-                    pk_name = value_list_element.__model__().get('pk_name')
+                    pk_name = value_list_element.description().get('pk_name')
                     pk_value = getattr(value_list_element, pk_name)
                     value_list.append(str(pk_value))
                 value = ','.join(value_list)
-            result[column.name.lower()] = value
+            result[name] = value
         return result
 
     @classmethod
