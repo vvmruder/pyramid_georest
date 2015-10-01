@@ -227,6 +227,7 @@ class RestfulBase(object):
         result = {}
         for column in self.description().get('columns', []):
             name = column.get('column_name')
+            is_m_to_n = column.get('is_m_to_n')
             value = getattr(self, name)
             if isinstance(value, (datetime.date, datetime.datetime, datetime.time)):
                 value = value.isoformat()
@@ -236,7 +237,7 @@ class RestfulBase(object):
                 value = loadsWKB(str(value.geom_wkb)).wkt
             elif isinstance(value, decimal.Decimal):
                 value = float(value)
-            elif isinstance(value, list):
+            elif is_m_to_n:
                 value_list = []
                 for value_list_element in value:
                     pk_name = value_list_element.description().get('pk_name')
