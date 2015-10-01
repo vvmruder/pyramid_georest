@@ -225,7 +225,7 @@ class RestfulBase(object):
         """
         result = {}
         for column in self.__table__.columns:
-            value = getattr(self, column.name)
+            value = getattr(self, column.name.lower())
             if isinstance(value, (datetime.date, datetime.datetime, datetime.time)):
                 value = value.isoformat()
             elif isinstance(value, _AssociationList):
@@ -241,7 +241,7 @@ class RestfulBase(object):
                     pk_value = getattr(value_list_element, pk_name)
                     value_list.append(str(pk_value))
                 value = ','.join(value_list)
-            result[column.name] = value
+            result[column.name.lower()] = value
         return result
 
     @classmethod
