@@ -121,6 +121,7 @@ class Rest(object):
         :param dictionary: The pythonic path to a lookup like: '<package_name>:lang/dict.yaml'.
         :type dictionary: str
         """
+        self.route_prefix = ''
         self.dictionary = dictionary
         self.outer_use = outer_use
         self.engine = create_engine(database_connection, echo=debug)
@@ -130,36 +131,13 @@ class Rest(object):
         self.route_path = '/' + self.path
         self.with_read_permission = with_read_permission
         self.with_write_permission = with_write_permission
-        self.config = {
-            'name': name,
-            'description': description_text,
-            'path': self.path,
-            'urls': {
-                'read_json': '/' + self.path + '/read.json',
-                'read_xml': '/' + self.path + '/read.xml',
-                'read_html': '/' + self.path + '/read',
-                'read_one_json': '/' + self.path + '/read' + self.primary_key_to_path() + '.json',
-                'read_one_xml': '/' + self.path + '/read' + self.primary_key_to_path() + '.xml',
-                'read_one_html': '/' + self.path + '/read' + self.primary_key_to_path(),
-                'count': '/' + self.path + '/count',
-                'model_json': '/' + self.path + '/model.json',
-                'model_xml': '/' + self.path + '/model.xml',
-                'doc': '/' + self.path if outer_use else '',
-                'filter_provider_json': '/' + self.path + '/filter_provider.json',
-                'filter_provider_xml': '/' + self.path + '/filter_provider.xml',
-                'filter_provider_html': '/' + self.path + '/filter_provider.html',
-                'fkey_provider_json': '/' + self.path + '/fkey_provider.json',
-                'fkey_provider_xml': '/' + self.path + '/fkey_provider.xml',
-                'fkey_provider_html': '/' + self.path + '/fkey_provider.html',
-                'create_one': '/' + self.path + '/create',
-                'update_one': '/' + self.path + '/update' + self.primary_key_to_path(),
-                'delete_one': '/' + self.path + '/delete' + self.primary_key_to_path()
-            }
-        }
+        self.name = name
+        self.description_text = description_text
+        self.outer_use = outer_use
+        self.config = None
 
     def bind(self, config):
         from pyramid_rest import _CREATE, _DELETE, _READ, _UPDATE
-
         """
         The bind method is the point, where all views and routes (URL-Resources) will be created. It is called from
         the includeme method of this package. You can call it manually of cause if you don't use this package via the
@@ -167,7 +145,47 @@ class Rest(object):
         :param config: The Configurator of the underling pyramid web app
         :type config: Configurator
         """
-        config.add_route(self.config.get('urls').get('read_json'), self.config.get('urls').get('read_json'))
+
+        self.route_prefix = config.route_prefix
+
+        # set the route prefix to an empty string and handle prefix in the service itself. This prevents urls like
+        # url/route_prefix/route_prefix/ressource.json ...
+        config.route_prefix = ''
+
+        # add the prefix to the path to have the full url path and to have the uri route name
+        self.path = self.route_prefix + self.route_path
+
+        self.config = {
+            'name': self.name,
+            'description': self.description_text,
+            'path': self.path,
+            'urls': {
+                'read_json': self.path + '/read.json',
+                'read_xml': self.path + '/read.xml',
+                'read_html': self.path + '/read',
+                'read_one_json': self.path + '/read' + self.primary_key_to_path() + '.json',
+                'read_one_xml': self.path + '/read' + self.primary_key_to_path() + '.xml',
+                'read_one_html': self.path + '/read' + self.primary_key_to_path(),
+                'count': self.path + '/count',
+                'model_json': self.path + '/model.json',
+                'model_xml': self.path + '/model.xml',
+                'doc': self.path if self.outer_use else '',
+                'filter_provider_json': self.path + '/filter_provider.json',
+                'filter_provider_xml': self.path + '/filter_provider.xml',
+                'filter_provider_html': self.path + '/filter_provider.html',
+                'fkey_provider_json': self.path + '/fkey_provider.json',
+                'fkey_provider_xml': self.path + '/fkey_provider.xml',
+                'fkey_provider_html': self.path + '/fkey_provider.html',
+                'create_one': self.path + '/create',
+                'update_one': self.path + '/update' + self.primary_key_to_path(),
+                'delete_one': self.path + '/delete' + self.primary_key_to_path()
+            }
+        }
+
+        config.add_route(
+            self.config.get('urls').get('read_json'),
+            self.config.get('urls').get('read_json')
+        )
         config.add_view(
             self.read,
             renderer='restful_json',
@@ -176,7 +194,10 @@ class Rest(object):
             permission='read_json' if self.with_read_permission else None
         )
 
-        config.add_route(self.config.get('urls').get('read_xml'), self.config.get('urls').get('read_xml'))
+        config.add_route(
+            self.config.get('urls').get('read_xml'),
+            self.config.get('urls').get('read_xml')
+        )
         config.add_view(
             self.read,
             renderer='restful_xml',
@@ -209,7 +230,10 @@ class Rest(object):
             permission='read_one_xml' if self.with_read_permission else None
         )
 
-        config.add_route(self.config.get('urls').get('create_one'), self.config.get('urls').get('create_one'))
+        config.add_route(
+            self.config.get('urls').get('create_one'),
+            self.config.get('urls').get('create_one')
+        )
         config.add_view(
             self.create,
             renderer='restful_json',
@@ -242,7 +266,10 @@ class Rest(object):
             permission='delete_one' if self.with_write_permission else None
         )
 
-        config.add_route(self.config.get('urls').get('count'), self.config.get('urls').get('count'))
+        config.add_route(
+            self.config.get('urls').get('count'),
+            self.config.get('urls').get('count')
+        )
         config.add_view(
             self.count,
             renderer='jsonp',
@@ -251,7 +278,10 @@ class Rest(object):
             permission='count' if self.with_read_permission else None
         )
 
-        config.add_route(self.config.get('urls').get('model_json'), self.config.get('urls').get('model_json'))
+        config.add_route(
+            self.config.get('urls').get('model_json'),
+            self.config.get('urls').get('model_json')
+        )
         config.add_view(
             self.description,
             renderer='model_restful_json',
@@ -260,7 +290,10 @@ class Rest(object):
             permission='model_json' if self.with_read_permission else None
         )
 
-        config.add_route(self.config.get('urls').get('model_xml'), self.config.get('urls').get('model_xml'))
+        config.add_route(
+            self.config.get('urls').get('model_xml'),
+            self.config.get('urls').get('model_xml')
+        )
         config.add_view(
             self.description,
             renderer='model_restful_xml',
@@ -269,7 +302,10 @@ class Rest(object):
             permission='model_xml' if self.with_read_permission else None
         )
 
-        config.add_route(self.config.get('urls').get('read_html'), self.config.get('urls').get('read_html'))
+        config.add_route(
+            self.config.get('urls').get('read_html'),
+            self.config.get('urls').get('read_html')
+        )
         config.add_view(
             self.read,
             renderer='pyramid_rest:templates/read.mako',
@@ -357,7 +393,10 @@ class Rest(object):
         )
         # create doc url only for services which are intended to be used as external api
         if self.outer_use:
-            config.add_route(self.config.get('urls').get('doc'), self.config.get('urls').get('doc'))
+            config.add_route(
+                self.config.get('urls').get('doc'),
+                self.config.get('urls').get('doc')
+            )
             config.add_view(
                 self.doc,
                 renderer='pyramid_rest:templates/doc_specific.mako',
@@ -367,6 +406,9 @@ class Rest(object):
             )
         # Add the Webservice Object to the registry, so it can be addressed for meta_info in the main doc
         config.registry.pyramid_rest_services.append(self)
+
+        # reset the route prefix to guarantee proper handling on further route_prefix use
+        config.route_prefix = self.route_prefix
 
     def primary_key_to_url(self):
         """
