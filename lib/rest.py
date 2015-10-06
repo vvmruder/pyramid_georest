@@ -455,6 +455,7 @@ class Rest(object):
         session_instance = self.session()
 
         def cleanup(request):
+            print 'clean up method was called !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
             if request.exception is not None:
                 # print request.exception
                 # print 'rollback session because request error was thrown'
