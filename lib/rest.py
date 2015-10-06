@@ -135,6 +135,7 @@ class Rest(object):
         self.description_text = description_text
         self.outer_use = outer_use
         self.config = None
+        self.session = sessionmaker(bind=self.engine)
 
     def bind(self, config):
         from pyramid_rest import _CREATE, _DELETE, _READ, _UPDATE
@@ -451,8 +452,7 @@ class Rest(object):
         :return: a usable instance of a SQLAlchemy Session
         :rtype : Session
         """
-        Session = sessionmaker(bind=self.engine)
-        session_instance = Session()
+        session_instance = self.session()
 
         def cleanup(request):
             if request.exception is not None:
