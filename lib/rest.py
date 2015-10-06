@@ -22,7 +22,7 @@ from sqlalchemy.exc import IntegrityError, DatabaseError
 from sqlalchemy.orm.exc import NoResultFound
 from pyramid.httpexceptions import HTTPNotFound, HTTPBadRequest, HTTPServerError, HTTPUnauthorized
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import sessionmaker, Session, scoped_session
 from pyramid.config import Configurator
 from pyramid.request import Request
 
@@ -124,7 +124,7 @@ class Rest(object):
         self.route_prefix = ''
         self.dictionary = dictionary
         self.outer_use = outer_use
-        self.engine = create_engine(database_connection, echo=debug, pool_size=0, echo_pool=True)
+        self.engine = scoped_session(create_engine(database_connection, echo=debug, pool_size=1))
         self.database_connection = database_connection
         self.model = model
         self.path = model.database_path().replace('.', '/')
@@ -463,7 +463,7 @@ class Rest(object):
             else:
                 # print 'commit session, everything is ok'
                 session_instance.commit()
-            session_instance.close()
+            session_instance.remove()
         request.add_finished_callback(cleanup)
 
         return session_instance
