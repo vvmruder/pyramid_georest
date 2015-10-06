@@ -124,7 +124,7 @@ class Rest(object):
         self.route_prefix = ''
         self.dictionary = dictionary
         self.outer_use = outer_use
-        self.engine = create_engine(database_connection, echo=debug, pool_size=1)
+        self.engine = None
         self.database_connection = database_connection
         self.model = model
         self.path = model.database_path().replace('.', '/')
@@ -135,7 +135,8 @@ class Rest(object):
         self.description_text = description_text
         self.outer_use = outer_use
         self.config = None
-        self.session = sessionmaker(bind=self.engine)
+        self.session = None
+        self.debug = debug
 
     def bind(self, config):
         from pyramid_rest import _CREATE, _DELETE, _READ, _UPDATE
@@ -406,6 +407,15 @@ class Rest(object):
                 permission='doc' if self.with_read_permission else None
             )
         # Add the Webservice Object to the registry, so it can be addressed for meta_info in the main doc
+        for config.registry.pyramid_rest_service in config.registry.pyramid_rest_services:
+            if self.database_connection == config.registry.pyramid_rest_service.database_connection:
+                self.session = config.registry.pyramid_rest_service.session
+        if self.session is None and self.engine is None:
+            print 'new session used', self.database_connection
+            self.engine = create_engine(self.database_connection, echo=self.debug, pool_size=1)
+            self.session = sessionmaker(bind=self.engine)
+
+
         config.registry.pyramid_rest_services.append(self)
 
         # reset the route prefix to guarantee proper handling on further route_prefix use
