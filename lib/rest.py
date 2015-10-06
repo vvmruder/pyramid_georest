@@ -487,7 +487,7 @@ class Rest(object):
             except ValueError, e:
                 print e
                 print 'filter definition: ', filter_definition
-                return HTTPBadRequest(body_template=self.bad_text)
+                raise HTTPBadRequest(body_template=self.bad_text)
         else:
             try:
                 objects = session.query(self.model).all()
@@ -495,7 +495,7 @@ class Rest(object):
             except DatabaseError, e:
                 print e
                 print 'used connection: ', self.database_connection
-                return HTTPServerError()
+                raise HTTPServerError()
 
     def read_one(self, request):
         """
@@ -527,7 +527,7 @@ class Rest(object):
         except DatabaseError, e:
                 print e
                 print 'used connection: ', self.database_connection
-                return HTTPServerError()
+                raise HTTPServerError()
 
     def count(self, request):
         """
@@ -549,7 +549,7 @@ class Rest(object):
             except ValueError, e:
                 print e
                 print 'filter definition: ', filter_definition
-                return HTTPBadRequest(body_template=self.bad_text)
+                raise HTTPBadRequest(body_template=self.bad_text)
         else:
             try:
                 count = session.query(self.model).count()
@@ -557,7 +557,7 @@ class Rest(object):
             except DatabaseError, e:
                 print e
                 print 'used connection: ', self.database_connection
-                return HTTPServerError()
+                raise HTTPServerError()
 
     def description(self, request):
         """
@@ -601,7 +601,7 @@ class Rest(object):
         except DatabaseError, e:
                 print e
                 print 'used connection: ', self.database_connection
-                return HTTPServerError()
+                raise HTTPServerError()
 
     def update(self, request):
         """
@@ -643,7 +643,7 @@ class Rest(object):
         except DatabaseError, e:
                 print e
                 print 'used connection: ', self.database_connection
-                return HTTPServerError()
+                raise HTTPServerError()
 
     def delete(self, request):
         """
@@ -678,49 +678,59 @@ class Rest(object):
         except DatabaseError, e:
                 print e
                 print 'used connection: ', self.database_connection
-                return HTTPServerError()
+                raise HTTPServerError()
 
     def doc(self, request):
         return self.config
 
     def filter_values(self, request):
-        if request.params.get('filter_column') is None:
-            return HTTPBadRequest(body_template=self.bad_text)
-        else:
-            filter_column = request.params.get('filter_column')
-        if request.params.get('limit') is None:
-            limit = 20
-        else:
-            limit = request.params.get('limit')
-        filter_definition = request.params.get('filter', default=None)
-        if filter_definition is not None:
-            session = self.provide_session(request)
-            filter_instance = Filter(json.loads(filter_definition), self.model, session)
-            filter_query = filter_instance.do_filter()
-            query = filter_query.limit(limit)
-            if len(filter_instance.filter_list) == 0 and len(filter_instance.filter_list_and) == 0 and len(
-                    filter_instance.filter_list_or) == 0:
-                print 'Leerer Filter bei Filterwerten'
-                return HTTPServerError()
+        try:
+            if request.params.get('filter_column') is None:
+                return HTTPBadRequest(body_template=self.bad_text)
             else:
-                column = getattr(self.model, filter_column)
-                objects = query.distinct(column).all()
-                return {'features': objects}
+                filter_column = request.params.get('filter_column')
+            if request.params.get('limit') is None:
+                limit = 20
+            else:
+                limit = request.params.get('limit')
+            filter_definition = request.params.get('filter', default=None)
+            if filter_definition is not None:
+                session = self.provide_session(request)
+                filter_instance = Filter(json.loads(filter_definition), self.model, session)
+                filter_query = filter_instance.do_filter()
+                query = filter_query.limit(limit)
+                if len(filter_instance.filter_list) == 0 and len(filter_instance.filter_list_and) == 0 and len(
+                        filter_instance.filter_list_or) == 0:
+                    print 'Leerer Filter bei Filterwerten'
+                    raise HTTPServerError()
+                else:
+                    column = getattr(self.model, filter_column)
+                    objects = query.distinct(column).all()
+                    return {'features': objects}
+        except DatabaseError, e:
+                print e
+                print 'used connection: ', self.database_connection
+                raise HTTPServerError()
 
     def foreign_key_values(self, request):
-        if request.params.get('limit') is None:
-            limit = 20
-        else:
-            limit = request.params.get('limit')
-        filter_definition = request.params.get('filter', default=None)
-        session = self.provide_session(request)
-        if filter_definition is None:
-            query = session.query(self.model)
-            query = query.limit(limit)
-        else:
-            filter_query = Filter(json.loads(filter_definition), self.model, session)
-            filter_query.do_filter()
-            query = filter_query.query.limit(limit)
-        for column_name in self.model.pk_column_names():
-            query = query.distinct(self.model.pk_columns().get(column_name))
-        return {'features': query.all()}
+        try:
+            if request.params.get('limit') is None:
+                limit = 20
+            else:
+                limit = request.params.get('limit')
+            filter_definition = request.params.get('filter', default=None)
+            session = self.provide_session(request)
+            if filter_definition is None:
+                query = session.query(self.model)
+                query = query.limit(limit)
+            else:
+                filter_query = Filter(json.loads(filter_definition), self.model, session)
+                filter_query.do_filter()
+                query = filter_query.query.limit(limit)
+            for column_name in self.model.pk_column_names():
+                query = query.distinct(self.model.pk_columns().get(column_name))
+            return {'features': query.all()}
+        except DatabaseError, e:
+                print e
+                print 'used connection: ', self.database_connection
+                raise HTTPServerError()
