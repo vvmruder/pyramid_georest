@@ -124,7 +124,7 @@ class Rest(object):
         self.route_prefix = ''
         self.dictionary = dictionary
         self.outer_use = outer_use
-        self.engine = create_engine(database_connection, echo=debug)
+        self.engine = create_engine(database_connection, echo=debug, pool_size=0, echo_pool=True)
         self.database_connection = database_connection
         self.model = model
         self.path = model.database_path().replace('.', '/')
