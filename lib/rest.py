@@ -135,7 +135,7 @@ class Rest(object):
         self.description_text = description_text
         self.outer_use = outer_use
         self.config = None
-        self.session = scoped_session(sessionmaker(bind=self.engine))
+        self.session = sessionmaker(bind=self.engine)
 
     def bind(self, config):
         from pyramid_rest import _CREATE, _DELETE, _READ, _UPDATE
@@ -452,7 +452,7 @@ class Rest(object):
         :return: a usable instance of a SQLAlchemy Session
         :rtype : Session
         """
-        session_instance = self.session()
+        session_instance = scoped_session(self.session)
 
         def cleanup(request):
             print 'clean up method was called !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
