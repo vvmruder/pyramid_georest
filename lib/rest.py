@@ -124,7 +124,7 @@ class Rest(object):
         self.route_prefix = ''
         self.dictionary = dictionary
         self.outer_use = outer_use
-        self.engine = scoped_session(create_engine(database_connection, echo=debug, pool_size=1))
+        self.engine = create_engine(database_connection, echo=debug, pool_size=1)
         self.database_connection = database_connection
         self.model = model
         self.path = model.database_path().replace('.', '/')
@@ -135,7 +135,7 @@ class Rest(object):
         self.description_text = description_text
         self.outer_use = outer_use
         self.config = None
-        self.session = sessionmaker(bind=self.engine)
+        self.session = scoped_session(sessionmaker(bind=self.engine))
 
     def bind(self, config):
         from pyramid_rest import _CREATE, _DELETE, _READ, _UPDATE
