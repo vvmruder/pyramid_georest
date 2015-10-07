@@ -20,7 +20,7 @@ from pyramid_rest.lib.filter import Filter
 from shapely import wkt
 from sqlalchemy.exc import IntegrityError, DatabaseError
 from sqlalchemy.orm.exc import NoResultFound
-from pyramid.httpexceptions import HTTPNotFound, HTTPBadRequest, HTTPServerError, HTTPUnauthorized
+from pyramid.httpexceptions import HTTPNotFound, HTTPBadRequest, HTTPServerError
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session, scoped_session
 from pyramid.config import Configurator
@@ -406,15 +406,30 @@ class Rest(object):
                 request_method=_READ,
                 permission='doc' if self.with_read_permission else None
             )
+        """
+        The behavior of the Rest class implies a creation of an engine (and therefor a session) per class instance.
+        This leads to big problems if you want have a lot of restful resources in one pyramid application. Because
+        you may run your database down in fact you establish too many connections at one time (for instance if you
+        run an application on top of this api which makes heavy use of requests).
+        That's why we introduce the behavior below. For some other reason we have a installed a property
+        (pyramid_rest_services) on the request. This is a list of all Rest objects created by this package.
+         This is the key. Before we assign a new engine + session (which leads to a potentially new connection to the
+          database) we scan this list for a service with exact the same database_connection string.
+          Logical conclusion: This two services can use the same session class for instantiation! So we bind the
+          found engine and session to the newly created rest object and add it to the list of created rest objects in
+          the request. If no match was found the engine and session will be created and the rest object will be added
+          to the request as well.
+          Implementing this way we can save a lot of unnecessary connections and so a lot of RAM and trouble.
+        """
         # Add the Webservice Object to the registry, so it can be addressed for meta_info in the main doc
-        for config.registry.pyramid_rest_service in config.registry.pyramid_rest_services:
-            if self.database_connection == config.registry.pyramid_rest_service.database_connection:
-                self.session = config.registry.pyramid_rest_service.session
+        for pyramid_rest_service in config.registry.pyramid_rest_services:
+            if self.database_connection == pyramid_rest_service.database_connection:
+                self.engine = pyramid_rest_service.engine
+                self.session = pyramid_rest_service.session
         if self.session is None and self.engine is None:
-            print 'new session used', self.database_connection
+            # print 'new session used', self.database_connection
             self.engine = create_engine(self.database_connection, echo=self.debug, pool_size=1)
             self.session = sessionmaker(bind=self.engine)
-
 
         config.registry.pyramid_rest_services.append(self)
 
@@ -465,7 +480,6 @@ class Rest(object):
         session_instance = scoped_session(self.session)
 
         def cleanup(request):
-            print 'clean up method was called !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
             if request.exception is not None:
                 # print request.exception
                 # print 'rollback session because request error was thrown'
