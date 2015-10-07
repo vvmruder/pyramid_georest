@@ -118,21 +118,21 @@ class Filter():
                     self.decide_geometric_relation_type(value, column_name, 'ST_Within')
 
     def decide_geometric_relation_type(self, value, column_name, compare_type):
-        columns = self.mapped_class.__model__().get('columns')
+        columns = self.mapped_class.description().get('columns')
         for column in columns:
             if column.get('column_name') == column_name:
                 if column.get('type') == 'GEOMETRYCOLLECTION':
                     ids = self.extract_geometry_collection_db(value, compare_type, column_name)
                     for id_value in ids:
-                        self.filter_list_or.append(getattr(self.mapped_class, self.mapped_class.__model__().get('pk_name')) == id_value)
+                        self.filter_list_or.append(getattr(self.mapped_class, self.mapped_class.description().get('pk_name')) == id_value)
                 elif 'GEOMETRYCOLLECTION' in value:
                     ids = self.extract_geometry_collection_input(value, compare_type, column_name)
                     for id_value in ids:
-                        self.filter_list_or.append(getattr(self.mapped_class, self.mapped_class.__model__().get('pk_name')) == id_value)
+                        self.filter_list_or.append(getattr(self.mapped_class, self.mapped_class.description().get('pk_name')) == id_value)
                 elif 'GEOMETRYCOLLECTION' in value and column.get('type') == 'GEOMETRYCOLLECTION':
                     ids = self.extract_geometry_collection_input_and_db(value, compare_type, column_name)
                     for id_value in ids:
-                        self.filter_list_or.append(getattr(self.mapped_class, self.mapped_class.__model__().get('pk_name')) == id_value)
+                        self.filter_list_or.append(getattr(self.mapped_class, self.mapped_class.description().get('pk_name')) == id_value)
                 elif column.get('type') != 'GEOMETRYCOLLECTION':
                     if compare_type == 'ST_Intersects':
                         self.filter_list.append(getattr(self.mapped_class, column_name).intersects(WKTSpatialElement(value, srid=2056)))
@@ -158,11 +158,11 @@ class Filter():
         sub_query_line = self.db_session.query(self.mapped_class).filter(text(sql_text_line)).all()
         sub_query_polygon = self.db_session.query(self.mapped_class).filter(text(sql_text_polygon)).all()
         for point in sub_query_point:
-            result_ids.append(getattr(point, self.mapped_class.__model__().get('pk_name')))
+            result_ids.append(getattr(point, self.mapped_class.description().get('pk_name')))
         for line in sub_query_line:
-            result_ids.append(getattr(line, self.mapped_class.__model__().get('pk_name')))
+            result_ids.append(getattr(line, self.mapped_class.description().get('pk_name')))
         for polygon in sub_query_polygon:
-            result_ids.append(getattr(polygon, self.mapped_class.__model__().get('pk_name')))
+            result_ids.append(getattr(polygon, self.mapped_class.description().get('pk_name')))
         return result_ids
 
     def extract_geometry_collection_input(self, compare_geometry, compare_type, column_name):
@@ -180,11 +180,11 @@ class Filter():
         sub_query_line = self.db_session.query(self.mapped_class).filter(text(sql_text_line)).all()
         sub_query_polygon = self.db_session.query(self.mapped_class).filter(text(sql_text_polygon)).all()
         for point in sub_query_point:
-            result_ids.append(getattr(point, self.mapped_class.__model__().get('pk_name')))
+            result_ids.append(getattr(point, self.mapped_class.description().get('pk_name')))
         for line in sub_query_line:
-            result_ids.append(getattr(line, self.mapped_class.__model__().get('pk_name')))
+            result_ids.append(getattr(line, self.mapped_class.description().get('pk_name')))
         for polygon in sub_query_polygon:
-            result_ids.append(getattr(polygon, self.mapped_class.__model__().get('pk_name')))
+            result_ids.append(getattr(polygon, self.mapped_class.description().get('pk_name')))
         return result_ids
 
     def extract_geometry_collection_input_and_db(self, compare_geometry, compare_type, column_name):
@@ -202,9 +202,9 @@ class Filter():
         sub_query_line = self.db_session.query(self.mapped_class).filter(text(sql_text_line)).all()
         sub_query_polygon = self.db_session.query(self.mapped_class).filter(text(sql_text_polygon)).all()
         for point in sub_query_point:
-            result_ids.append(getattr(point, self.mapped_class.__model__().get('pk_name')))
+            result_ids.append(getattr(point, self.mapped_class.description().get('pk_name')))
         for line in sub_query_line:
-            result_ids.append(getattr(line, self.mapped_class.__model__().get('pk_name')))
+            result_ids.append(getattr(line, self.mapped_class.description().get('pk_name')))
         for polygon in sub_query_polygon:
-            result_ids.append(getattr(polygon, self.mapped_class.__model__().get('pk_name')))
+            result_ids.append(getattr(polygon, self.mapped_class.description().get('pk_name')))
         return result_ids
