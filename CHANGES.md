@@ -1,6 +1,12 @@
 Pyramid REST Changelog
 ======================
 
+## 2.0.1
+
+Fixed issues:
+
+* [#1](https://github.com/vvmruder/pyramid_rest/pull/1): Fixed encoding issue in filter parameter.
+
 ## 2.0.0
 
 First usable version of this package (propably not pip save).
