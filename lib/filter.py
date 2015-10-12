@@ -86,6 +86,8 @@ class Filter():
         operator = filter.get('operator')
         column_name = filter.get('column')
         value = filter.get('value')
+        if isinstance(value, basestring):
+            value = value.encode('utf-8')
         for col in self.mapped_class.__table__.columns:
             if col.name == column_name:
                 if operator == '=':
