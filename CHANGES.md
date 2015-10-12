@@ -1,6 +1,12 @@
 Pyramid REST Changelog
 ======================
 
+## 2.0.2
+
+Fixed issues:
+
+* [#2](https://github.com/vvmruder/pyramid_rest/issues/2): Fixed lost m to n handling.
+
 ## 2.0.1
 
 Fixed issues:
