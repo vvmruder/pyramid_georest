@@ -1,6 +1,13 @@
 Pyramid REST Changelog
 ======================
 
+## 2.0.3
+
+Fixed issues:
+
+* [#2](https://github.com/vvmruder/pyramid_rest/issues/2): Fixed problem where the relationship properties wasn't 
+loaded correctly .
+
 ## 2.0.2
 
 Fixed issues:
