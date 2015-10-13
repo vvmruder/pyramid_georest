@@ -641,10 +641,10 @@ class Rest(object):
                 for key, value in data.iteritems():
                     if key == 'geom':
                         value = WKBSpatialElement(buffer(wkt.loads(value).wkb), srid=2056)
-                    m_to_n = self.m_to_n_handling(key, value)
+                    m_to_n = self.m_to_n_handling(key, value, session)
                     if m_to_n:
                         value = m_to_n
-                    setattr(new_record, key, value, session)
+                    setattr(new_record, key, value)
                 session.add(new_record)
                 session.flush()
                 request.response.status_int = 201
