@@ -1,6 +1,12 @@
 Pyramid REST Changelog
 ======================
 
+## 2.0.4
+
+Fixed issues:
+
+* Fixed improve session handling.
+
 ## 2.0.3
 
 Fixed issues:
