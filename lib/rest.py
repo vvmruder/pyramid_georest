@@ -481,14 +481,10 @@ class Rest(object):
         inner_scoped_session = self.session
 
         def cleanup(request):
-            if request.exception is not None:
-                # print request.exception
-                # print 'rollback session because request error was thrown'
-                session_instance.rollback()
-            else:
-                # print 'commit session, everything is ok'
+            if request.exception is None:
                 session_instance.commit()
             inner_scoped_session.remove()
+
         request.add_finished_callback(cleanup)
 
         return session_instance
