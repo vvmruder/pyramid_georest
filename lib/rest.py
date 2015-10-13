@@ -429,7 +429,7 @@ class Rest(object):
         if self.session is None and self.engine is None:
             # print 'new session used', self.database_connection
             self.engine = create_engine(self.database_connection, echo=self.debug, pool_size=1)
-            self.session = sessionmaker(bind=self.engine)
+            self.session = scoped_session(sessionmaker(bind=self.engine))
 
         config.registry.pyramid_rest_services.append(self)
 
@@ -477,7 +477,8 @@ class Rest(object):
         :return: a usable instance of a SQLAlchemy Session
         :rtype : Session
         """
-        session_instance = scoped_session(self.session)
+        session_instance = self.session()
+        inner_scoped_session = self.session
 
         def cleanup(request):
             if request.exception is not None:
@@ -487,7 +488,7 @@ class Rest(object):
             else:
                 # print 'commit session, everything is ok'
                 session_instance.commit()
-            session_instance.remove()
+            inner_scoped_session.remove()
         request.add_finished_callback(cleanup)
 
         return session_instance
