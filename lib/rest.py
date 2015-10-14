@@ -500,24 +500,28 @@ class Rest(object):
         """
         session = self.provide_session(request)
         filter_definition = request.params.get('filter', default=None)
-        if filter_definition is not None:
-            try:
+        try:
+            if filter_definition is not None:
                 filter_dict = json.loads(filter_definition)
                 filter_instance = Filter(filter_dict, self.model, session)
                 objects = filter_instance.do_filter().all()
                 return {'features': objects}
-            except ValueError, e:
-                print e
-                print 'filter definition: ', filter_definition
-                raise HTTPBadRequest(body_template=self.bad_text)
-        else:
-            try:
+
+            else:
                 objects = session.query(self.model).all()
                 return {'features': objects}
-            except DatabaseError, e:
-                print e
-                print 'used connection: ', self.database_connection
-                raise HTTPServerError()
+        except ValueError, e:
+            print e
+            print 'filter definition: ', filter_definition
+            raise HTTPBadRequest(body_template=self.bad_text)
+        except DatabaseError, e:
+            print e
+            print 'used connection: ', self.database_connection
+            raise HTTPServerError()
+        except Exception, e:
+            print 'unknown error was thrown: ', e
+            print 'used connection: ', self.database_connection
+            raise HTTPServerError()
 
     def read_one(self, request):
         """
@@ -547,9 +551,13 @@ class Rest(object):
             text = ', '.join(text_list)
             raise HTTPNotFound(body_template=self.not_found_text.format(text))
         except DatabaseError, e:
-                print e
-                print 'used connection: ', self.database_connection
-                raise HTTPServerError()
+            print e
+            print 'used connection: ', self.database_connection
+            raise HTTPServerError()
+        except Exception, e:
+            print 'unknown error was thrown: ', e
+            print 'used connection: ', self.database_connection
+            raise HTTPServerError()
 
     def count(self, request):
         """
@@ -562,24 +570,28 @@ class Rest(object):
         """
         session = self.provide_session(request)
         filter_definition = request.params.get('filter', default=None)
-        if filter_definition is not None:
-            try:
+        try:
+            if filter_definition is not None:
                 filter_dict = json.loads(filter_definition)
                 filter_instance = Filter(filter_dict, self.model, session)
                 count = filter_instance.do_filter().count()
                 return count
-            except ValueError, e:
-                print e
-                print 'filter definition: ', filter_definition
-                raise HTTPBadRequest(body_template=self.bad_text)
-        else:
-            try:
+
+            else:
                 count = session.query(self.model).count()
                 return count
-            except DatabaseError, e:
-                print e
-                print 'used connection: ', self.database_connection
-                raise HTTPServerError()
+        except ValueError, e:
+            print e
+            print 'filter definition: ', filter_definition
+            raise HTTPBadRequest(body_template=self.bad_text)
+        except DatabaseError, e:
+            print e
+            print 'used connection: ', self.database_connection
+            raise HTTPServerError()
+        except Exception, e:
+            print 'unknown error was thrown: ', e
+            print 'used connection: ', self.database_connection
+            raise HTTPServerError()
 
     def description(self, request):
         """
@@ -590,7 +602,16 @@ class Rest(object):
         :return: the number of found database records
         :rtype : dict
         """
-        return self.model.description(self.dictionary)
+        try:
+            return self.model.description(self.dictionary)
+        except DatabaseError, e:
+            print e
+            print 'used connection: ', self.database_connection
+            raise HTTPServerError()
+        except Exception, e:
+            print 'unknown error was thrown: ', e
+            print 'used connection: ', self.database_connection
+            raise HTTPServerError()
 
     def m_to_n_handling(self, key, value, session):
         """
@@ -653,9 +674,13 @@ class Rest(object):
             print e
             raise HTTPServerError(detail='Integrity Error', body_template=self.integrity_error_txt)
         except DatabaseError, e:
-                print e
-                print 'used connection: ', self.database_connection
-                raise HTTPServerError()
+            print e
+            print 'used connection: ', self.database_connection
+            raise HTTPServerError()
+        except Exception, e:
+            print 'unknown error was thrown: ', e
+            print 'used connection: ', self.database_connection
+            raise HTTPServerError()
 
     def update(self, request):
         """
@@ -698,9 +723,13 @@ class Rest(object):
             text = ', '.join(text_list)
             raise HTTPNotFound(body_template=self.not_found_text.format(text))
         except DatabaseError, e:
-                print e
-                print 'used connection: ', self.database_connection
-                raise HTTPServerError()
+            print e
+            print 'used connection: ', self.database_connection
+            raise HTTPServerError()
+        except Exception, e:
+            print 'unknown error was thrown: ', e
+            print 'used connection: ', self.database_connection
+            raise HTTPServerError()
 
     def delete(self, request):
         """
@@ -733,17 +762,30 @@ class Rest(object):
             text = ', '.join(text_list)
             raise HTTPNotFound(body_template=self.not_found_text.format(text))
         except DatabaseError, e:
-                print e
-                print 'used connection: ', self.database_connection
-                raise HTTPServerError()
+            print e
+            print 'used connection: ', self.database_connection
+            raise HTTPServerError()
+        except Exception, e:
+            print 'unknown error was thrown: ', e
+            print 'used connection: ', self.database_connection
+            raise HTTPServerError()
 
     def doc(self, request):
-        return self.config
+        try:
+            return self.config
+        except DatabaseError, e:
+            print e
+            print 'used connection: ', self.database_connection
+            raise HTTPServerError()
+        except Exception, e:
+            print 'unknown error was thrown: ', e
+            print 'used connection: ', self.database_connection
+            raise HTTPServerError()
 
     def filter_values(self, request):
         try:
             if request.params.get('filter_column') is None:
-                return HTTPBadRequest(body_template=self.bad_text)
+                raise HTTPBadRequest(body_template=self.bad_text)
             else:
                 filter_column = request.params.get('filter_column')
             if request.params.get('limit') is None:
@@ -765,9 +807,13 @@ class Rest(object):
                     objects = query.distinct(column).all()
                     return {'features': objects}
         except DatabaseError, e:
-                print e
-                print 'used connection: ', self.database_connection
-                raise HTTPServerError()
+            print e
+            print 'used connection: ', self.database_connection
+            raise HTTPServerError()
+        except Exception, e:
+            print 'unknown error was thrown: ', e
+            print 'used connection: ', self.database_connection
+            raise HTTPServerError()
 
     def foreign_key_values(self, request):
         try:
@@ -788,6 +834,10 @@ class Rest(object):
                 query = query.distinct(self.model.pk_columns().get(column_name))
             return {'features': query.all()}
         except DatabaseError, e:
-                print e
-                print 'used connection: ', self.database_connection
-                raise HTTPServerError()
+            print e
+            print 'used connection: ', self.database_connection
+            raise HTTPServerError()
+        except Exception, e:
+            print 'unknown error was thrown: ', e
+            print 'used connection: ', self.database_connection
+            raise HTTPServerError()
