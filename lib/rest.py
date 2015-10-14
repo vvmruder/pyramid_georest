@@ -15,6 +15,7 @@
 # The above copyright notice and this permission notice shall be included in all copies or substantial
 # portions of the Software.
 import json
+import transaction
 from geoalchemy import WKBSpatialElement
 from pyramid_rest.lib.filter import Filter
 from shapely import wkt
@@ -25,6 +26,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session, scoped_session, class_mapper
 from pyramid.config import Configurator
 from pyramid.request import Request
+from zope.sqlalchemy import ZopeTransactionExtension
 
 __author__ = 'Clemens Rudert'
 __create_date__ = '29.07.2015'
@@ -429,7 +431,7 @@ class Rest(object):
         if self.session is None and self.engine is None:
             # print 'new session used', self.database_connection
             self.engine = create_engine(self.database_connection, echo=self.debug, pool_size=1)
-            self.session = scoped_session(sessionmaker(bind=self.engine))
+            self.session = scoped_session(sessionmaker(bind=self.engine, extension=ZopeTransactionExtension()))
 
         config.registry.pyramid_rest_services.append(self)
 
@@ -482,7 +484,9 @@ class Rest(object):
 
         def cleanup(request):
             if request.exception is None:
-                session_instance.commit()
+                transaction.commit()
+            else:
+                transaction.abort()
             inner_scoped_session.remove()
 
         request.add_finished_callback(cleanup)
