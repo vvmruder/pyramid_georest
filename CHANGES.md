@@ -5,7 +5,9 @@ Pyramid REST Changelog
 
 Fixed issues:
 
-* Fixed improve session handling.
+* improve session handling
+* use zope extension for sessions
+* catch broad band errors to handle unknown behavior on db connections
 
 ## 2.0.3
 
