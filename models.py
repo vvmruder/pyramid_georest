@@ -21,8 +21,9 @@ from sqlalchemy.ext.associationproxy import _AssociationList
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql.expression import ColumnCollection
 from sqlalchemy.orm import class_mapper, RelationshipProperty
-from sqlalchemy import Column, types, ColumnDefault, PrimaryKeyConstraint, Sequence
-from geoalchemy import GeometryColumn, Polygon, GeometryDDL, PersistentSpatialElement
+from sqlalchemy import Column, ColumnDefault
+from geoalchemy2.elements import WKBElement
+from geoalchemy2.shape import to_shape
 from shapely.wkb import loads as loadsWKB
 from yaml import load
 
@@ -233,8 +234,8 @@ class RestfulBase(object):
                 value = value.isoformat()
             elif isinstance(value, _AssociationList):
                 value = list(value)
-            elif isinstance(value, PersistentSpatialElement):
-                value = loadsWKB(str(value.geom_wkb)).wkt
+            elif isinstance(value, WKBElement):
+                value = to_shape(value).wkt
             elif isinstance(value, decimal.Decimal):
                 value = float(value)
             elif is_m_to_n:
