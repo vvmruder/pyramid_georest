@@ -17,6 +17,7 @@
 from pyramid.config import Configurator
 from .lib.renderer import RestfulJson, RestfulXML, RestfulModelJSON, RestfulModelXML
 from pyramid_rest.lib.rest import Rest
+from pyramid.renderers import JSONP
 
 __author__ = 'Clemens Rudert'
 __create_date__ = '23.07.2015'
@@ -53,15 +54,19 @@ def includeme(config):
     settings = config.get_settings()
 
     config.include('pyramid_mako')
-    config.add_static_view('pyramid_rest', 'pyramid_rest:static',
-        cache_max_age=int(config.get_settings()["default_max_age"])
-    )
+    if settings.get("default_max_age") is not None:
+        config.add_static_view('pyramid_rest', 'pyramid_rest:static',
+            cache_max_age=int(config.get_settings()["default_max_age"])
+        )
+    else:
+        config.add_static_view('pyramid_rest', 'pyramid_rest:static', cache_max_age=3600)
     config.add_route('pyramid_rest_doc', '')
     config.add_view(
         'pyramid_rest.views.doc',
         renderer='pyramid_rest:templates/doc.mako',
         route_name='pyramid_rest_doc'
     )
+    config.add_renderer('jsonp', JSONP(param_name='callback'))
     config.add_renderer(name='restful_json', factory=RestfulJson)
     config.add_renderer(name='restful_xml', factory=RestfulXML)
     config.add_renderer(name='model_restful_json', factory=RestfulModelJSON)
@@ -78,7 +83,7 @@ def includeme(config):
 
     _READ = settings.get('rest_read_http_method') if settings.get('rest_read_http_method') is not None else 'GET'
     _UPDATE = settings.get('rest_update_http_method') if \
-        settings.get('rest_update_http_method') is not None else 'UPDATE'
+        settings.get('rest_update_http_method') is not None else 'PUT'
     _CREATE = settings.get('rest_create_http_method') if settings.get('rest_create_http_method') is not None else 'POST'
     _DELETE = settings.get('rest_delete_http_method') if \
         settings.get('rest_delete_http_method') is not None else 'DELETE'
