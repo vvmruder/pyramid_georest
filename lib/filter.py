@@ -88,28 +88,30 @@ class Filter():
         value = filter.get('value')
         if isinstance(value, basestring):
             value = value.encode('utf-8')
-        for col in self.mapped_class.__table__.columns:
-            if col.name == column_name:
+        for col in self.mapped_class.description().get('columns'):
+            iteration_column_name = col.get('column_name')
+            column_object = getattr(self.mapped_class, iteration_column_name)
+            if iteration_column_name == column_name:
                 if operator == '=':
-                    self.filter_list.append(col == value)
+                    self.filter_list.append(column_object == value)
                 elif operator == '<>':
-                    self.filter_list.append(col != value)
+                    self.filter_list.append(column_object != value)
                 elif operator == '<':
-                    self.filter_list.append(col < value)
+                    self.filter_list.append(column_object < value)
                 elif operator == '<=':
-                    self.filter_list.append(col <= value)
+                    self.filter_list.append(column_object <= value)
                 elif operator == '>':
-                    self.filter_list.append(col > value)
+                    self.filter_list.append(column_object > value)
                 elif operator == '>=':
-                    self.filter_list.append(col >= value)
+                    self.filter_list.append(column_object >= value)
                 elif operator == 'LIKE':
-                    self.filter_list.append((cast(col, String(length=100)).like(str(value))))
+                    self.filter_list.append((cast(column_object, String(length=100)).like(str(value))))
                 elif operator == 'IN':
-                    self.filter_list.append(col.in_(str(value).split(',')))
+                    self.filter_list.append(column_object.in_(str(value).split(',')))
                 elif operator == 'NULL':
-                    self.filter_list.append(col == None)
+                    self.filter_list.append(column_object == None)
                 elif operator == 'NOT_NULL':
-                    self.filter_list.append(col != None)
+                    self.filter_list.append(column_object != None)
                 elif operator == 'INTERSECTS':
                     self.decide_geometric_relation_type(value, column_name, 'ST_Intersects')
                 elif operator == 'TOUCHES':
