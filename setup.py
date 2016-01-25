@@ -21,7 +21,7 @@ __create_date__ = '30.07.2015'
 
 setup(
     name='pyramid_rest',
-    version='2.0',
+    version='3.0',
     description='pyramid_rest, extension for pyramid web frame work to provide rest interface for sql-alchemy mappers',
     author='gis-fachstelle-bl',
     author_email='support.gis@bl.ch',
