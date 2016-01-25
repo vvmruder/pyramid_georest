@@ -15,6 +15,7 @@
 # The above copyright notice and this permission notice shall be included in all copies or substantial
 # portions of the Software.
 import json
+from pyramid.security import view_execution_permitted
 import transaction
 from geoalchemy2.elements import WKBElement
 from pyramid_rest.lib.filter import Filter
@@ -187,7 +188,11 @@ class Rest(object):
                 'create_one_html': self.path + '/new',
                 'update_one': self.path + '/update' + self.primary_key_to_path(),
                 'delete_one': self.path + '/delete' + self.primary_key_to_path()
-            }
+            },
+            'read_method': _READ,
+            'create_method': _CREATE,
+            'delete_method': _DELETE,
+            'update_method': _UPDATE
         }
 
         config.add_route(
@@ -681,7 +686,7 @@ class Rest(object):
                 session = self.provide_session(request)
                 new_record = self.model()
                 for key, value in data.iteritems():
-                    if key == 'geom':
+                    if key in new_record.geometry_columns:
                         value = WKBElement(buffer(wkt.loads(value).wkb), srid=2056)
                     m_to_n = self.m_to_n_handling(key, value, session)
                     if m_to_n:
@@ -726,7 +731,7 @@ class Rest(object):
                     # return list because the renderer accepts list as input only
                 element = query.one()
                 for key, value in data.iteritems():
-                    if key == 'geom':
+                    if key in element.geometry_columns:
                         value = WKBElement(buffer(wkt.loads(value).wkb), srid=2056)
                     m_to_n = self.m_to_n_handling(key, value, session)
                     if m_to_n:
