@@ -96,7 +96,7 @@ Created by vvmruder on 29.07.15.
                                 </p>
                             </a>
                         % else:
-                            <a href=${request.route_url('/' + service.config.get('path'))} class="list-group-item">
+                            <a href=${request.route_url(service.config.get('path'))} class="list-group-item">
                                 <h4 class="list-group-item-heading">
                                     <span>${service.config.get('name')} </span>
                                     <span class="glyphicon glyphicon-circle-arrow-right pull-right"></span>
