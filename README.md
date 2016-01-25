@@ -9,9 +9,9 @@ different databases.
 
 Main features:
 
-* read (json, xml, geojson) + filtering via json parameters
+* read (json, xml) + filtering via json parameters
 * count  + filtering via json parameters
-* read one (json, xml, geojson)
+* read one (json, xml)
 * create
 * update
 * delete
@@ -19,12 +19,21 @@ Main features:
 
 Special thing of this api: It can serve geometric extension objects too (PostGIS at this time).
 
+Dependencies:
+=============
+* pyramid (tested with 1.5.7)
+* SQLAlchemy (tested with 0.9.8)
+* GeoAlchemy2 (tested with 0.2.4)
+* Shapely (tested with 1.5.13)
+* dicttoxml (tested with 1.6.6)
+* simplejson (tested with 3.6.5)
+
+
 Usage in a standard pyramid web app
 -----------------------------------
 
 The pyramid framework for web apps provides an easy way for including standalone packages in its eco system. To learn
-more about that, please refer to the http://docs.pylonsproject.org/projects/pyramid//en/latest/narr/extending.html to
-learn more about that.
+more about that, please refer to the http://docs.pylonsproject.org/projects/pyramid//en/latest/narr/extending.html.
 
 In a nutshell (inside the __init__.py of your pyramids project in the main method ):
 
@@ -32,27 +41,42 @@ Configure the services which you want to be served via this api. Look at the fol
 
 ```python
    from pyramid_rest.lib.rest import Rest
-   from pyramid_rest import prepare
-   restful_services = [
-      Rest(<your_engine>, <your_model>, <your_description_text>, <service_name>, <with_permission>),
-      ...
-   ]
-   prepare(restful_services)
-   config.include('pyramid_rest', route_prefix='api')
+   def main(global_config, **settings):
+      """ This function returns a Pyramid WSGI application."""
+      engine = engine_from_config(settings, 'sqlalchemy.')
+      description_text = u'This is the service description...'
+      DBSession.configure(bind=engine)
+      Base.metadata.bind = engine
+      config = Configurator(settings=settings)
+      
+      config.include('pyramid_rest', route_prefix='api')
+      
+      db_connection = < for instance "postgresql://username:password@localhost:5432/db_name">
+      service = Rest(
+         db_connection,
+         <your ORM SQLAlchemy Model>,
+         description_text,
+         <the name which will be used in severeal places of the API for this ressource>,
+         with_read_permission=<False = open for everyone/True = permission dependent>,
+         with_write_permission=<False = open for everyone/True = permission dependent>,
+         debug=<False = silent console logs/True = prints nearly everything to the console>,
+         outer_use=<False = hide it from public/True = make it a public one>
+      )
+      service.bind(config)
+      
 ```
-   
-First you need to import the Rest class from the pyramid_rest package. This class is kind of a wrapper. It holds the
-configuration for the service, like the database connection in form of an sqlalchemy engine, the model which is the
-underlaying python-class-representation, and so on. Please see the class's documentation for further information.
-Once you have defined your service objects in a python list, you have to call the prepare_models method from this
-package. It is like a pre config of the package. Once you defined all your restful services gather them in a python list
- and call the prepare method of this package. This provides your configuration to the package for later.
 
 Calling the config.include method with the packages name will do some initializing stuff (Note that the optional
 paramter 'route_prefix' can be used to set the restful interface below a fix name space. This may be helpful especially
 in big applications.). Mainly it creates access to a standard documentation (once the Server is started it will be
-available at .../<route_prefix>/pyramid_rest_doc or .../pyramid_rest_doc if route_prefix was not set).
-In addition it creates all the urls/services which are needed.
+available at .../<route_prefix>/ or .../ if route_prefix was not set).
+
+You need to import the Rest class from the pyramid_rest package. This class is kind of a wrapper. It holds the
+configuration for the service, like the database connection in form of an sqlalchemy engine, the model which is the
+underlaying python-class-representation, and so on. Please see the class's documentation for further information.
+Once you have defined your service objects in a python list, you have to call the bind method from the created service. It binds all the neccessary URL's to the config.
+
+
 
 Usage in a special geomapfish web app
 -------------------------------------
@@ -60,7 +84,6 @@ Usage in a special geomapfish web app
 Please refer to the original http://docs.camptocamp.net/c2cgeoportal/1.5/ of geomapfish to
 learn more about this package.
 
-TODO
 
 Configuration in the including apps *.ini files
 -----------------------------------------------
@@ -94,16 +117,20 @@ This way enables you to have two different versions running on the same server. 
    from pyramid_rest_v1 import prepare as prepare_v1
    from pyramid_rest_v2 import prepare as prepare_v2
    
+   config.include('pyramid_rest_v1', route_prefix='api/v1')
+   config.include('pyramid_rest_v2', route_prefix='api/v2')
+   
    restful_services_v1 = [
-      Rest_v1(<your_engine>, <your_model>, <your_description_text>, <service_name>, <with_permission>),
+      Rest_v1(<your_connection_str>, <your_model>, <your_description_text>, ...),
       ...
    ]
-   prepare_v1(restful_services)
+   for service in restful_services_v1:
+      service.bind(config)
    
    restful_services_v2 = [
-      Rest_v2(<your_engine>, <your_model>, <your_description_text>, <service_name>, <with_permission>),
+      Rest_v2(<your_connection_str>, <your_model>, <your_description_text>, ...),
       ...
    ]
-   prepare_v2(restful_services)
-   config.include('pyramid_rest_v2', route_prefix='api/v2')
+   for service in restful_services_v2:
+      service.bind(config)
 ```
