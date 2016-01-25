@@ -1,6 +1,6 @@
 # -*- coding: iso-8859-1 -*-
 
-# Copyright (c) 2012 - 2015, GIS-Fachstelle des Amtes für Geoinformation des Kantons Basel-Landschaft
+# Copyright (c) 2012 - 2015, GIS-Fachstelle des Amtes fÃ¼r Geoinformation des Kantons Basel-Landschaft
 # All rights reserved.
 #
 # This program is free software and completes the GeoMapFish License for the geoview.bl.ch specific
@@ -21,7 +21,7 @@ __create_date__ = '30.07.2015'
 
 setup(
     name='pyramid_rest',
-    version='1.0',
+    version='2.0',
     description='pyramid_rest, extension for pyramid web frame work to provide rest interface for sql-alchemy mappers',
     author='gis-fachstelle-bl',
     author_email='support.gis@bl.ch',
