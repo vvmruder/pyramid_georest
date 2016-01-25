@@ -15,8 +15,9 @@
 # The above copyright notice and this permission notice shall be included in all copies or substantial
 # portions of the Software.
 import json
+from pyramid.security import view_execution_permitted
 import transaction
-from geoalchemy import WKBSpatialElement
+from geoalchemy2.elements import WKBElement
 from pyramid_rest.lib.filter import Filter
 from shapely import wkt
 from sqlalchemy.exc import IntegrityError, DatabaseError
@@ -157,7 +158,10 @@ class Rest(object):
         config.route_prefix = ''
 
         # add the prefix to the path to have the full url path and to have the uri route name
-        self.path = self.route_prefix + self.route_path
+        if self.route_prefix is not None:
+            self.path = self.route_prefix + self.route_path
+        else:
+            self.path = self.route_path.replace("/", "", 1)
 
         self.config = {
             'name': self.name,
@@ -181,9 +185,14 @@ class Rest(object):
                 'fkey_provider_xml': self.path + '/fkey_provider.xml',
                 'fkey_provider_html': self.path + '/fkey_provider.html',
                 'create_one': self.path + '/create',
+                'create_one_html': self.path + '/new',
                 'update_one': self.path + '/update' + self.primary_key_to_path(),
                 'delete_one': self.path + '/delete' + self.primary_key_to_path()
-            }
+            },
+            'read_method': _READ,
+            'create_method': _CREATE,
+            'delete_method': _DELETE,
+            'update_method': _UPDATE
         }
 
         config.add_route(
@@ -329,6 +338,19 @@ class Rest(object):
             request_method=_READ,
             permission='read_one_html' if self.with_read_permission else None
         )
+
+        config.add_route(
+            self.config.get('urls').get('create_one_html'),
+            self.config.get('urls').get('create_one_html')
+        )
+        config.add_view(
+            self.create,
+            renderer='pyramid_rest:templates/new.mako',
+            route_name=self.config.get('urls').get('create_one_html'),
+            request_method=_CREATE,
+            permission='create_one' if self.with_write_permission else None
+        )
+
         config.add_route(
             self.config.get('urls').get('filter_provider_json'),
             self.config.get('urls').get('filter_provider_json')
@@ -664,8 +686,8 @@ class Rest(object):
                 session = self.provide_session(request)
                 new_record = self.model()
                 for key, value in data.iteritems():
-                    if key == 'geom':
-                        value = WKBSpatialElement(buffer(wkt.loads(value).wkb), srid=2056)
+                    if key in new_record.geometry_columns:
+                        value = WKBElement(buffer(wkt.loads(value).wkb), srid=2056)
                     m_to_n = self.m_to_n_handling(key, value, session)
                     if m_to_n:
                         value = m_to_n
@@ -709,8 +731,8 @@ class Rest(object):
                     # return list because the renderer accepts list as input only
                 element = query.one()
                 for key, value in data.iteritems():
-                    if key == 'geom':
-                        value = WKBSpatialElement(buffer(wkt.loads(value).wkb), srid=2056)
+                    if key in element.geometry_columns:
+                        value = WKBElement(buffer(wkt.loads(value).wkb), srid=2056)
                     m_to_n = self.m_to_n_handling(key, value, session)
                     if m_to_n:
                         value = m_to_n

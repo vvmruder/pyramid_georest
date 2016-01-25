@@ -19,7 +19,7 @@ __author__ = 'Clemens Rudert'
 __create_date__ = '09.09.2015'
 
 
-from geoalchemy import WKTSpatialElement
+from geoalchemy2.elements import WKTElement
 from sqlalchemy.sql.expression import text
 from sqlalchemy import or_, and_
 from sqlalchemy import cast
@@ -125,7 +125,7 @@ class Filter():
         columns = self.mapped_class.description().get('columns')
         for column in columns:
             if column.get('column_name') == column_name:
-                if column.get('type') == 'GEOMETRYCOLLECTION':
+                if 'GEOMETRYCOLLECTION' in column.get('type'):
                     self.extract_geometry_collection_db(value, compare_type, column_name)
                 elif 'GEOMETRYCOLLECTION' in value:
                     self.extract_geometry_collection_input(value, compare_type, column_name)
@@ -133,13 +133,13 @@ class Filter():
                     self.extract_geometry_collection_input_and_db(value, compare_type, column_name)
                 elif column.get('type') != 'GEOMETRYCOLLECTION':
                     if compare_type == 'ST_Intersects':
-                        self.filter_list.append(getattr(self.mapped_class, column_name).intersects(WKTSpatialElement(value, srid=2056)))
+                        self.filter_list.append(getattr(self.mapped_class, column_name).intersects(WKTElement(value, srid=2056)))
                     elif compare_type == 'ST_Touches':
-                        self.filter_list.append(getattr(self.mapped_class, column_name).touches(WKTSpatialElement(value, srid=2056)))
+                        self.filter_list.append(getattr(self.mapped_class, column_name).touches(WKTElement(value, srid=2056)))
                     elif compare_type == 'ST_Covers':
-                        self.filter_list.append(getattr(self.mapped_class, column_name).covered_by(WKTSpatialElement(value, srid=2056)))
+                        self.filter_list.append(getattr(self.mapped_class, column_name).covered_by(WKTElement(value, srid=2056)))
                     elif compare_type == 'ST_Within':
-                        self.filter_list.append(getattr(self.mapped_class, column_name).within(WKTSpatialElement(value, srid=2056)))
+                        self.filter_list.append(getattr(self.mapped_class, column_name).within(WKTElement(value, srid=2056)))
 
     def extract_geometry_collection_db(self, compare_geometry, compare_type, column_name):
         db_path_list = [
