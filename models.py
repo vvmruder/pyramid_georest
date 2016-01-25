@@ -32,6 +32,7 @@ __create_date__ = '23.07.2015'
 
 
 class RestfulBase(object):
+    geometry_columns = []
 
     @classmethod
     def translate(cls, string_to_translate, dictionary, lang='de'):
@@ -64,10 +65,16 @@ class RestfulBase(object):
                     pass
                 column = value.columns[0]
                 fk, fks = cls.column_fk(column)
+                # decide column type
+                if 'geometry' in str(column.type):
+                    column_type = column.type.geometry_type
+                    cls.geometry_columns.append(name)
+                else:
+                    column_type = column.type
                 column_dict = {
                     'column_name': name,
                     'header': name if dictionary is None else cls.translate(name, dictionary),
-                    'type': str(column.type.__visit_name__ if column.type.__visit_name__ != 'user_defined' else column.type),
+                    'type': str(column_type),
                     'pk': column.primary_key,
                     'fk': fk,
                     'fk_names': fks,
