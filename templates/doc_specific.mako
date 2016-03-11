@@ -125,7 +125,7 @@ Created by vvmruder on 29.07.15.
             <p>
                 Mit diesem Dienst haben Sie die Möglichkeit einen neuen Datensatz zu erzeugen. Dazu müssen Sie einen
                 POST-Request an den Dienst absetzen, der die Daten zum Erzeugen in folgender Form und im
-                <u>Request-Body</u> enthält.
+                <cite>Request-Body</cite> enthält.
             </p>
 
             <p>
@@ -168,7 +168,7 @@ Created by vvmruder on 29.07.15.
             <p>
                 Mit diesem Dienst haben Sie die Möglichkeit einen neuen Datensatz zu erzeugen. Dazu müssen Sie einen
                 POST-Request an den Dienst absetzen, der die Daten zum Erzeugen in folgender Form und im
-                <u>Request-Body</u> enthält.
+                <cite>Request-Body</cite> enthält.
             </p>
 
             <p>
