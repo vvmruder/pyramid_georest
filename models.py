@@ -74,7 +74,7 @@ class RestfulBase(object):
                 column_dict = {
                     'column_name': name,
                     'header': name if dictionary is None else cls.translate(name, dictionary),
-                    'type': str(column_type),
+                    'type': str(column_type).split('(')[0],
                     'pk': column.primary_key,
                     'fk': fk,
                     'fk_names': fks,
