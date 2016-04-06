@@ -122,6 +122,7 @@ class Filter():
                     self.decide_geometric_relation_type(value, column_name, 'ST_Within')
 
     def decide_geometric_relation_type(self, value, column_name, compare_type):
+        geometry_column = getattr(self.mapped_class, column_name)
         columns = self.mapped_class.description().get('columns')
         for column in columns:
             if column.get('column_name') == column_name:
@@ -133,13 +134,13 @@ class Filter():
                     self.extract_geometry_collection_input_and_db(value, compare_type, column_name)
                 elif column.get('type') != 'GEOMETRYCOLLECTION':
                     if compare_type == 'ST_Intersects':
-                        self.filter_list.append(getattr(self.mapped_class, column_name).intersects(WKTElement(value, srid=2056)))
+                        self.filter_list.append(geometry_column.ST_Intersects(WKTElement(value, srid=2056)))
                     elif compare_type == 'ST_Touches':
-                        self.filter_list.append(getattr(self.mapped_class, column_name).touches(WKTElement(value, srid=2056)))
+                        self.filter_list.append(geometry_column.ST_Touches(WKTElement(value, srid=2056)))
                     elif compare_type == 'ST_Covers':
-                        self.filter_list.append(getattr(self.mapped_class, column_name).covered_by(WKTElement(value, srid=2056)))
+                        self.filter_list.append(geometry_column.ST_CoveredBy(WKTElement(value, srid=2056)))
                     elif compare_type == 'ST_Within':
-                        self.filter_list.append(getattr(self.mapped_class, column_name).within(WKTElement(value, srid=2056)))
+                        self.filter_list.append(geometry_column.ST_DFullyWithin(WKTElement(value, srid=2056)))
 
     def extract_geometry_collection_db(self, compare_geometry, compare_type, column_name):
         db_path_list = [
