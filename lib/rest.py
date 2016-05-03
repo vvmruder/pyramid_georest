@@ -454,6 +454,8 @@ class Rest(object):
             # print 'new session used', self.database_connection
             if 'cx_oracle' in self.database_connection:
                 self.engine = create_engine(self.database_connection, echo=self.debug, pool_size=1, coerce_to_unicode=True)
+                print self.engine
+                print self.database_connection
             else:
                 self.engine = create_engine(self.database_connection, echo=self.debug, pool_size=1)
             self.session = scoped_session(sessionmaker(bind=self.engine, extension=ZopeTransactionExtension()))
