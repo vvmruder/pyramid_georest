@@ -1,6 +1,6 @@
 # -*- coding: iso-8859-1 -*-
 
-# Copyright (c) 2012 - 2015, GIS-Fachstelle des Amtes für Geoinformation des Kantons Basel-Landschaft
+# Copyright (c) 2012 - 2015, GIS-Fachstelle des Amtes fÃ¼r Geoinformation des Kantons Basel-Landschaft
 # All rights reserved.
 #
 # This program is free software and completes the GeoMapFish License for the geoview.bl.ch specific
@@ -452,7 +452,10 @@ class Rest(object):
                 self.session = pyramid_rest_service.session
         if self.session is None and self.engine is None:
             # print 'new session used', self.database_connection
-            self.engine = create_engine(self.database_connection, echo=self.debug, pool_size=1)
+            if 'cx_oracle' in self.database_connection:
+                self.engine = create_engine(self.database_connection, echo=self.debug, pool_size=1, coerce_to_unicode=True)
+            else:
+                self.engine = create_engine(self.database_connection, echo=self.debug, pool_size=1)
             self.session = scoped_session(sessionmaker(bind=self.engine, extension=ZopeTransactionExtension()))
 
         config.registry.pyramid_rest_services.append(self)
