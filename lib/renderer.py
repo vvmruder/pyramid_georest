@@ -15,7 +15,6 @@
 # The above copyright notice and this permission notice shall be included in all copies or substantial
 # portions of the Software.
 import json
-from pyramid.httpexceptions import HTTPServerError
 from pyramid.renderers import JSON
 import dicttoxml
 from pyramid_rest.lib.mapper import do_mapping

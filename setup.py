@@ -1,6 +1,6 @@
 # -*- coding: iso-8859-1 -*-
 
-# Copyright (c) 2012 - 2015, GIS-Fachstelle des Amtes fÃ¼r Geoinformation des Kantons Basel-Landschaft
+# Copyright (c) 2012 - 2015, GIS-Fachstelle des Amtes für Geoinformation des Kantons Basel-Landschaft
 # All rights reserved.
 #
 # This program is free software and completes the GeoMapFish License for the geoview.bl.ch specific
@@ -29,10 +29,10 @@ setup(
     install_requires=[
         'pyramid',
         'SQLAlchemy',
-        'GeoAlchemy',
         'shapely',
         'dicttoxml',
-        'json'
+        'geoalchemy2',
+        'transaction'
     ],
     packages=find_packages(),
     zip_safe=False

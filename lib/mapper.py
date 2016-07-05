@@ -34,7 +34,6 @@ def do_mapping(type_name, mapping):
             return additional_mapper(type_name).type
 
 
-
 class TypeMapper():
     __types__ = {
         'Boolean': [

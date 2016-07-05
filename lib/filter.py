@@ -14,16 +14,17 @@
 # 
 # The above copyright notice and this permission notice shall be included in all copies or substantial
 # portions of the Software.
-
-__author__ = 'Clemens Rudert'
-__create_date__ = '09.09.2015'
-
-
 from geoalchemy2.elements import WKTElement
 from sqlalchemy.sql.expression import text
 from sqlalchemy import or_, and_
 from sqlalchemy import cast
 from sqlalchemy import String
+
+__author__ = 'Clemens Rudert'
+__create_date__ = '09.09.2015'
+
+
+
 
 
 class Filter():
