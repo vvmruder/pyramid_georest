@@ -38,7 +38,11 @@ requires = [
     'shapely',
     'dicttoxml',
     'geoalchemy2',
-    'transaction'
+    'transaction',
+    'waitress',
+    'pyramid_debugtoolbar',
+    'zope.sqlalchemy',
+    'PyYAML'
 ]
 
 setup(
