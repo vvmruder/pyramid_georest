@@ -14,26 +14,60 @@
 # 
 # The above copyright notice and this permission notice shall be included in all copies or substantial
 # portions of the Software.
+import os
 from setuptools import setup, find_packages
 
 __author__ = 'Clemens Rudert'
 __create_date__ = '30.07.2015'
 
+here = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(here, 'README.md')) as f:
+    README = f.read()
+with open(os.path.join(here, 'CHANGES.md')) as f:
+    CHANGES = f.read()
+
+tests_require = [
+    'WebTest >= 1.3.1',  # py3 compat
+    'pytest',  # includes virtualenv
+    'pytest-cov'
+]
+
+requires = [
+    'pyramid',
+    'SQLAlchemy',
+    'shapely',
+    'dicttoxml',
+    'geoalchemy2',
+    'transaction'
+]
+
 setup(
     name='pyramid_rest',
     version='3.0',
     description='pyramid_rest, extension for pyramid web frame work to provide rest interface for sql-alchemy mappers',
-    author='gis-fachstelle-bl',
-    author_email='support.gis@bl.ch',
-    url='http://www.geo.bl.ch',
-    install_requires=[
-        'pyramid',
-        'SQLAlchemy',
-        'shapely',
-        'dicttoxml',
-        'geoalchemy2',
-        'transaction'
+    long_description=README + '\n\n' + CHANGES,
+    classifiers=[
+        "Programming Language :: Python",
+        "Framework :: Pyramid",
+        "Topic :: Internet :: WWW/HTTP",
+        "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
     ],
+    author='Clemens Rudert',
+    author_email='clemens.rudert@bl.ch',
+    url='https://github.com/vvmruder/pyramid_rest',
+    keywords='web pyramid pylons rest sqlalchemy orm model',
     packages=find_packages(),
-    zip_safe=False
+    include_package_data=True,
+    zip_safe=False,
+    extras_require={
+        'testing': tests_require,
+    },
+    install_requires=requires,
+    entry_points="""\
+    [paste.app_factory]
+    main = pyramid_rest:main
+    [console_scripts]
+    initialize_pyramid_rest_db = pyramid_rest.scripts.initializedb:main
+
+    """,
 )

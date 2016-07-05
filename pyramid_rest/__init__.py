@@ -4,20 +4,20 @@
 # All rights reserved.
 #
 # This program is free software and completes the GeoMapFish License for the geoview.bl.ch specific
-# parts of the code. You can redistribute it and/or modify it under the terms of the GNU General 
+# parts of the code. You can redistribute it and/or modify it under the terms of the GNU General
 # Public License as published by the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
 # even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 # General Public License for more details.
-# 
+#
 # The above copyright notice and this permission notice shall be included in all copies or substantial
 # portions of the Software.
 from pyramid.config import Configurator
-from .lib.renderer import RestfulJson, RestfulXML, RestfulModelJSON, RestfulModelXML
-from pyramid_rest.lib.rest import Rest
 from pyramid.renderers import JSONP
+
+from pyramid_rest.lib.renderer import RestfulJson, RestfulXML, RestfulModelJSON, RestfulModelXML
 
 __author__ = 'Clemens Rudert'
 __create_date__ = '23.07.2015'
@@ -30,6 +30,19 @@ _CREATE = 'POST'
 _DELETE = 'DELETE'
 
 additional_mappers = []
+
+
+def main(global_config, **settings):
+    """ This function returns a Pyramid WSGI application. This is necessary for development of
+    your plugin. So you can run it local with the paster server and in a IDE like PyCharm. It
+    is intended to leave this section as is and do configuration in the includeme section only.
+    Push additional configuration in this section means it will not be used by the production
+    environment at all!
+    """
+    config = Configurator(settings=settings)
+    config.include('pyramid_rest')
+    config.scan()
+    return config.make_wsgi_app()
 
 
 def prepare(rest_services):
