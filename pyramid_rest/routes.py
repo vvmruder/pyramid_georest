@@ -31,3 +31,5 @@ def includeme(config):
     config.add_route('update', '/{api_name}/{schema_name}/{table_name}/update/{format}*primary_keys')
     # delete specific record
     config.add_route('delete', '/{api_name}/{schema_name}/{table_name}/delete/{format}*primary_keys')
+    # delivers the description of the desired dataset
+    config.add_route('model', '/{api_name}/{schema_name}/{table_name}/model/{format}')
