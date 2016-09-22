@@ -15,35 +15,203 @@
 # The above copyright notice and this permission notice shall be included in all copies or substantial
 # portions of the Software.
 import json
-
+import logging
 import transaction
 from geoalchemy2.elements import WKBElement
 from pyramid.httpexceptions import HTTPNotFound, HTTPBadRequest, HTTPServerError
 from pyramid.request import Request
+from pyramid_rest.lib.description import ModelDescription
+from pyramid_rest.lib.renderer import RenderProxy
 from shapely import wkt
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError, DatabaseError
 from sqlalchemy.orm import sessionmaker, Session, scoped_session, class_mapper
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from zope.sqlalchemy import ZopeTransactionExtension
-
+from pyramid_rest.lib.database import Connection
 from pyramid_rest.lib.filter import Filter
 
 __author__ = 'Clemens Rudert'
 __create_date__ = '29.07.2015'
 
+log = logging.getLogger('pyramid_rest')
 
-class Config(dict):
 
-    def __init__(self, config, **kwargs):
+class Service(object):
+
+    def __init__(self, model, schema_name, table_name, primary_key_names, api):
         """
 
-        :param config:
-        :param kwargs:
+        :param model:
+        :type model: sqlalchemy.ext.declarative.DeclarativeMeta
+        :param schema_name: Str
+        :param table_name: Str
+        :param primary_key_names: list of Str
+        :param api: Api
         """
-        super(Config, self).__init__(**kwargs)
-        for key, value in config:
-            setattr(self, key, value)
+        self.model = model
+        self.model_description = ModelDescription(self.model)
+        self.schema_name = schema_name
+        self.table_name = table_name
+        self.primary_key_names = primary_key_names
+        self.api = api
+        self.name = self.name_from_definition(schema_name, table_name)
+
+    @staticmethod
+    def name_from_definition(schema_name, table_name):
+        """
+
+        :param schema_name: str
+        :param table_name: str
+        :return:
+        """
+        return '{0},{1}'.format(
+            schema_name,
+            table_name
+        )
+
+    def read(self, request):
+        session = self.api.provide_session(request)
+        objects = session.query(self.model).all()
+        return RenderProxy(request, objects, self.model).render()
+
+    def show(self, request):
+        requested_primary_keys = request.matchdict['primary_keys']
+        model_description = ModelDescription(self.model)
+        model_primary_keys = model_description.primary_key_columns.items()
+        if len(requested_primary_keys) != len(model_primary_keys):
+            text = "The number of passed primary keys mismatch the model given. Can't complete the request. Sorry..."
+            log.error(text)
+            raise HTTPBadRequest(
+                detail=text
+            )
+        session = self.api.provide_session(request)
+        query = session.query(self.model)
+        for index, requested_primary_key in enumerate(requested_primary_keys):
+            query = query.filter(model_primary_keys[index][1] == requested_primary_key)
+        try:
+            object = query.one()
+            return RenderProxy(request, [object], self.model).render()
+        except MultipleResultsFound, e:
+            text = "Strange thing happened... Found more than one record for the primary key(s) you passed."
+            log.error('{text}, Original error was: {error}'.format(text=text, error=e))
+            raise HTTPBadRequest(
+                detail=text
+            )
+
+    def create(self, request):
+        pass
+
+    def delete(self, request):
+        pass
+
+    def update(self, request):
+        pass
+
+
+class Api(object):
+
+    def __init__(self, url, config, name):
+        connection_already_exists = False
+        for key, value in config.registry.pyramid_rest_database_connections.iteritems():
+            if url in key:
+                connection_already_exists = True
+                self.connection = value
+
+        if not connection_already_exists:
+            self.connection = Connection(url)
+            config.registry.pyramid_rest_database_connections[url] = self.connection
+
+        self.services = {}
+
+        if name not in config.registry.pyramid_rest_apis:
+            config.registry.pyramid_rest_apis[name] = self
+        else:
+            log.error(
+                "The Api-Object you created seems to already exist in the registry. It has to be unique at all. "
+                "Couldn't be added. Sorry..."
+            )
+            raise LookupError()
+
+    def add_service(self, service):
+        """
+
+        :param service: Service
+        """
+        if service.name not in self.services:
+            self.services[service.name] = service
+        else:
+            log.error(
+                "The Service {name} was defined for this API already. Use the defined one.".format(
+                    name=service.name
+                )
+            )
+            raise LookupError()
+
+    def provide_session(self, request):
+        """
+        This method provides a usable SQLAlchemy session instance. It is ensured, that this session is doomed
+        independent from the behavior of the request (it installs a finished listener to the request)
+
+
+        :param request: The request of the pyramid web framework
+        :type request: Request
+        :return: a usable instance of a SQLAlchemy Session
+        :rtype : Session
+        """
+        session_instance = self.connection.session()
+        inner_scoped_session = self.connection.session
+
+        def cleanup(request):
+            if request.exception is None:
+                transaction.commit()
+            else:
+                transaction.abort()
+            inner_scoped_session.remove()
+
+        request.add_finished_callback(cleanup)
+
+        return session_instance
+
+    def find_service_by_definition(self, schema_name, table_name):
+        """
+
+        :param schema_name: str
+        :param table_name: str
+        :return: Service or None
+        :rtype: Service
+        """
+        return self.services.get(Service.name_from_definition(schema_name, table_name))
+
+    def find_service_by_request(self, request):
+        schema_name = request.matchdict['schema_name']
+        table_name = request.matchdict['table_name']
+        service = self.find_service_by_definition(schema_name, table_name)
+        if service is None:
+            text = 'Service with schema {schema_name} and table {table_name} could not be found.'.format(
+                schema_name=schema_name,
+                table_name=table_name
+            )
+            log.error(text)
+            raise HTTPNotFound(
+                detail=text
+            )
+        return service
+
+    def read(self, request):
+        return self.find_service_by_request(request).read(request)
+
+    def show(self, request):
+        return self.find_service_by_request(request).show(request)
+
+    def create(self, request):
+        return self.find_service_by_request(request).create(request)
+
+    def delete(self, request):
+        return self.find_service_by_request(request).delete(request)
+
+    def update(self, request):
+        return self.find_service_by_request(request).update(request)
 
 
 class Rest(object):
