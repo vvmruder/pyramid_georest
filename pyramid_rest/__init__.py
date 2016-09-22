@@ -16,8 +16,9 @@
 # portions of the Software.
 from pyramid.config import Configurator
 from pyramid.renderers import JSONP
+from pyramid_mako import add_mako_renderer
 
-from pyramid_rest.lib.renderer import RestfulJson, RestfulXML, RestfulModelJSON, RestfulModelXML
+from pyramid_rest.lib.renderer import RestfulJson, RestfulXML, RestfulModelJSON, RestfulModelXML, RestfulGeoJson
 
 __author__ = 'Clemens Rudert'
 __create_date__ = '23.07.2015'
@@ -33,6 +34,9 @@ additional_mappers = []
 
 
 def main(global_config, **settings):
+    from pyramid_rest.lib.database import Connection
+    from pyramid_rest.lib.rest import Api, Service
+    from pyramid_rest.models import Test
     """ This function returns a Pyramid WSGI application. This is necessary for development of
     your plugin. So you can run it local with the paster server and in a IDE like PyCharm. It
     is intended to leave this section as is and do configuration in the includeme section only.
@@ -41,6 +45,13 @@ def main(global_config, **settings):
     """
     config = Configurator(settings=settings)
     config.include('pyramid_rest')
+    test_api = Api(
+        'postgresql://postgres:password@localhost:5432/gdwh',
+        config,
+        'test'
+    )
+    test_service = Service(Test, 'av_admin', 'v_gemeindegrenze', ['gemgr_id'], test_api)
+    test_api.add_service(test_service)
     config.scan()
     return config.make_wsgi_app()
 
@@ -67,23 +78,18 @@ def includeme(config):
     settings = config.get_settings()
 
     config.include('pyramid_mako')
-    if settings.get("default_max_age") is not None:
-        config.add_static_view('pyramid_rest', 'pyramid_rest:static',
-            cache_max_age=int(config.get_settings()["default_max_age"])
-        )
-    else:
-        config.add_static_view('pyramid_rest', 'pyramid_rest:static', cache_max_age=3600)
-    config.add_route('pyramid_rest_doc', '')
-    config.add_view(
-        'pyramid_rest.views.doc',
-        renderer='pyramid_rest:templates/doc.mako',
-        route_name='pyramid_rest_doc'
-    )
-    config.add_renderer('jsonp', JSONP(param_name='callback'))
+
+    # bind the mako renderer to other file extensions
+    add_mako_renderer(config, ".json")
+
+    config.include('pyramid_rest.routes')
     config.add_renderer(name='restful_json', factory=RestfulJson)
+    config.add_renderer(name='restful_geo_json', factory=RestfulGeoJson)
     config.add_renderer(name='restful_xml', factory=RestfulXML)
     config.add_renderer(name='model_restful_json', factory=RestfulModelJSON)
     config.add_renderer(name='model_restful_xml', factory=RestfulModelXML)
+    config.registry.pyramid_rest_database_connections = {}
+    config.registry.pyramid_rest_apis = {}
     config.registry.pyramid_rest_services = []
     if settings.get('pyramid_rest_support_mail') is not None:
         config.registry.pyramid_rest_support_mail = settings.get('pyramid_rest_support_mail')
@@ -93,16 +99,3 @@ def includeme(config):
         config.registry.pyramid_rest_support_name = settings.get('pyramid_rest_support_name')
     else:
         config.registry.pyramid_rest_support_name = 'NO SUPPORT MAIL ADRESS WAS SET IN THE USED *.INI FILE'
-
-    _READ = settings.get('rest_read_http_method') if settings.get('rest_read_http_method') is not None else 'GET'
-    _UPDATE = settings.get('rest_update_http_method') if \
-        settings.get('rest_update_http_method') is not None else 'PUT'
-    _CREATE = settings.get('rest_create_http_method') if settings.get('rest_create_http_method') is not None else 'POST'
-    _DELETE = settings.get('rest_delete_http_method') if \
-        settings.get('rest_delete_http_method') is not None else 'DELETE'
-
-    # note: this creates all restful services if they where configured before the include method was called. Maybe there
-    # a more elegant way for that. But this seems the only way to provide the passed route_prefix to the restful urls
-    # also.
-    for restful_model in restful_models:
-        restful_model.bind(config)
