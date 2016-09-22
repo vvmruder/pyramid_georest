@@ -14,12 +14,17 @@
 # 
 # The above copyright notice and this permission notice shall be included in all copies or substantial
 # portions of the Software.
+import decimal
 import json
-
+import datetime
 import dicttoxml
+from geoalchemy2 import WKBElement
+from geoalchemy2.shape import to_shape
 from pyramid.renderers import JSON
+from pyramid_rest.lib.description import ModelDescription
 
 from pyramid_rest.lib.mapper import do_mapping
+from sqlalchemy.ext.associationproxy import _AssociationList
 
 __author__ = 'Clemens Rudert'
 __create_date__ = '29.07.2015'
@@ -47,7 +52,7 @@ class RestfulJson(JSON):
         name), registry (the current application registry) and
         settings (the deployment settings dictionary). """
 
-    def __call__(self, objects, system):
+    def __call__(self, results, system):
         """ Call the renderer implementation with the value
         and the system value passed in as arguments and return
         the result (a string or unicode object).  The value is
@@ -56,11 +61,9 @@ class RestfulJson(JSON):
         (e.g. view, context, and request). """
 
         request = system['request']
-        features = []
-        for o in objects.get('features'):
-            features.append(o.as_dict())
-        objects['features'] = features
-        val = json.dumps(objects)
+        # here the results will be serialized!!!!
+        val = self.to_str(results)
+
         callback = request.GET.get('callback')
         if callback is None:
             ct = 'application/json'
@@ -73,8 +76,150 @@ class RestfulJson(JSON):
             response.content_type = ct
         return body
 
+    def to_str(self, results):
+        return json.dumps(self.column_values_as_serializable(results))
 
-class RestfulXML(JSON):
+    def column_values_as_serializable(self, results):
+        serializable_results = []
+        model = results.get('model', False)
+        model_description = ModelDescription(model)
+        results = results.get('features', False)
+        for result in results:
+            result_dict = {}
+            for column_name, column in model_description.column_descriptions.iteritems():
+                value = getattr(result, column_name)
+                if isinstance(value, (datetime.date, datetime.datetime, datetime.time)):
+                    value = self.date_formatter(value)
+                elif isinstance(value, _AssociationList):
+                    value = self.association_formatter(value)
+                elif isinstance(value, WKBElement):
+                    value = self.geometry_formatter(value)
+                elif isinstance(value, decimal.Decimal):
+                    value = self.float_formatter(value)
+                result_dict[column_name] = value
+            serializable_results.append(result_dict)
+        return serializable_results
+
+    @staticmethod
+    def date_formatter(date):
+        """
+
+        :param date: A date object which should be converted
+        :type date: datetime.datetime
+        :return: A string which represents the date object
+        :rtype: str
+        """
+        return date.isoformat()
+
+    @staticmethod
+    def association_formatter(association):
+        """
+
+        :param association: A sqlalchemy association object which should be converted
+        :type association: _AssociationList
+        :return: A list containing the association
+        :rtype: list of str
+        """
+        return list(association)
+
+    @staticmethod
+    def geometry_formatter(geometry):
+        """
+
+        :param geometry: A geoalchemy wkb element object which should be converted
+        :type geometry: WKBElement
+        :return: A WKT formatted string
+        :rtype: str
+        """
+        return to_shape(geometry).wkt
+
+    @staticmethod
+    def float_formatter(number):
+        """
+
+        :param number: A floating point number be converted
+        :type number: decimal.Decimal
+        :return: The formatted float
+        :rtype: float
+        """
+        return float(number)
+
+
+class RestfulGeoJson(RestfulJson):
+    """
+        This represents an standard pyramid renderer which can consume a list of database instances and renders them to
+        json. It is important to use the Base which is provided by this package. Because this class delivers additional
+        methods.
+        """
+
+    def __init__(self, info):
+        """ Constructor: info will be an object having the
+        following attributes: name (the renderer name), package
+        (the package that was 'current' at the time the
+        renderer was registered), type (the renderer type
+        name), registry (the current application registry) and
+        settings (the deployment settings dictionary). """
+        super(RestfulGeoJson, self).__init__(info)
+
+    def column_values_as_serializable(self, results):
+        serializable_results = []
+        model = results.get('model', False)
+        model_description = ModelDescription(model)
+        results = results.get('features', False)
+        for result in results:
+            geometry = {}
+            properties = {}
+            result_dict = {
+                "type": "Feature",
+                "geometry": geometry,
+                "properties": properties
+            }
+            for column_name, column in model_description.column_descriptions.iteritems():
+                value = getattr(result, column_name)
+                if isinstance(value, (datetime.date, datetime.datetime, datetime.time)):
+                    value = self.date_formatter(value)
+                elif isinstance(value, _AssociationList):
+                    value = self.association_formatter(value)
+                elif isinstance(value, WKBElement):
+                    geometry["coordinates"] = self.geometry_formatter(value)
+                    geometry["type"] = self.geometry_type_formatter(value)
+                    continue
+                elif isinstance(value, decimal.Decimal):
+                    value = self.float_formatter(value)
+                properties[column_name] = value
+            serializable_results.append(result_dict)
+        return serializable_results
+
+    @staticmethod
+    def geometry_type_formatter(geometry):
+        """
+
+        :param geometry: A geoalchemy wkb element object which should be converted
+        :type geometry: WKBElement
+        :return: A string representing a shapely valid geometry type
+        :rtype: str
+        """
+        return to_shape(geometry).geom_type
+
+    @staticmethod
+    def geometry_formatter(geometry):
+        """
+
+        :param geometry: A geoalchemy wkb element object which should be converted
+        :type geometry: WKBElement
+        :return: A list of coordinates formatted string
+        :rtype: list
+        """
+        shapely_object = to_shape(geometry)
+        geom_type = shapely_object.geom_type
+        if geom_type == 'Point':
+            coordinates = list(shapely_object.coords)
+        else:
+            coordinates = list(shapely_object.exterior.coords)
+        return coordinates
+
+
+class RestfulXML(RestfulJson):
     """
     This represents an standard pyramid renderer which can consume a list of database instances and renders them to
     xml. It is important to use the Base which is provided by this package. Because this class delivers additional
@@ -88,8 +233,9 @@ class RestfulXML(JSON):
         renderer was registered), type (the renderer type
         name), registry (the current application registry) and
         settings (the deployment settings dictionary). """
+        super(RestfulXML, self).__init__(info)
 
-    def __call__(self, objects, system):
+    def __call__(self, results, system):
         """ Call the renderer implementation with the value
         and the system value passed in as arguments and return
         the result (a string or unicode object).  The value is
@@ -98,13 +244,10 @@ class RestfulXML(JSON):
         (e.g. view, context, and request). """
 
         request = system['request']
-        features = []
-        for o in objects.get('features'):
-            features.append(o.as_dict())
-        objects['features'] = features
-        dicttoxml.set_debug(False)
-        val = dicttoxml.dicttoxml(objects, attr_type=False)
-        # print val
+
+        # here the results will be serialized!!!!
+        val = self.to_str(results)
+
         callback = request.GET.get('callback')
         if callback is None:
             ct = 'text/xml'
@@ -116,6 +259,9 @@ class RestfulXML(JSON):
         if response.content_type == response.default_content_type:
             response.content_type = ct
         return body
+
+    def to_str(self, results):
+        return dicttoxml.dicttoxml(self.column_values_as_serializable(results), attr_type=False)
 
 
 class RestfulModelJSON(JSON):
