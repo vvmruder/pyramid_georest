@@ -20,15 +20,14 @@ __author__ = 'Clemens Rudert'
 
 
 def includeme(config):
-
     # Admin page routes
     # delivers multiple records
-    config.add_route('read', '/{api_name}/{schema_name}/{table_name}/read.{response_format}')
+    config.add_route('read', '/{api_name}/{schema_name}/{table_name}/read/{format}')
     # delivers specific record
-    config.add_route('show', '/{api_name}/{schema_name}/{table_name}/read/{primary_keys}.{response_format}')
+    config.add_route('show', '/{api_name}/{schema_name}/{table_name}/read/{format}*primary_keys')
     # create specific record
-    config.add_route('create', '/{api_name}/{schema_name}/{table_name}/create/{primary_keys}')
+    config.add_route('create', '/{api_name}/{schema_name}/{table_name}/create/{format}')
     # update specific record
-    config.add_route('update', '/{api_name}/{schema_name}/{table_name}/update/{primary_keys}')
+    config.add_route('update', '/{api_name}/{schema_name}/{table_name}/update/{format}*primary_keys')
     # delete specific record
-    config.add_route('delete', '/{api_name}/{schema_name}/{table_name}/delete/{primary_keys}')
+    config.add_route('delete', '/{api_name}/{schema_name}/{table_name}/delete/{format}*primary_keys')
