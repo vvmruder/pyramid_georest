@@ -77,3 +77,11 @@ class RestProxy(object):
     )
     def update(self):
         return self.api.update(self.request)
+
+    @view_config(
+        route_name='model',
+        request_method=read,
+        permission=None  # 'read_json' if self.with_read_permission else None
+    )
+    def model(self):
+        return self.api.model(self.request)
