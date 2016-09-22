@@ -17,10 +17,13 @@
 import decimal
 import json
 import datetime
+import logging
+
 import dicttoxml
 from geoalchemy2 import WKBElement
 from geoalchemy2.shape import to_shape
-from pyramid.renderers import JSON
+from pyramid.httpexceptions import HTTPNotFound
+from pyramid.renderers import JSON, render_to_response
 from pyramid_rest.lib.description import ModelDescription
 
 from pyramid_rest.lib.mapper import do_mapping
@@ -29,12 +32,60 @@ from sqlalchemy.ext.associationproxy import _AssociationList
 __author__ = 'Clemens Rudert'
 __create_date__ = '29.07.2015'
 
+log = logging.getLogger('pyramid_rest')
+
 
 def get_mapping_from_request(request):
     if request.params is not None:
         return request.params.get('mapping')
     else:
         return None
+
+
+class RenderProxy(object):
+
+    def __init__(self, request, result, model):
+        self.request = request
+        self.result = result
+        self.model = model
+        self.response_format = request.matchdict['format']
+
+    def render(self):
+        if self.response_format == 'json':
+            return render_to_response(
+                'restful_json',
+                {
+                    'features': self.result,
+                    'model': self.model
+                },
+                request=self.request
+            )
+        elif self.response_format == 'xml':
+            return render_to_response(
+                'restful_xml',
+                {
+                    'features': self.result,
+                    'model': self.model
+                },
+                request=self.request
+            )
+        elif self.response_format == 'geojson':
+            return render_to_response(
+                'restful_geo_json',
+                {
+                    'features': self.result,
+                    'model': self.model
+                },
+                request=self.request
+            )
+        else:
+            text = 'The Format "{format}" is not defined for this service. Sorry...'.format(
+                format=self.response_format
+            )
+            log.error(text)
+            raise HTTPNotFound(
+                detail=text
+            )
 
 
 class RestfulJson(JSON):
