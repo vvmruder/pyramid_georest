@@ -80,7 +80,7 @@ class RestProxy(object):
 
     @view_config(
         route_name='model',
-        request_method=read,
+        request_method=read_method,
         permission=None  # 'read_json' if self.with_read_permission else None
     )
     def model(self):
