@@ -128,7 +128,7 @@ class ColumnDescription(object):
 
         self.column_name = name
         self.header = self.column_name if dictionary is None else translate(self.column_name, dictionary)
-        self.type = column_type
+        self.type = str(column_type)
         self.is_primary_key = column.primary_key
         self.has_foreign_keys = has_foreign_keys
         self.foreign_key_names = foreign_key_names
