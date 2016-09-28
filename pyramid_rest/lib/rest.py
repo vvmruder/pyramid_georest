@@ -19,6 +19,7 @@ import logging
 import transaction
 from geoalchemy2.elements import WKBElement
 from pyramid.httpexceptions import HTTPNotFound, HTTPBadRequest, HTTPServerError
+from pyramid.renderers import render_to_response
 from pyramid.request import Request
 from pyramid_rest.lib.description import ModelDescription
 from pyramid_rest.lib.renderer import RenderProxy
@@ -39,7 +40,7 @@ log = logging.getLogger('pyramid_rest')
 
 class Service(object):
 
-    def __init__(self, model, schema_name, table_name, primary_key_names, api):
+    def __init__(self, model, schema_name, table_name, primary_key_names, api, renderer_proxy=None):
         """
 
         :param model:
@@ -48,14 +49,20 @@ class Service(object):
         :param table_name: Str
         :param primary_key_names: list of Str
         :param api: Api
+        :param renderer_proxy: A renderer proxy may be passed to achieve custom rendering
+        :type renderer_proxy: RenderProxy or None
         """
-        self.model = model
-        self.model_description = ModelDescription(self.model)
+        self.orm_model = model
+        self.model_description = ModelDescription(self.orm_model)
         self.schema_name = schema_name
         self.table_name = table_name
         self.primary_key_names = primary_key_names
         self.api = api
         self.name = self.name_from_definition(schema_name, table_name)
+        if renderer_proxy is None:
+            self.renderer_proxy = RenderProxy()
+        else:
+            self.renderer_proxy = renderer_proxy
 
     @staticmethod
     def name_from_definition(schema_name, table_name):
@@ -72,12 +79,12 @@ class Service(object):
 
     def read(self, request):
         session = self.api.provide_session(request)
-        objects = session.query(self.model).all()
-        return RenderProxy(request, objects, self.model).render()
+        results = session.query(self.orm_model).all()
+        return self.renderer_proxy.render(request, results, self.orm_model)
 
     def show(self, request):
         requested_primary_keys = request.matchdict['primary_keys']
-        model_description = ModelDescription(self.model)
+        model_description = ModelDescription(self.orm_model)
         model_primary_keys = model_description.primary_key_columns.items()
         if len(requested_primary_keys) != len(model_primary_keys):
             text = "The number of passed primary keys mismatch the model given. Can't complete the request. Sorry..."
@@ -86,12 +93,12 @@ class Service(object):
                 detail=text
             )
         session = self.api.provide_session(request)
-        query = session.query(self.model)
+        query = session.query(self.orm_model)
         for index, requested_primary_key in enumerate(requested_primary_keys):
             query = query.filter(model_primary_keys[index][1] == requested_primary_key)
         try:
-            object = query.one()
-            return RenderProxy(request, [object], self.model).render()
+            result = query.one()
+            return self.renderer_proxy.render(request, [result], self.orm_model)
         except MultipleResultsFound, e:
             text = "Strange thing happened... Found more than one record for the primary key(s) you passed."
             log.error('{text}, Original error was: {error}'.format(text=text, error=e))
@@ -107,6 +114,29 @@ class Service(object):
 
     def update(self, request):
         pass
+
+    def model(self, request):
+        response_format = request.matchdict['format']
+        if response_format == 'json':
+            return render_to_response(
+                'model_restful_json',
+                self.model_description,
+                request=request
+            )
+        elif response_format == 'xml':
+            return render_to_response(
+                'model_restful_xml',
+                self.model_description,
+                request=request
+            )
+        else:
+            text = 'The Format "{format}" is not defined for this service. Sorry...'.format(
+                format=response_format
+            )
+            log.error(text)
+            raise HTTPNotFound(
+                detail=text
+        )
 
 
 class Api(object):
@@ -212,6 +242,9 @@ class Api(object):
 
     def update(self, request):
         return self.find_service_by_request(request).update(request)
+
+    def model(self, request):
+        return self.find_service_by_request(request).model(request)
 
 
 class Rest(object):
