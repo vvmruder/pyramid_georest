@@ -77,12 +77,12 @@ class RenderProxy(object):
             self.format_to_renderer[delivery_format] = renderer_name
             log.warning('You override the renderer for the "{format_name}" format'.format(format_name=delivery_format))
         except ValueError, e:
-            text = 'Adding mapping from format "{format_name}" to renderer "{renderer_name}" could not be completed.' \
-                   ' The renderer "{renderer_name}" does not exist. Original error was: {error_txt}'.format(
-                format_name=delivery_format,
-                renderer_name=renderer_name,
-                error_txt=e
-            )
+            text = 'Adding mapping from format "{format_name}" to renderer "{renderer_name}" could not be completed. ' \
+                   'The renderer "{renderer_name}" does not exist. Original error was: {error_txt}'.format(
+                        format_name=delivery_format,
+                        renderer_name=renderer_name,
+                        error_txt=e
+                    )
             log.warning(text)
             raise ConfigurationError()
 
