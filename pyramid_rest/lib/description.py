@@ -276,6 +276,9 @@ class ModelDescription(object):
         self.relationship_count = 0
         self.relationship_classes = {}
 
+        self.schema_name = self.model.__table__.schema
+        self.table_name = self.model.__table__.name
+
         for name, value in class_mapper(self.model)._props.iteritems():
             if type(value) is not RelationshipProperty:
                 if len(value.columns) != 1:
@@ -297,6 +300,8 @@ class ModelDescription(object):
                 self.relationship_descriptions[name] = description.as_dict()
                 self.relationship_classes[name] = description.relationship
                 self.relationship_count += 1
+
+        self.primary_key_column_names = sorted(self.primary_key_column_names)
 
     def as_dict(self):
         """
