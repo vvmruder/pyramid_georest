@@ -22,11 +22,11 @@ import logging
 import dicttoxml
 from geoalchemy2 import WKBElement
 from geoalchemy2.shape import to_shape
+from pyramid.exceptions import ConfigurationError
 from pyramid.httpexceptions import HTTPNotFound
-from pyramid.renderers import JSON, render_to_response
+from pyramid.renderers import JSON, render_to_response, get_renderer
 from pyramid_rest.lib.description import ModelDescription
 
-from pyramid_rest.lib.mapper import do_mapping
 from sqlalchemy.ext.associationproxy import _AssociationList
 
 __author__ = 'Clemens Rudert'
@@ -43,49 +43,48 @@ def get_mapping_from_request(request):
 
 
 class RenderProxy(object):
+    def __init__(self):
+        self.format_to_renderer = {
+            'json': 'restful_json',
+            'xml': 'restful_xml',
+            'geojson': 'restful_geo_json'
+        }
 
-    def __init__(self, request, result, model):
-        self.request = request
-        self.result = result
-        self.model = model
-        self.response_format = request.matchdict['format']
-
-    def render(self):
-        if self.response_format == 'json':
+    def render(self, request, result, model):
+        response_format = request.matchdict['format']
+        renderer_name = self.format_to_renderer.get(response_format, False)
+        if renderer_name:
             return render_to_response(
-                'restful_json',
+                renderer_name,
                 {
-                    'features': self.result,
-                    'model': self.model
+                    'features': result,
+                    'model': model
                 },
-                request=self.request
-            )
-        elif self.response_format == 'xml':
-            return render_to_response(
-                'restful_xml',
-                {
-                    'features': self.result,
-                    'model': self.model
-                },
-                request=self.request
-            )
-        elif self.response_format == 'geojson':
-            return render_to_response(
-                'restful_geo_json',
-                {
-                    'features': self.result,
-                    'model': self.model
-                },
-                request=self.request
+                request=request
             )
         else:
             text = 'The Format "{format}" is not defined for this service. Sorry...'.format(
-                format=self.response_format
+                format=response_format
             )
             log.error(text)
             raise HTTPNotFound(
                 detail=text
             )
+
+    def add_renderer(self, delivery_format, renderer_name):
+        try:
+            get_renderer(renderer_name)
+            self.format_to_renderer[delivery_format] = renderer_name
+            log.warning('You override the renderer for the "{format_name}" format'.format(format_name=delivery_format))
+        except ValueError, e:
+            text = 'Adding mapping from format "{format_name}" to renderer "{renderer_name}" could not be completed.' \
+                   ' The renderer "{renderer_name}" does not exist. Original error was: {error_txt}'.format(
+                format_name=delivery_format,
+                renderer_name=renderer_name,
+                error_txt=e
+            )
+            log.warning(text)
+            raise ConfigurationError()
 
 
 class RestfulJson(JSON):
@@ -330,7 +329,7 @@ class RestfulModelJSON(JSON):
         name), registry (the current application registry) and
         settings (the deployment settings dictionary). """
 
-    def __call__(self, objects, system):
+    def __call__(self, model_description, system):
         """ Call the renderer implementation with the value
         and the system value passed in as arguments and return
         the result (a string or unicode object).  The value is
@@ -339,11 +338,7 @@ class RestfulModelJSON(JSON):
         (e.g. view, context, and request). """
 
         request = system['request']
-        columns = objects.get('columns')
-        for column in columns:
-            column['type'] = do_mapping(column.get('type'), get_mapping_from_request(request))
-        objects['columns'] = columns
-        val = json.dumps(objects)
+        val = json.dumps(model_description.as_dict())
         # print val
         callback = request.GET.get('callback')
         if callback is None:
@@ -373,7 +368,7 @@ class RestfulModelXML(JSON):
         name), registry (the current application registry) and
         settings (the deployment settings dictionary). """
 
-    def __call__(self, objects, system):
+    def __call__(self, model_description, system):
         """ Call the renderer implementation with the value
         and the system value passed in as arguments and return
         the result (a string or unicode object).  The value is
@@ -383,11 +378,7 @@ class RestfulModelXML(JSON):
 
         request = system['request']
         dicttoxml.set_debug(False)
-        columns = objects.get('columns')
-        for column in columns:
-            column['type'] = do_mapping(column.get('type'), get_mapping_from_request(request))
-        objects['columns'] = columns
-        val = dicttoxml.dicttoxml(objects, attr_type=False)
+        val = dicttoxml.dicttoxml(model_description.as_dict(), attr_type=False)
         # print val
         callback = request.GET.get('callback')
         if callback is None:
