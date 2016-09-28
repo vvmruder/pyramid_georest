@@ -42,7 +42,8 @@ requires = [
     'waitress',
     'pyramid_debugtoolbar',
     'zope.sqlalchemy',
-    'PyYAML'
+    'PyYAML',
+    'psycopg2'
 ]
 
 setup(
