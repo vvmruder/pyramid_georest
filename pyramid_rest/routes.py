@@ -20,7 +20,6 @@ __author__ = 'Clemens Rudert'
 
 
 def includeme(config):
-    # Admin page routes
     # delivers multiple records
     config.add_route('read', '/{api_name}/{schema_name}/{table_name}/read/{format}')
     # delivers specific record
