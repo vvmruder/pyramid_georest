@@ -25,7 +25,6 @@ from geoalchemy2.shape import to_shape
 from pyramid.exceptions import ConfigurationError
 from pyramid.httpexceptions import HTTPNotFound
 from pyramid.renderers import JSON, render_to_response, get_renderer
-from pyramid_rest.lib.description import ModelDescription
 
 from sqlalchemy.ext.associationproxy import _AssociationList
 
@@ -43,22 +42,46 @@ def get_mapping_from_request(request):
 
 
 class RenderProxy(object):
+
     def __init__(self):
-        self.format_to_renderer = {
+        """
+        A proxy which matches a renderer to a format which is passed in the url. It implements some basic renderers but
+        is fully extend able. You can add renderers via the add renderer method.
+        Please note that all renderers which are added to the proxy need to be added to the pyramid config before.
+        Otherwise a error will be thrown on startup of the application.
+
+        See the following link for further information:
+        http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/renderers.html#adding-and-changing-renderers
+        """
+        self._format_to_renderer = {
             'json': 'restful_json',
             'xml': 'restful_xml',
             'geojson': 'restful_geo_json'
         }
 
-    def render(self, request, result, model):
+    def render(self, request, result, model_description):
+        """
+        Execute the rendering process by matching the requested format to the mapped renderer. If no renderer could be
+        found a error is raised.
+
+        :param request: The request which comes all the way through the application from the client
+        :type request: pyramid.request.Request
+        :param result: A list of database records found for the request.
+        :type result: list of sqlalchemy.ext.declarative.DeclarativeMeta
+        :param model_description: The description object of the data set which will be rendered.
+        :type model_description: pyramid_rest.lib.description.ModelDescription
+        :return: An pyramid response object
+        :rtype: pyramid.response.Response
+        :raises: HTTPNotFound
+        """
         response_format = request.matchdict['format']
-        renderer_name = self.format_to_renderer.get(response_format, False)
+        renderer_name = self._format_to_renderer.get(response_format, False)
         if renderer_name:
             return render_to_response(
                 renderer_name,
                 {
                     'features': result,
-                    'model': model
+                    'model_description': model_description
                 },
                 request=request
             )
@@ -72,10 +95,21 @@ class RenderProxy(object):
             )
 
     def add_renderer(self, delivery_format, renderer_name):
+        """
+        Adds a matching to the render proxy's matching dict. It is possible to overwrite an existing one. If you do, a
+        notice (warning) is printed to your server logs.
+
+        :param delivery_format: The format string to which the renderer should be bound to (e.g. "json", "xml", ...)
+        :type delivery_format: str
+        :param renderer_name: The name of the renderer which was used to assign it to the pyramid applications
+        configuration.
+        :type renderer_name: str
+        :raises: ConfigurationError
+        """
         try:
             get_renderer(renderer_name)
-            self.format_to_renderer[delivery_format] = renderer_name
-            log.warning('You override the renderer for the "{format_name}" format'.format(format_name=delivery_format))
+            self._format_to_renderer[delivery_format] = renderer_name
+            log.warning('You overwrite the renderer for the "{format_name}" format'.format(format_name=delivery_format))
         except ValueError, e:
             text = 'Adding mapping from format "{format_name}" to renderer "{renderer_name}" could not be completed. ' \
                    'The renderer "{renderer_name}" does not exist. Original error was: {error_txt}'.format(
@@ -108,7 +142,11 @@ class RestfulJson(JSON):
         the result (a string or unicode object).  The value is
         the return value of a view.  The system value is a
         dictionary containing available system values
-        (e.g. view, context, and request). """
+        (e.g. view, context, and request).
+        :param results:
+        :param system:
+        :return:
+        """
 
         request = system['request']
         # here the results will be serialized!!!!
@@ -131,8 +169,7 @@ class RestfulJson(JSON):
 
     def column_values_as_serializable(self, results):
         serializable_results = []
-        model = results.get('model', False)
-        model_description = ModelDescription(model)
+        model_description = results.get('model_description', False)
         results = results.get('features', False)
         for result in results:
             result_dict = {}
@@ -213,8 +250,7 @@ class RestfulGeoJson(RestfulJson):
 
     def column_values_as_serializable(self, results):
         serializable_results = []
-        model = results.get('model', False)
-        model_description = ModelDescription(model)
+        model_description = results.get('model_description', False)
         results = results.get('features', False)
         for result in results:
             geometry = {}
