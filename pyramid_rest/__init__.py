@@ -15,28 +15,22 @@
 # The above copyright notice and this permission notice shall be included in all copies or substantial
 # portions of the Software.
 from pyramid.config import Configurator
-from pyramid.renderers import JSONP
-from pyramid_mako import add_mako_renderer
-
 from pyramid_rest.lib.renderer import RestfulJson, RestfulXML, RestfulModelJSON, RestfulModelXML, RestfulGeoJson
 
 __author__ = 'Clemens Rudert'
 __create_date__ = '23.07.2015'
 
-restful_models = []
 
-_READ = 'GET'
-_UPDATE = 'PUT'
-_CREATE = 'POST'
-_DELETE = 'DELETE'
-
-additional_mappers = []
+READ = None
+READ_FILTER = None
+UPDATE = None
+CREATE = None
+DELETE = None
 
 
 def main(global_config, **settings):
     from pyramid_rest.lib.database import Connection
     from pyramid_rest.lib.rest import Api, Service
-    from pyramid_rest.models import Test
     """ This function returns a Pyramid WSGI application. This is necessary for development of
     your plugin. So you can run it local with the paster server and in a IDE like PyCharm. It
     is intended to leave this section as is and do configuration in the includeme section only.
@@ -45,25 +39,8 @@ def main(global_config, **settings):
     """
     config = Configurator(settings=settings)
     config.include('pyramid_rest')
-    test_api = Api(
-        'postgresql://postgres:password@localhost:5432/gdwh',
-        config,
-        'test'
-    )
-    test_service = Service(Test, 'av_admin', 'v_gemeindegrenze', ['gemgr_id'], test_api)
-    test_api.add_service(test_service)
     config.scan()
     return config.make_wsgi_app()
-
-
-def prepare(rest_services):
-    """
-
-    :param rest_services: a list with the configured rest objects
-    :type rest_services: list of Rest
-    """
-    global restful_models
-    restful_models = rest_services
 
 
 def includeme(config):
@@ -73,29 +50,28 @@ def includeme(config):
     :param config: The pyramid apps config object
     :type config: Configurator
     """
-    global _CREATE, _DELETE, _READ, _UPDATE
+    global CREATE, DELETE, READ, UPDATE, READ_FILTER
 
-    settings = config.get_settings()
-
-    config.include('pyramid_mako')
-
-    # bind the mako renderer to other file extensions
-    add_mako_renderer(config, ".json")
-
+    # create routes
     config.include('pyramid_rest.routes')
+
+    # add standard renderers
     config.add_renderer(name='restful_json', factory=RestfulJson)
     config.add_renderer(name='restful_geo_json', factory=RestfulGeoJson)
     config.add_renderer(name='restful_xml', factory=RestfulXML)
     config.add_renderer(name='model_restful_json', factory=RestfulModelJSON)
     config.add_renderer(name='model_restful_xml', factory=RestfulModelXML)
+
+    # add request attributes
     config.registry.pyramid_rest_database_connections = {}
     config.registry.pyramid_rest_apis = {}
     config.registry.pyramid_rest_services = []
-    if settings.get('pyramid_rest_support_mail') is not None:
-        config.registry.pyramid_rest_support_mail = settings.get('pyramid_rest_support_mail')
-    else:
-        config.registry.pyramid_rest_support_mail = 'NO SUPPORT MAIL ADRESS WAS SET IN THE USED *.INI FILE'
-    if settings.get('pyramid_rest_support_name') is not None:
-        config.registry.pyramid_rest_support_name = settings.get('pyramid_rest_support_name')
-    else:
-        config.registry.pyramid_rest_support_name = 'NO SUPPORT MAIL ADRESS WAS SET IN THE USED *.INI FILE'
+
+    # read settings from ini file
+    settings = config.get_settings()
+
+    # set the methods from settings
+    CREATE = settings.get('http_create_method', None)
+    UPDATE = settings.get('http_update_method', None)
+    DELETE = settings.get('http_delete_method', None)
+    READ = settings.get('http_read_method', None)
