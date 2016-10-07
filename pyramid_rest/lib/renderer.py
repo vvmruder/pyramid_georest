@@ -274,7 +274,10 @@ class RestfulGeoJson(RestfulJson):
                     value = self.float_formatter(value)
                 properties[column_name] = value
             serializable_results.append(result_dict)
-        return serializable_results
+        return {
+            "type": "FeatureCollection",
+            "features": serializable_results
+        }
 
     @staticmethod
     def geometry_type_formatter(geometry):
