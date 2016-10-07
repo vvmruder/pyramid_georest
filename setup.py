@@ -43,7 +43,8 @@ requires = [
     'pyramid_debugtoolbar',
     'zope.sqlalchemy',
     'PyYAML',
-    'psycopg2'
+    'psycopg2',
+    'simplejson'
 ]
 
 setup(
