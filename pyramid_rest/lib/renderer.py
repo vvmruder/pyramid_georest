@@ -15,7 +15,7 @@
 # The above copyright notice and this permission notice shall be included in all copies or substantial
 # portions of the Software.
 import decimal
-import json
+import simplejson
 import datetime
 import logging
 
@@ -165,7 +165,7 @@ class RestfulJson(JSON):
         return body
 
     def to_str(self, results):
-        return json.dumps(self.column_values_as_serializable(results))
+        return simplejson.dumps(self.column_values_as_serializable(results))
 
     def column_values_as_serializable(self, results):
         serializable_results = []
@@ -377,7 +377,7 @@ class RestfulModelJSON(JSON):
         (e.g. view, context, and request). """
 
         request = system['request']
-        val = json.dumps(model_description.as_dict())
+        val = simplejson.dumps(model_description.as_dict())
         # print val
         callback = request.GET.get('callback')
         if callback is None:
