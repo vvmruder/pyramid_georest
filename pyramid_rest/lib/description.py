@@ -20,13 +20,16 @@ from sqlalchemy.orm import class_mapper
 from yaml import load
 from pyramid.path import AssetResolver
 
-__author__ = 'vvmruder'
+__author__ = 'Clemens Rudert'
 __create_date__ = '21.09.16'
 
 
 def translate(string_to_translate, dictionary, lang='de'):
     """
-
+    A method which is able to translate a string with a given dictionary path on the file system. It acts in pyramid
+    way.
+    See:
+    http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/i18n.html?highlight=translation
 
     :param string_to_translate: The string which should be translated.
     :type string_to_translate: str
@@ -48,12 +51,15 @@ class RelationDescription(object):
 
     def __init__(self, relationship, name, dictionary=None):
         """
+        A class to construct a description of a relationship property. It offers a method to get this description in a
+        machine readable way. => as_dict
 
         :param relationship: The object which should be described
         :type relationship: sqlalchemy.orm.properties.RelationshipProperty
         :param name: The name of the element which should be described
         :type name: str
-        :param dictionary: The dictionary for translating the column names.
+        :param dictionary: The pass to a dictionary. It has to be in the pyramid form:
+         => http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/i18n.html?highlight=translation
         :type dictionary: str or None
         """
         self.relationship = relationship
@@ -84,6 +90,7 @@ class RelationDescription(object):
 
     def as_dict(self):
         """
+        Delivers the objects content as an dict.
 
         :return: An dictionary representing a description of the relationship in a application readable way
         :rtype: dict
@@ -109,12 +116,15 @@ class ColumnDescription(object):
 
     def __init__(self, column, name, dictionary=None):
         """
+        A class to construct a description of a column. It offers a method to get this description in a
+        machine readable way. => as_dict
 
         :param column: The Column which should be the description for.
         :type column: sqlalchemy.schema.Column
         :param name: The column name
         :type name: str
-        :param dictionary: path to dictionary
+        :param dictionary: The pass to a dictionary. It has to be in the pyramid form:
+         => http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/i18n.html?highlight=translation
         :type dictionary: str or None
         """
         self.column = column
@@ -230,6 +240,7 @@ class ColumnDescription(object):
 
     def as_dict(self):
         """
+        Delivers the objects content as an dict.
 
         :return: An dictionary representing a description of the column in a application readable way
         :rtype: dict
@@ -255,10 +266,13 @@ class ModelDescription(object):
 
     def __init__(self, model, dictionary=None):
         """
+        A class to construct a description of a sqlalchemy model. It offers a method to get this description in a
+        machine readable way. => as_dict
 
-        :param model:
+        :param model: The sqlalchemy model which should be described.
         :type model: sqlalchemy.ext.declarative.DeclarativeMeta
-        :param dictionary:
+        :param dictionary: The pass to a dictionary. It has to be in the pyramid form:
+         => http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/i18n.html?highlight=translation
         :type dictionary: str
         """
         self.dictionary = dictionary
@@ -305,6 +319,8 @@ class ModelDescription(object):
 
     def as_dict(self):
         """
+        Delivers the objects content as an dict.
+
         :returns: An python dict with the description of the mapped database table
         :rtype : dict
         """
