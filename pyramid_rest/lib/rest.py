@@ -270,7 +270,7 @@ class Service(object):
             rest_filter = Filter(self.model_description, **request.json_body.get('filter'))
             query = rest_filter.filter(query)
         results = query.all()
-        return self.renderer_proxy.render(request, results, self.orm_model)
+        return self.renderer_proxy.render(request, results, self.model_description)
 
     def show(self, request, session):
         """
@@ -298,7 +298,7 @@ class Service(object):
             query = query.filter(model_primary_keys[index][1] == requested_primary_key)
         try:
             result = query.one()
-            return self.renderer_proxy.render(request, [result], self.orm_model)
+            return self.renderer_proxy.render(request, [result], self.model_description)
         except MultipleResultsFound, e:
             text = "Strange thing happened... Found more than one record for the primary key(s) you passed."
             log.error('{text}, Original error was: {error}'.format(text=text, error=e))
