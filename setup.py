@@ -49,19 +49,22 @@ requires = [
 
 setup(
     name='pyramid_rest',
-    version='3.0',
+    version='3.0.1rc1',
     description='pyramid_rest, extension for pyramid web frame work to provide rest interface for sql-alchemy mappers',
     long_description=README + '\n\n' + CHANGES,
     classifiers=[
-        "Programming Language :: Python",
+        "Development Status :: 4 - Beta",
+        "Intended Audience :: Developers",
+        "Programming Language :: Python :: 2.7",
         "Framework :: Pyramid",
         "Topic :: Internet :: WWW/HTTP",
-        "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
+        "Topic :: Internet :: WWW/HTTP :: WSGI :: Application"
     ],
+    license='GNU General Public License',
     author='Clemens Rudert',
     author_email='clemens.rudert@bl.ch',
     url='https://github.com/vvmruder/pyramid_rest',
-    keywords='web pyramid pylons rest sqlalchemy orm model',
+    keywords='web pyramid pylons rest sqlalchemy orm model geoalchemy',
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
