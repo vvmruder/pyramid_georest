@@ -19,12 +19,12 @@ import transaction
 from pyramid.httpexceptions import HTTPNotFound, HTTPBadRequest
 from pyramid.renderers import render_to_response
 from pyramid.request import Request
-from pyramid_rest.lib.description import ModelDescription
-from pyramid_rest.lib.renderer import RenderProxy
+from pyramid_georest.lib.description import ModelDescription
+from pyramid_georest.lib.renderer import RenderProxy
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.exc import MultipleResultsFound
-from pyramid_rest.lib.database import Connection
-from pyramid_rest.views import RestProxy
+from pyramid_georest.lib.database import Connection
+from pyramid_georest.views import RestProxy
 from sqlalchemy import or_, and_
 from sqlalchemy import cast
 from sqlalchemy import String
@@ -32,7 +32,7 @@ from sqlalchemy import String
 __author__ = 'Clemens Rudert'
 __create_date__ = '29.07.2015'
 
-log = logging.getLogger('pyramid_rest')
+log = logging.getLogger('pyramid_georest')
 
 
 class FilterDefinition(object):

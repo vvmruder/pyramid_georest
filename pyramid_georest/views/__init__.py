@@ -30,7 +30,7 @@ class RestProxy(object):
 
     def __init__(self, request):
         # set methods from ini configuration if set. Use standard if not.
-        from pyramid_rest import CREATE, UPDATE, DELETE, READ, READ_FILTER
+        from pyramid_georest import CREATE, UPDATE, DELETE, READ, READ_FILTER
         if CREATE is not None:
             self.create_method = CREATE
         if UPDATE is not None:

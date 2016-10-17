@@ -5,18 +5,19 @@ This little package gives shortcuts to create a restful api to database sources.
 sources.
 It is meant to be used in a pyramid web framework eco system. It uses pyramid and sqlalchemy logic as well. Its goal is
 to extend the database usage in pyramid frameworks. This way, it will be possible to serve data sources from
-different databases.
+different databases from a single pyramid application.
+I used a simple class system to make this api as adaptable as possible.
 
 Main features:
 
-* read (json, geojson, xml) + filtering via json parameters
+* read (json, geojson, xml) + filtering via json parameters - also for geographic attributes
 * read one / show (json, geojson, xml)
 * create one
 * update one
 * delete one
-* data model description (json, geojson, xml)
+* data model description (json, geojson, xml) => This provides a description to implement client side forms bound to the underlying data.
 
-Special thing of this api: It can serve geometric extension objects too (It's only limit is geoalchemy2).
+Special thing of this api: It can serve geometric extension objects too (It's only limited by geoalchemy2).
 
 Dependencies:
 =============

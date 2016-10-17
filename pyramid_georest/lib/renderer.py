@@ -31,7 +31,7 @@ from sqlalchemy.ext.associationproxy import _AssociationList
 __author__ = 'Clemens Rudert'
 __create_date__ = '29.07.2015'
 
-log = logging.getLogger('pyramid_rest')
+log = logging.getLogger('pyramid_georest')
 
 
 def get_mapping_from_request(request):

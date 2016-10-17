@@ -15,7 +15,7 @@
 # The above copyright notice and this permission notice shall be included in all copies or substantial
 # portions of the Software.
 from pyramid.config import Configurator
-from pyramid_rest.lib.renderer import RestfulJson, RestfulXML, RestfulModelJSON, RestfulModelXML, RestfulGeoJson
+from pyramid_georest.lib.renderer import RestfulJson, RestfulXML, RestfulModelJSON, RestfulModelXML, RestfulGeoJson
 
 __author__ = 'Clemens Rudert'
 __create_date__ = '23.07.2015'
@@ -29,8 +29,8 @@ DELETE = None
 
 
 def main(global_config, **settings):
-    from pyramid_rest.lib.database import Connection
-    from pyramid_rest.lib.rest import Api, Service
+    from pyramid_georest.lib.database import Connection
+    from pyramid_georest.lib.rest import Api, Service
     """ This function returns a Pyramid WSGI application. This is necessary for development of
     your plugin. So you can run it local with the paster server and in a IDE like PyCharm. It
     is intended to leave this section as is and do configuration in the includeme section only.
@@ -38,7 +38,7 @@ def main(global_config, **settings):
     environment at all!
     """
     config = Configurator(settings=settings)
-    config.include('pyramid_rest')
+    config.include('pyramid_georest')
     config.scan()
     return config.make_wsgi_app()
 
@@ -53,7 +53,7 @@ def includeme(config):
     global CREATE, DELETE, READ, UPDATE, READ_FILTER
 
     # create routes
-    config.include('pyramid_rest.routes')
+    config.include('pyramid_georest.routes')
 
     # add standard renderers
     config.add_renderer(name='restful_json', factory=RestfulJson)

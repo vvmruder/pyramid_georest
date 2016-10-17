@@ -48,9 +48,9 @@ requires = [
 ]
 
 setup(
-    name='pyramid_rest',
+    name='pyramid_georest',
     version='3.0.1rc1',
-    description='pyramid_rest, extension for pyramid web frame work to provide rest interface for sql-alchemy mappers',
+    description='pyramid_georest, extension for pyramid web frame work to provide rest interface for sql-alchemy mappers',
     long_description=README + '\n\n' + CHANGES,
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -63,7 +63,7 @@ setup(
     license='GNU General Public License',
     author='Clemens Rudert',
     author_email='clemens.rudert@bl.ch',
-    url='https://github.com/vvmruder/pyramid_rest',
+    url='https://github.com/vvmruder/pyramid_georest',
     keywords='web pyramid pylons rest sqlalchemy orm model geoalchemy',
     packages=find_packages(),
     include_package_data=True,
@@ -74,9 +74,9 @@ setup(
     install_requires=requires,
     entry_points="""\
     [paste.app_factory]
-    main = pyramid_rest:main
+    main = pyramid_georest:main
     [console_scripts]
-    initialize_pyramid_rest_db = pyramid_rest.scripts.initializedb:main
+    initialize_pyramid_rest_db = pyramid_georest.scripts.initializedb:main
 
     """,
 )
