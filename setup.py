@@ -49,7 +49,7 @@ requires = [
 
 setup(
     name='pyramid_georest',
-    version='3.0.1rc1',
+    version='3.0.0rc1',
     description='pyramid_georest, extension for pyramid web frame work to provide rest interface for sql-alchemy mappers',
     long_description=README + '\n\n' + CHANGES,
     classifiers=[
@@ -76,7 +76,7 @@ setup(
     [paste.app_factory]
     main = pyramid_georest:main
     [console_scripts]
-    initialize_pyramid_rest_db = pyramid_georest.scripts.initializedb:main
+    initialize_pyramid_georest_db = pyramid_georest.scripts.initializedb:main
 
     """,
 )
