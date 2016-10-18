@@ -1,6 +1,11 @@
 Pyramid REST Changelog
 ======================
 
+## 3.0.2
+
+* fix the add_view problem when rest api is included in other 
+applications.
+
 ## 3.0.1
 
 * fix the issue with geometric filtering
