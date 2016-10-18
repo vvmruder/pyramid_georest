@@ -22,7 +22,7 @@ from pyramid.request import Request
 from pyramid_georest.lib.description import ModelDescription
 from pyramid_georest.lib.renderer import RenderProxy
 from pyramid_georest.lib.database import Connection
-from pyramid_georest.views import RestProxy
+from pyramid_georest.routes import read_filter_method
 from sqlalchemy import or_, and_
 from sqlalchemy import cast
 from sqlalchemy import String
@@ -474,7 +474,7 @@ class Service(object):
         :rtype: pyramid.response.Response
         """
         query = session.query(self.orm_model)
-        if request.method == RestProxy.read_filter_method:
+        if request.method == read_filter_method:
             rest_filter = Filter(self.model_description, **request.json_body.get('filter'))
             query = rest_filter.filter(query)
         results = query.all()

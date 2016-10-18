@@ -18,14 +18,16 @@ from pyramid_georest.views import RestProxy
 
 __author__ = 'Clemens Rudert'
 
+read_method = 'GET'
+read_filter_method = 'POST'
+create_method = 'POST'
+update_method = 'PUT'
+delete_method = 'DELETE'
+
 
 def includeme(config):
+    global read_method, read_filter_method, create_method, update_method, delete_method
     from pyramid_georest import CREATE, UPDATE, DELETE, READ, READ_FILTER
-    read_method = 'GET'
-    read_filter_method = 'POST'
-    create_method = 'POST'
-    update_method = 'PUT'
-    delete_method = 'DELETE'
 
     # set methods from ini configuration if set. Use standard if not.
     if CREATE is not None:
