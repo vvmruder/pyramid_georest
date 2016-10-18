@@ -53,7 +53,7 @@ class RestProxy(object):
         """
         self.request = request
         api_name = request.matchdict['api_name']
-        self.api = request.registry.pyramid_rest_apis.get(api_name)
+        self.api = request.registry.pyramid_georest_apis.get(api_name)
         if self.api is None:
             raise HTTPNotFound(detail='API with name {name} is not defined.'.format(name=api_name))
 

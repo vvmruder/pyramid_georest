@@ -69,7 +69,7 @@ class RenderProxy(object):
         :param result: A list of database records found for the request.
         :type result: list of sqlalchemy.ext.declarative.DeclarativeMeta
         :param model_description: The description object of the data set which will be rendered.
-        :type model_description: pyramid_rest.lib.description.ModelDescription
+        :type model_description: pyramid_georest.lib.description.ModelDescription
         :return: An pyramid response object
         :rtype: pyramid.response.Response
         :raises: HTTPNotFound

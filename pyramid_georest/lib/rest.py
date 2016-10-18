@@ -21,13 +21,15 @@ from pyramid.renderers import render_to_response
 from pyramid.request import Request
 from pyramid_georest.lib.description import ModelDescription
 from pyramid_georest.lib.renderer import RenderProxy
-from sqlalchemy.orm import Session
-from sqlalchemy.orm.exc import MultipleResultsFound
 from pyramid_georest.lib.database import Connection
 from pyramid_georest.views import RestProxy
 from sqlalchemy import or_, and_
 from sqlalchemy import cast
 from sqlalchemy import String
+from sqlalchemy.sql.expression import text
+from sqlalchemy.orm import Session
+from sqlalchemy.orm.exc import MultipleResultsFound
+from geoalchemy2 import WKTElement
 
 __author__ = 'Clemens Rudert'
 __create_date__ = '29.07.2015'
@@ -69,6 +71,7 @@ class FilterDefinition(object):
                 if clause.get('column_name', False):
                     column_name = clause.get('column_name')
                     column = model_description.column_classes.get(column_name)
+                    column_description = self.model_description.column_descriptions.get(column_name)
                 else:
                     raise HTTPBadRequest('somewhere in the filter the column name is missing!')
                 if clause.get('operator', False):
@@ -79,7 +82,12 @@ class FilterDefinition(object):
                     value = clause.get('value')
                 else:
                     raise HTTPBadRequest('somewhere in the filter the value is missing!')
-                self.clause_blocks.append(self.decide_operator(column, operator, value))
+                # special handling for geometry columns
+                if column_description.get('is_geometry_column'):
+                    clause_construct = self.decide_multi_geometries(column_description, column, value, operator)
+                else:
+                    clause_construct = self.decide_operator(column, operator, value)
+                self.clause_blocks.append(clause_construct)
                 # print self.clause_blocks
         # print self.clause_blocks
         self.clause = self.decide_mode(self.mode, self.clause_blocks)
@@ -130,14 +138,135 @@ class FilterDefinition(object):
         else:
             raise HTTPBadRequest('The operator "{operator}" you passed is not implemented.'.format(operator=operator))
         return clause
-        # elif operator == 'INTERSECTS':
-        #     self.decide_geometric_relation_type(value, column_name, 'ST_Intersects')
-        # elif operator == 'TOUCHES':
-        #     self.decide_geometric_relation_type(value, column_name, 'ST_Touches')
-        # elif operator == 'COVERED_BY':
-        #     self.decide_geometric_relation_type(value, column_name, 'ST_Covers')
-        # elif operator == 'WITHIN':
-        #     self.decide_geometric_relation_type(value, column_name, 'ST_Within')
+
+    def decide_multi_geometries(self, column_description, column, value, operator):
+        geometry_type = str(column_description.get('type')).upper()
+        db_path_list = [
+            self.model_description.schema_name,
+            self.model_description.table_name,
+            column_description.get('column_name')
+        ]
+        db_path = '.'.join(db_path_list)
+        if geometry_type == 'GEOMETRYCOLLECTION' and 'GEOMETRYCOLLECTION' not in value:
+            clause_construct = self.extract_geometry_collection_db(db_path, value, operator)
+        elif 'GEOMETRYCOLLECTION' in value and geometry_type != 'GEOMETRYCOLLECTION':
+            clause_construct = self.extract_geometry_collection_input(db_path, value, operator)
+        elif 'GEOMETRYCOLLECTION' in value and geometry_type == 'GEOMETRYCOLLECTION':
+            clause_construct = self.extract_geometry_collection_input_and_db(db_path, value, operator)
+        elif geometry_type != 'GEOMETRYCOLLECTION' and 'GEOMETRYCOLLECTION' not in value:
+            clause_construct = self.decide_geometric_operation(column, operator, value)
+        else:
+            text = "You found some bad geometric circumstance. Sorry for that. We can't handle your " \
+                   "request uses the operation {operation} on a geometric column with the type " \
+                   "{geometry_type} and your passed geometry was of the value {value}. This is not " \
+                   "supported in the moment.".format(
+                operation=operator,
+                geometry_type=geometry_type,
+                value=value
+            )
+            raise HTTPBadRequest()
+        return clause_construct
+
+    @staticmethod
+    def decide_geometric_operation(column, operator, value):
+        if operator == 'INTERSECTS':
+            clause = column.ST_Intersects(WKTElement(value, srid=2056))
+        elif operator == 'TOUCHES':
+            clause = column.ST_Touches(WKTElement(value, srid=2056))
+        elif operator == 'COVERED_BY':
+            clause = column.ST_CoveredBy(WKTElement(value, srid=2056))
+        elif operator == 'WITHIN':
+            clause = column.ST_DFullyWithin(WKTElement(value, srid=2056))
+        else:
+            raise HTTPBadRequest('The operator "{operator}" you passed is not implemented.'.format(operator=operator))
+        return clause
+
+    @staticmethod
+    def extract_geometry_collection_db(db_path, compare_geometry, operator):
+        if operator == 'INTERSECTS':
+            operator = 'ST_Intersects'
+        elif operator == 'TOUCHES':
+            operator = 'ST_Touches'
+        elif operator == 'COVERED_BY':
+            operator = 'ST_CoveredBy'
+        elif operator == 'WITHIN':
+            operator = 'ST_DFullyWithin'
+        else:
+            raise HTTPBadRequest('The operator "{operator}" you passed is not implemented.'.format(
+                operator=operator
+            ))
+        sql_text_point = '{0}(ST_CollectionExtract({1}, 1), ST_GeomFromText(\'{2}\', 2056))'.format(operator,
+                                                                                                    db_path,
+                                                                                                    compare_geometry)
+        sql_text_line = '{0}(ST_CollectionExtract({1}, 2), ST_GeomFromText(\'{2}\', 2056))'.format(operator,
+                                                                                                   db_path,
+                                                                                                   compare_geometry)
+        sql_text_polygon = '{0}(ST_CollectionExtract({1}, 3), ST_GeomFromText(\'{2}\', 2056))'.format(operator,
+                                                                                                      db_path,
+                                                                                                      compare_geometry)
+        clause_blocks = [
+            text(sql_text_point),
+            text(sql_text_line),
+            text(sql_text_polygon)
+        ]
+        return or_(*clause_blocks)
+
+    @staticmethod
+    def extract_geometry_collection_input(db_path, compare_geometry, operator):
+        if operator == 'INTERSECTS':
+            operator = 'ST_Intersects'
+        elif operator == 'TOUCHES':
+            operator = 'ST_Touches'
+        elif operator == 'COVERED_BY':
+            operator = 'ST_CoveredBy'
+        elif operator == 'WITHIN':
+            operator = 'ST_DFullyWithin'
+        else:
+            raise HTTPBadRequest('The operator "{operator}" you passed is not implemented.'.format(
+                operator=operator
+            ))
+        sql_text_point = '{0}({1}, ST_CollectionExtract(ST_GeomFromText(\'{2}\', 2056), 1))'.format(operator,
+                                                                                                    db_path,
+                                                                                                    compare_geometry)
+        sql_text_line = '{0}({1}, ST_CollectionExtract(ST_GeomFromText(\'{2}\', 2056), 2))'.format(operator,
+                                                                                                   db_path,
+                                                                                                   compare_geometry)
+        sql_text_polygon = '{0}({1}, ST_CollectionExtract(ST_GeomFromText(\'{2}\', 2056), 3))'.format(operator,
+                                                                                                      db_path,
+                                                                                                      compare_geometry)
+        clause_blocks = [
+            text(sql_text_point),
+            text(sql_text_line),
+            text(sql_text_polygon)
+        ]
+        return or_(*clause_blocks)
+
+    @staticmethod
+    def extract_geometry_collection_input_and_db(db_path, compare_geometry, operator):
+        if operator == 'INTERSECTS':
+            operator = 'ST_Intersects'
+        elif operator == 'TOUCHES':
+            operator = 'ST_Touches'
+        elif operator == 'COVERED_BY':
+            operator = 'ST_CoveredBy'
+        elif operator == 'WITHIN':
+            operator = 'ST_DFullyWithin'
+        else:
+            raise HTTPBadRequest('The operator "{operator}" you passed is not implemented.'.format(
+                operator=operator
+            ))
+        sql_text_point = '{0}(ST_CollectionExtract({1}, 1), ST_CollectionExtract(ST_GeomFromText(\'{2}\', 2056), 1))'.format(
+            operator, db_path, compare_geometry)
+        sql_text_line = '{0}(ST_CollectionExtract({1}, 2), ST_CollectionExtract(ST_GeomFromText(\'{2}\', 2056), 2))'.format(
+            operator, db_path, compare_geometry)
+        sql_text_polygon = '{0}(ST_CollectionExtract({1}, 3), ST_CollectionExtract(ST_GeomFromText(\'{2}\', 2056), 3))'.format(
+            operator, db_path, compare_geometry)
+        clause_blocks = [
+            text(sql_text_point),
+            text(sql_text_line),
+            text(sql_text_polygon)
+        ]
+        return or_(*clause_blocks)
 
     @staticmethod
     def decide_mode(mode, clause_blocks):
@@ -405,19 +534,19 @@ class Api(object):
         :raises: LookupError
         """
         connection_already_exists = False
-        for key, value in config.registry.pyramid_rest_database_connections.iteritems():
+        for key, value in config.registry.pyramid_georest_database_connections.iteritems():
             if url in key:
                 connection_already_exists = True
                 self.connection = value
 
         if not connection_already_exists:
             self.connection = Connection(url)
-            config.registry.pyramid_rest_database_connections[url] = self.connection
+            config.registry.pyramid_georest_database_connections[url] = self.connection
 
         self.services = {}
 
-        if name not in config.registry.pyramid_rest_apis:
-            config.registry.pyramid_rest_apis[name] = self
+        if name not in config.registry.pyramid_georest_apis:
+            config.registry.pyramid_georest_apis[name] = self
         else:
             log.error(
                 "The Api-Object you created seems to already exist in the registry. It has to be unique at all. "

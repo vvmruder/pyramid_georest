@@ -66,15 +66,17 @@ class RelationDescription(object):
 
         self.column_name = name
         self.header = self.column_name if dictionary is None else translate(self.column_name, dictionary)
+        # self.description = ModelDescription(self.relationship.argument)
         if self.relationship.uselist:
-            fk_path = [
-                self.relationship.argument.__table_args__.get('schema'),
-                self.relationship.argument.__table__.name,
-                self.relationship.argument.description().get('pk_name')
-            ]
-            self.foreign_key_names = [
-                '.'.join(fk_path)
-            ]
+            # fk_path = [
+            #     self.description.schema_name,
+            #     self.description.table_name,
+            #     ','.join(self.description.primary_key_column_names)
+            # ]
+            # self.foreign_key_names = [
+            #     '.'.join(fk_path)
+            # ]
+            self.foreign_key_names = []
         else:
             self.foreign_key_names = []
         self.is_geometry_column = False
