@@ -29,8 +29,6 @@ DELETE = None
 
 
 def main(global_config, **settings):
-    from pyramid_georest.lib.database import Connection
-    from pyramid_georest.lib.rest import Api, Service
     """ This function returns a Pyramid WSGI application. This is necessary for development of
     your plugin. So you can run it local with the paster server and in a IDE like PyCharm. It
     is intended to leave this section as is and do configuration in the includeme section only.
@@ -63,9 +61,9 @@ def includeme(config):
     config.add_renderer(name='model_restful_xml', factory=RestfulModelXML)
 
     # add request attributes
-    config.registry.pyramid_rest_database_connections = {}
-    config.registry.pyramid_rest_apis = {}
-    config.registry.pyramid_rest_services = []
+    config.registry.pyramid_georest_database_connections = {}
+    config.registry.pyramid_georest_apis = {}
+    config.registry.pyramid_georest_services = []
 
     # read settings from ini file
     settings = config.get_settings()
