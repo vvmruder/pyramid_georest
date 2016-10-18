@@ -140,6 +140,24 @@ class FilterDefinition(object):
         return clause
 
     def decide_multi_geometries(self, column_description, column, value, operator):
+        """
+        This method decides if the clause will contain geometry collections (in the value or in the database or in
+        both).
+        If it does it is necessary to "unpack" all collections to make them valid for geometric operations in database.
+        If it does not it uses a normal geometric operation.
+
+        :param column_description: The machine readable description of the column.
+        :type column_description: pyramid_georest.description.ColumnDescription
+        :param column: The sqlalchemy column which the clause should be formed with.
+        :type column: sqlalchemy.schema.Column
+        :param value: The WKT geometry representation which is used for comparison.
+        :type value: str
+        :param operator: A geometric operation which is used to form the clause.
+        :type operator: str
+        :return: The clause element
+        :rtype: sqlalchemy.sql.expression._BinaryExpression
+        :raises: HTTPBadRequest
+        """
         geometry_type = str(column_description.get('type')).upper()
         db_path_list = [
             self.model_description.schema_name,
@@ -156,19 +174,32 @@ class FilterDefinition(object):
         elif geometry_type != 'GEOMETRYCOLLECTION' and 'GEOMETRYCOLLECTION' not in value:
             clause_construct = self.decide_geometric_operation(column, operator, value)
         else:
-            text = "You found some bad geometric circumstance. Sorry for that. We can't handle your " \
-                   "request uses the operation {operation} on a geometric column with the type " \
-                   "{geometry_type} and your passed geometry was of the value {value}. This is not " \
-                   "supported in the moment.".format(
-                operation=operator,
-                geometry_type=geometry_type,
-                value=value
-            )
-            raise HTTPBadRequest()
+            hint_text = "You found some bad geometric circumstance. Sorry for that. We can't handle your " \
+                        "request uses the operation {operation} on a geometric column with the type " \
+                        "{geometry_type} and your passed geometry was of the value {value}. This is not " \
+                        "supported in the moment.".format(
+                            operation=operator,
+                            geometry_type=geometry_type,
+                            value=value
+                        )
+            raise HTTPBadRequest(hint_text)
         return clause_construct
 
     @staticmethod
     def decide_geometric_operation(column, operator, value):
+        """
+        Decides the simple cases of geometric filter operations.
+
+        :param column: The sqlalchemy column which the clause should be formed with.
+        :type column: sqlalchemy.schema.Column
+        :param operator: A geometric operation which is used to form the clause.
+        :type operator: str
+        :param value: The WKT geometry representation which is used for comparison.
+        :type value: str
+        :return: The clause element
+        :rtype: sqlalchemy.sql.expression._BinaryExpression
+        :raises: HTTPBadRequest
+        """
         if operator == 'INTERSECTS':
             clause = column.ST_Intersects(WKTElement(value, srid=2056))
         elif operator == 'TOUCHES':
@@ -182,7 +213,23 @@ class FilterDefinition(object):
         return clause
 
     @staticmethod
-    def extract_geometry_collection_db(db_path, compare_geometry, operator):
+    def extract_geometry_collection_db(db_path, value, operator):
+        """
+        Decides the geometry collections cases of geometric filter operations when the database contains multi
+        geometries but the passed geometry does not.
+        The multi geometry will be extracted to it's sub parts for operation.
+
+        :param db_path: The point separated string of schema_name.table_name.column_name from which we can construct
+         a correct SQL statement.
+        :type db_path: str
+        :param value: The WKT geometry representation which is used for comparison.
+        :type value: str
+        :param operator: A geometric operation which is used to form the clause.
+        :type operator: str
+        :return: The clause element.
+        :rtype: sqlalchemy.sql.elements.BooleanClauseList
+        :raises: HTTPBadRequest
+        """
         if operator == 'INTERSECTS':
             operator = 'ST_Intersects'
         elif operator == 'TOUCHES':
@@ -197,13 +244,13 @@ class FilterDefinition(object):
             ))
         sql_text_point = '{0}(ST_CollectionExtract({1}, 1), ST_GeomFromText(\'{2}\', 2056))'.format(operator,
                                                                                                     db_path,
-                                                                                                    compare_geometry)
+                                                                                                    value)
         sql_text_line = '{0}(ST_CollectionExtract({1}, 2), ST_GeomFromText(\'{2}\', 2056))'.format(operator,
                                                                                                    db_path,
-                                                                                                   compare_geometry)
+                                                                                                   value)
         sql_text_polygon = '{0}(ST_CollectionExtract({1}, 3), ST_GeomFromText(\'{2}\', 2056))'.format(operator,
                                                                                                       db_path,
-                                                                                                      compare_geometry)
+                                                                                                      value)
         clause_blocks = [
             text(sql_text_point),
             text(sql_text_line),
@@ -212,7 +259,23 @@ class FilterDefinition(object):
         return or_(*clause_blocks)
 
     @staticmethod
-    def extract_geometry_collection_input(db_path, compare_geometry, operator):
+    def extract_geometry_collection_input(db_path, value, operator):
+        """
+        Decides the geometry collections cases of geometric filter operations when the database contains multi
+        geometries but the passed geometry does not.
+        The multi geometry will be extracted to it's sub parts for operation.
+
+        :param db_path: The point separated string of schema_name.table_name.column_name from which we can construct
+         a correct SQL statement.
+        :type db_path: str
+        :param value: The WKT geometry representation which is used for comparison.
+        :type value: str
+        :param operator: A geometric operation which is used to form the clause.
+        :type operator: str
+        :return: The clause element.
+        :rtype: sqlalchemy.sql.elements.BooleanClauseList
+        :raises: HTTPBadRequest
+        """
         if operator == 'INTERSECTS':
             operator = 'ST_Intersects'
         elif operator == 'TOUCHES':
@@ -227,13 +290,13 @@ class FilterDefinition(object):
             ))
         sql_text_point = '{0}({1}, ST_CollectionExtract(ST_GeomFromText(\'{2}\', 2056), 1))'.format(operator,
                                                                                                     db_path,
-                                                                                                    compare_geometry)
+                                                                                                    value)
         sql_text_line = '{0}({1}, ST_CollectionExtract(ST_GeomFromText(\'{2}\', 2056), 2))'.format(operator,
                                                                                                    db_path,
-                                                                                                   compare_geometry)
+                                                                                                   value)
         sql_text_polygon = '{0}({1}, ST_CollectionExtract(ST_GeomFromText(\'{2}\', 2056), 3))'.format(operator,
                                                                                                       db_path,
-                                                                                                      compare_geometry)
+                                                                                                      value)
         clause_blocks = [
             text(sql_text_point),
             text(sql_text_line),
@@ -242,7 +305,23 @@ class FilterDefinition(object):
         return or_(*clause_blocks)
 
     @staticmethod
-    def extract_geometry_collection_input_and_db(db_path, compare_geometry, operator):
+    def extract_geometry_collection_input_and_db(db_path, value, operator):
+        """
+        Decides the geometry collections cases of geometric filter operations when the database contains multi
+        geometries but the passed geometry does not.
+        The multi geometry will be extracted to it's sub parts for operation.
+
+        :param db_path: The point separated string of schema_name.table_name.column_name from which we can construct
+         a correct SQL statement.
+        :type db_path: str
+        :param value: The WKT geometry representation which is used for comparison.
+        :type value: str
+        :param operator: A geometric operation which is used to form the clause.
+        :type operator: str
+        :return: The clause element.
+        :rtype: sqlalchemy.sql.elements.BooleanClauseList
+        :raises: HTTPBadRequest
+        """
         if operator == 'INTERSECTS':
             operator = 'ST_Intersects'
         elif operator == 'TOUCHES':
@@ -256,11 +335,11 @@ class FilterDefinition(object):
                 operator=operator
             ))
         sql_text_point = '{0}(ST_CollectionExtract({1}, 1), ST_CollectionExtract(ST_GeomFromText(\'{2}\', 2056), 1))'.format(
-            operator, db_path, compare_geometry)
+            operator, db_path, value)
         sql_text_line = '{0}(ST_CollectionExtract({1}, 2), ST_CollectionExtract(ST_GeomFromText(\'{2}\', 2056), 2))'.format(
-            operator, db_path, compare_geometry)
+            operator, db_path, value)
         sql_text_polygon = '{0}(ST_CollectionExtract({1}, 3), ST_CollectionExtract(ST_GeomFromText(\'{2}\', 2056), 3))'.format(
-            operator, db_path, compare_geometry)
+            operator, db_path, value)
         clause_blocks = [
             text(sql_text_point),
             text(sql_text_line),
@@ -417,10 +496,10 @@ class Service(object):
         model_description = ModelDescription(self.orm_model)
         model_primary_keys = model_description.primary_key_columns.items()
         if len(requested_primary_keys) != len(model_primary_keys):
-            text = "The number of passed primary keys mismatch the model given. Can't complete the request. Sorry..."
-            log.error(text)
+            hint_text = "The number of passed primary keys mismatch the model given. Can't complete the request. Sorry..."
+            log.error(hint_text)
             raise HTTPBadRequest(
-                detail=text
+                detail=hint_text
             )
         query = session.query(self.orm_model)
         for index, requested_primary_key in enumerate(requested_primary_keys):
@@ -429,10 +508,10 @@ class Service(object):
             result = query.one()
             return self.renderer_proxy.render(request, [result], self.model_description)
         except MultipleResultsFound, e:
-            text = "Strange thing happened... Found more than one record for the primary key(s) you passed."
-            log.error('{text}, Original error was: {error}'.format(text=text, error=e))
+            hint_text = "Strange thing happened... Found more than one record for the primary key(s) you passed."
+            log.error('{text}, Original error was: {error}'.format(text=hint_text, error=e))
             raise HTTPBadRequest(
-                detail=text
+                detail=hint_text
             )
 
     def create(self, request, session):
@@ -501,12 +580,12 @@ class Service(object):
                 request=request
             )
         else:
-            text = 'The Format "{format}" is not defined for this service. Sorry...'.format(
+            hint_text = 'The Format "{format}" is not defined for this service. Sorry...'.format(
                 format=response_format
             )
-            log.error(text)
+            log.error(hint_text)
             raise HTTPNotFound(
-                detail=text
+                detail=hint_text
             )
 
 
@@ -623,13 +702,13 @@ class Api(object):
         table_name = request.matchdict['table_name']
         service = self.find_service_by_definition(schema_name, table_name)
         if service is None:
-            text = 'Service with schema {schema_name} and table {table_name} could not be found.'.format(
+            hint_text = 'Service with schema {schema_name} and table {table_name} could not be found.'.format(
                 schema_name=schema_name,
                 table_name=table_name
             )
-            log.error(text)
+            log.error(hint_text)
             raise HTTPNotFound(
-                detail=text
+                detail=hint_text
             )
         return service
 
