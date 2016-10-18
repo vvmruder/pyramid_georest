@@ -1,6 +1,11 @@
 Pyramid REST Changelog
 ======================
 
+## 3.0.1
+
+* fix the issue with geometric filtering
+* make all geometric filter methods overwritable
+
 ## 3.0.0
 
 * redesign complete behaviour (straight classes for more flexibility)
