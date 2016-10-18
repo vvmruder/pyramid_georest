@@ -1,6 +1,10 @@
 Pyramid REST Changelog
 ======================
 
+## 3.0.3
+
+* fix bug
+
 ## 3.0.2
 
 * fix the add_view problem when rest api is included in other 
