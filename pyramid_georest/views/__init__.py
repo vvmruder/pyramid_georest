@@ -22,26 +22,8 @@ __create_date__ = '29.07.2015'
 
 
 class RestProxy(object):
-    read_method = 'GET'
-    read_filter_method = 'POST'
-    create_method = 'POST'
-    update_method = 'PUT'
-    delete_method = 'DELETE'
 
     def __init__(self, request):
-        # set methods from ini configuration if set. Use standard if not.
-        from pyramid_georest import CREATE, UPDATE, DELETE, READ, READ_FILTER
-        if CREATE is not None:
-            self.create_method = CREATE
-        if UPDATE is not None:
-            self.update_method = UPDATE
-        if DELETE is not None:
-            self.delete_method = DELETE
-        if READ is not None:
-            self.read_method = READ
-        if READ_FILTER is not None:
-            self.read_filter_method = READ_FILTER
-
         """
         A view configuration represented by a class. This is the central entry point of the api. Each request to every
         api/service comes through this point. At this point we decide which api was called and which action was
@@ -57,11 +39,6 @@ class RestProxy(object):
         if self.api is None:
             raise HTTPNotFound(detail='API with name {name} is not defined.'.format(name=api_name))
 
-    @view_config(
-        route_name='read',
-        request_method=(read_method, read_filter_method),
-        permission=None  # 'read_json' if self.with_read_permission else None
-    )
     def read(self):
         """
         Simple pass through method. We only need it to have a central entry to the
@@ -71,11 +48,6 @@ class RestProxy(object):
         """
         return self.api.read(self.request)
 
-    @view_config(
-        route_name='show',
-        request_method=read_method,
-        permission=None  # 'read_json' if self.with_read_permission else None
-    )
     def show(self):
         """
         Simple pass through method.
@@ -85,11 +57,6 @@ class RestProxy(object):
         """
         return self.api.show(self.request)
 
-    @view_config(
-        route_name='create',
-        request_method=create_method,
-        permission=None  # 'read_json' if self.with_read_permission else None
-    )
     def create(self):
         """
         Simple pass through method.
@@ -99,11 +66,6 @@ class RestProxy(object):
         """
         return self.api.create(self.request)
 
-    @view_config(
-        route_name='delete',
-        request_method=delete_method,
-        permission=None  # 'read_json' if self.with_read_permission else None
-    )
     def delete(self):
         """
         Simple pass through method.
@@ -113,11 +75,6 @@ class RestProxy(object):
         """
         return self.api.delete(self.request)
 
-    @view_config(
-        route_name='update',
-        request_method=update_method,
-        permission=None  # 'read_json' if self.with_read_permission else None
-    )
     def update(self):
         """
         Simple pass through method.
@@ -127,11 +84,6 @@ class RestProxy(object):
         """
         return self.api.update(self.request)
 
-    @view_config(
-        route_name='model',
-        request_method=read_method,
-        permission=None  # 'read_json' if self.with_read_permission else None
-    )
     def model(self):
         """
         Simple pass through method.
