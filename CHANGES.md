@@ -1,6 +1,11 @@
 Pyramid REST Changelog
 ======================
 
+## 3.0.4
+
+* implement a flag which makes it possible to create global and 
+dedicated api's for more flexibility.
+
 ## 3.0.3
 
 * fix bug

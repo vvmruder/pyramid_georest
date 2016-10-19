@@ -591,7 +591,7 @@ class Service(object):
 
 class Api(object):
 
-    def __init__(self, url, config, name):
+    def __init__(self, url, config, name, stand_alone=False):
         """
         A Object which holds the connection to the database and arbitrary numbers of services. It works like a proxy
         for the request. It decides which service will be finally called by reading the requested url parts and calls
@@ -610,6 +610,9 @@ class Api(object):
         api's. This name must be unique all over the application. If not an error will be thrown on application start
         up.
         :type name: str
+        :param stand_alone: Switch to create an api with own name space (True) or an api which is bound to the global
+        match system (False).
+        :type stand_alone: bool
         :raises: LookupError
         """
         connection_already_exists = False
@@ -624,14 +627,40 @@ class Api(object):
 
         self.services = {}
 
-        if name not in config.registry.pyramid_georest_apis:
-            config.registry.pyramid_georest_apis[name] = self
+        if stand_alone:
+            from pyramid_georest.routes import create_method, read_filter_method, read_method, delete_method, \
+                update_method
+            config.add_route('read', '/' + name + '/{schema_name}/{table_name}/read/{format}')
+            config.add_view(self, route_name='read', attr='read', request_method=(read_method, read_filter_method))
+
+            # delivers specific record
+            config.add_route('show', '/' + name + '/{schema_name}/{table_name}/read/{format}*primary_keys')
+            config.add_view(self, route_name='show', attr='show', request_method=read_method)
+
+            # create specific record
+            config.add_route('create', '/' + name + '/{schema_name}/{table_name}/create/{format}')
+            config.add_view(self, route_name='create', attr='create', request_method=create_method)
+
+            # update specific record
+            config.add_route('update', '/' + name + '/{schema_name}/{table_name}/update/{format}*primary_keys')
+            config.add_view(self, route_name='update', attr='update', request_method=update_method)
+
+            # delete specific record
+            config.add_route('delete', '/' + name + '/{schema_name}/{table_name}/delete/{format}*primary_keys')
+            config.add_view(self, route_name='delete', attr='delete', request_method=delete_method)
+
+            # delivers the description of the desired dataset
+            config.add_route('model', '/' + name + '/{schema_name}/{table_name}/model/{format}')
+            config.add_view(self, route_name='model', attr='model', request_method=read_method)
         else:
-            log.error(
-                "The Api-Object you created seems to already exist in the registry. It has to be unique at all. "
-                "Couldn't be added. Sorry..."
-            )
-            raise LookupError()
+            if name not in config.registry.pyramid_georest_apis:
+                config.registry.pyramid_georest_apis[name] = self
+            else:
+                log.error(
+                    "The Api-Object you created seems to already exist in the registry. It has to be unique at all. "
+                    "Couldn't be added. Sorry..."
+                )
+                raise LookupError()
 
     def add_service(self, service):
         """
