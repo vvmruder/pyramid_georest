@@ -106,7 +106,7 @@ class RenderProxy(object):
         :type renderer_name: str
         :raises: ConfigurationError
         """
-        if self._format_to_renderer[delivery_format]:
+        if self._format_to_renderer.get(delivery_format):
             log.warning('You overwrite the renderer for the "{format_name}" format'.format(format_name=delivery_format))
         self._format_to_renderer[delivery_format] = renderer_name
 
