@@ -106,19 +106,9 @@ class RenderProxy(object):
         :type renderer_name: str
         :raises: ConfigurationError
         """
-        try:
-            get_renderer(renderer_name)
-            self._format_to_renderer[delivery_format] = renderer_name
+        if self._format_to_renderer[delivery_format]:
             log.warning('You overwrite the renderer for the "{format_name}" format'.format(format_name=delivery_format))
-        except ValueError, e:
-            text = 'Adding mapping from format "{format_name}" to renderer "{renderer_name}" could not be completed. ' \
-                   'The renderer "{renderer_name}" does not exist. Original error was: {error_txt}'.format(
-                        format_name=delivery_format,
-                        renderer_name=renderer_name,
-                        error_txt=e
-                    )
-            log.warning(text)
-            raise ConfigurationError()
+        self._format_to_renderer[delivery_format] = renderer_name
 
 
 class RestfulJson(JSON):

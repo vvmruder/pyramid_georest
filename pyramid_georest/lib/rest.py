@@ -16,7 +16,7 @@
 # portions of the Software.
 import logging
 import transaction
-from pyramid.httpexceptions import HTTPNotFound, HTTPBadRequest
+from pyramid.httpexceptions import HTTPNotFound, HTTPBadRequest, HTTPOk
 from pyramid.renderers import render_to_response
 from pyramid.request import Request
 from pyramid_georest.lib.description import ModelDescription
@@ -525,7 +525,22 @@ class Service(object):
         :return: An pyramid response object
         :rtype: pyramid.response.Response
         """
-        pass
+        if request.matchdict['format'] == 'json':
+            data = request.json_body.get('feature')
+            orm_object = self.orm_model()
+            for key, value in data:
+                setattr(orm_object, key, value)
+            session.add(orm_object)
+            session.flush()
+            return HTTPOk()
+        else:
+            hint_text = 'The Format "{format}" is not defined for this service. Sorry...'.format(
+                format=request.matchdict['format']
+            )
+            log.error(hint_text)
+            raise HTTPNotFound(
+                detail=hint_text
+            )
 
     def delete(self, request, session):
         """
@@ -538,7 +553,38 @@ class Service(object):
         :return: An pyramid response object
         :rtype: pyramid.response.Response
         """
-        pass
+        if request.matchdict['format'] == 'json':
+            requested_primary_keys = request.matchdict['primary_keys']
+            model_description = ModelDescription(self.orm_model)
+            model_primary_keys = model_description.primary_key_columns.items()
+            if len(requested_primary_keys) != len(model_primary_keys):
+                hint_text = "The number of passed primary keys mismatch the model given. Can't complete the request. Sorry..."
+                log.error(hint_text)
+                raise HTTPBadRequest(
+                    detail=hint_text
+                )
+            query = session.query(self.orm_model)
+            for index, requested_primary_key in enumerate(requested_primary_keys):
+                query = query.filter(model_primary_keys[index][1] == requested_primary_key)
+            try:
+                result = query.one()
+                session.delete(result)
+                session.flush()
+                return HTTPOk()
+            except MultipleResultsFound, e:
+                hint_text = "Strange thing happened... Found more than one record for the primary key(s) you passed."
+                log.error('{text}, Original error was: {error}'.format(text=hint_text, error=e))
+                raise HTTPBadRequest(
+                    detail=hint_text
+                )
+        else:
+            hint_text = 'The Format "{format}" is not defined for this service. Sorry...'.format(
+                format=request.matchdict['format']
+            )
+            log.error(hint_text)
+            raise HTTPNotFound(
+                detail=hint_text
+            )
 
     def update(self, request, session):
         """
@@ -551,7 +597,40 @@ class Service(object):
         :return: An pyramid response object
         :rtype: pyramid.response.Response
         """
-        pass
+        if request.matchdict['format'] == 'json':
+            requested_primary_keys = request.matchdict['primary_keys']
+            model_description = ModelDescription(self.orm_model)
+            model_primary_keys = model_description.primary_key_columns.items()
+            if len(requested_primary_keys) != len(model_primary_keys):
+                hint_text = "The number of passed primary keys mismatch the model given. Can't complete the request. Sorry..."
+                log.error(hint_text)
+                raise HTTPBadRequest(
+                    detail=hint_text
+                )
+            query = session.query(self.orm_model)
+            for index, requested_primary_key in enumerate(requested_primary_keys):
+                query = query.filter(model_primary_keys[index][1] == requested_primary_key)
+            try:
+                result = query.one()
+                data = request.json_body.get('feature')
+                for key, value in data:
+                    setattr(result, key, value)
+                session.flush()
+                return HTTPOk()
+            except MultipleResultsFound, e:
+                hint_text = "Strange thing happened... Found more than one record for the primary key(s) you passed."
+                log.error('{text}, Original error was: {error}'.format(text=hint_text, error=e))
+                raise HTTPBadRequest(
+                    detail=hint_text
+                )
+        else:
+            hint_text = 'The Format "{format}" is not defined for this service. Sorry...'.format(
+                format=request.matchdict['format']
+            )
+            log.error(hint_text)
+            raise HTTPNotFound(
+                detail=hint_text
+            )
 
     def model(self, request):
         """
