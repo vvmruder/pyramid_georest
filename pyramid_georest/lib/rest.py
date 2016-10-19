@@ -709,6 +709,23 @@ class Api(object):
         if stand_alone:
             from pyramid_georest.routes import create_method, read_filter_method, read_method, delete_method, \
                 update_method
+            settings = config.get_settings()
+
+            if settings.get('http_create_method'):
+                create_method = settings.get('http_create_method')
+
+            if settings.get('http_read_filter_method'):
+                read_filter_method = settings.get('http_read_filter_method')
+
+            if settings.get('http_read_method'):
+                read_method = settings.get('http_read_method')
+
+            if settings.get('http_delete_method'):
+                delete_method = settings.get('http_delete_method')
+
+            if settings.get('http_update_method'):
+                update_method = settings.get('http_update_method')
+
             config.add_route('read', '/' + name + '/{schema_name}/{table_name}/read/{format}')
             config.add_view(self, route_name='read', attr='read', request_method=(read_method, read_filter_method))
 
