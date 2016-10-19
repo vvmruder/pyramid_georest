@@ -1,6 +1,10 @@
 Pyramid REST Changelog
 ======================
 
+## 3.0.6
+
+* bugfix to make the http methods for stand alone api configurable too 
+
 ## 3.0.5
 
 * bugfix for add renderer problem, implement create, update, delete
