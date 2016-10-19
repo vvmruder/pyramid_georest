@@ -1,6 +1,10 @@
 Pyramid REST Changelog
 ======================
 
+## 3.0.5
+
+* bugfix for add renderer problem, implement create, update, delete
+
 ## 3.0.4
 
 * implement a flag which makes it possible to create global and 
