@@ -526,13 +526,16 @@ class Service(object):
         :rtype: pyramid.response.Response
         """
         if request.matchdict['format'] == 'json':
-            data = request.json_body.get('feature')
-            orm_object = self.orm_model()
-            for key, value in data:
-                setattr(orm_object, key, value)
-            session.add(orm_object)
-            session.flush()
-            return HTTPOk()
+            if request.json_body.get('feature'):
+                orm_object = self.orm_model()
+                data = request.json_body.get('feature')
+                for key, value in data.iteritems():
+                    setattr(orm_object, key, value)
+                session.add(orm_object)
+                session.flush()
+                return HTTPOk()
+            else:
+                raise HTTPBadRequest('No features where found in request...')
         else:
             hint_text = 'The Format "{format}" is not defined for this service. Sorry...'.format(
                 format=request.matchdict['format']
@@ -612,11 +615,14 @@ class Service(object):
                 query = query.filter(model_primary_keys[index][1] == requested_primary_key)
             try:
                 result = query.one()
-                data = request.json_body.get('feature')
-                for key, value in data:
-                    setattr(result, key, value)
-                session.flush()
-                return HTTPOk()
+                if request.json_body.get('feature'):
+                    data = request.json_body.get('feature')
+                    for key, value in data.iteritems():
+                        setattr(result, key, value)
+                    session.flush()
+                    return HTTPOk()
+                else:
+                    raise HTTPBadRequest('No features where found in request...')
             except MultipleResultsFound, e:
                 hint_text = "Strange thing happened... Found more than one record for the primary key(s) you passed."
                 log.error('{text}, Original error was: {error}'.format(text=hint_text, error=e))
