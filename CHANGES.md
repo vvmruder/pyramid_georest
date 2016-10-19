@@ -1,6 +1,11 @@
 Pyramid REST Changelog
 ======================
 
+## 3.0.7
+
+* bugfix the problem that bad requests weren't catched and iteration 
+over dict was not correctly implemented
+
 ## 3.0.6
 
 * bugfix to make the http methods for stand alone api configurable too 
