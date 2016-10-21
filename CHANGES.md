@@ -1,6 +1,10 @@
 Pyramid REST Changelog
 ======================
 
+## 3.0.8
+
+* use a MANIFEST.in now
+
 ## 3.0.7
 
 * bugfix the problem that bad requests weren't catched and iteration 
