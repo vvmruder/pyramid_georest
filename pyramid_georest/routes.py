@@ -46,7 +46,7 @@ def includeme(config):
     config.add_view(RestProxy, route_name='read', attr='read', request_method=(read_method, read_filter_method))
 
     # delivers specific record
-    config.add_route('show', '/{api_name}/{schema_name}/{table_name}/read/{format}*primary_keys')
+    config.add_route('show', '/{api_name}/{schema_name}/{table_name}/read/{format}/*primary_keys')
     config.add_view(RestProxy, route_name='show', attr='show', request_method=read_method)
 
     # create specific record
@@ -54,11 +54,11 @@ def includeme(config):
     config.add_view(RestProxy, route_name='create', attr='create', request_method=create_method)
 
     # update specific record
-    config.add_route('update', '/{api_name}/{schema_name}/{table_name}/update/{format}*primary_keys')
+    config.add_route('update', '/{api_name}/{schema_name}/{table_name}/update/{format}/*primary_keys')
     config.add_view(RestProxy, route_name='update', attr='update', request_method=update_method)
 
     # delete specific record
-    config.add_route('delete', '/{api_name}/{schema_name}/{table_name}/delete/{format}*primary_keys')
+    config.add_route('delete', '/{api_name}/{schema_name}/{table_name}/delete/{format}/*primary_keys')
     config.add_view(RestProxy, route_name='delete', attr='delete', request_method=delete_method)
 
     # delivers the description of the desired dataset

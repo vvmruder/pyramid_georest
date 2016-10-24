@@ -1,6 +1,10 @@
 Pyramid REST Changelog
 ======================
 
+## 3.0.9
+
+* change urls with primary keys
+
 ## 3.0.8
 
 * use a MANIFEST.in now

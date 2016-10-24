@@ -493,6 +493,7 @@ class Service(object):
         :raises: HTTPBadRequest
         """
         requested_primary_keys = request.matchdict['primary_keys']
+        print requested_primary_keys
         model_description = ModelDescription(self.orm_model)
         model_primary_keys = model_description.primary_key_columns.items()
         if len(requested_primary_keys) != len(model_primary_keys):
@@ -736,7 +737,7 @@ class Api(object):
             config.add_view(self, route_name='read', attr='read', request_method=(read_method, read_filter_method))
 
             # delivers specific record
-            config.add_route('show', '/' + name + '/{schema_name}/{table_name}/read/{format}*primary_keys')
+            config.add_route('show', '/' + name + '/{schema_name}/{table_name}/read/{format}/*primary_keys')
             config.add_view(self, route_name='show', attr='show', request_method=read_method)
 
             # create specific record
@@ -744,11 +745,11 @@ class Api(object):
             config.add_view(self, route_name='create', attr='create', request_method=create_method)
 
             # update specific record
-            config.add_route('update', '/' + name + '/{schema_name}/{table_name}/update/{format}*primary_keys')
+            config.add_route('update', '/' + name + '/{schema_name}/{table_name}/update/{format}/*primary_keys')
             config.add_view(self, route_name='update', attr='update', request_method=update_method)
 
             # delete specific record
-            config.add_route('delete', '/' + name + '/{schema_name}/{table_name}/delete/{format}*primary_keys')
+            config.add_route('delete', '/' + name + '/{schema_name}/{table_name}/delete/{format}/*primary_keys')
             config.add_view(self, route_name='delete', attr='delete', request_method=delete_method)
 
             # delivers the description of the desired dataset
