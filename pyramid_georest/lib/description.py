@@ -131,10 +131,12 @@ class ColumnDescription(object):
         """
         self.column = column
         self.is_geometry_column = False
+        self.srid = 0
         has_foreign_keys, foreign_key_names = self._column_fk()
         if 'geometry' in str(column.type):
             column_type = column.type.geometry_type
             self.is_geometry_column = True
+            self.srid = column.type.srid
         else:
             column_type = column.type
 
@@ -260,7 +262,8 @@ class ColumnDescription(object):
             'nullable': self.nullable,
             'default': self.default,
             'is_m_to_n': self.is_m_to_n,
-            'is_geometry_column': self.is_geometry_column
+            'is_geometry_column': self.is_geometry_column,
+            'srid': self.srid
         }
 
 

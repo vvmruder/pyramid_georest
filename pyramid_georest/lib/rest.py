@@ -531,7 +531,7 @@ class Service(object):
                 orm_object = self.orm_model()
                 data = request.json_body.get('feature')
                 for key, value in data.iteritems():
-                    setattr(orm_object, key, value)
+                    setattr(orm_object, key, self.geometry_treatment(key, value))
                 session.add(orm_object)
                 session.flush()
                 return HTTPOk()
@@ -619,7 +619,7 @@ class Service(object):
                 if request.json_body.get('feature'):
                     data = request.json_body.get('feature')
                     for key, value in data.iteritems():
-                        setattr(result, key, value)
+                        setattr(result, key, self.geometry_treatment(key, value))
                     session.flush()
                     return HTTPOk()
                 else:
@@ -673,6 +673,15 @@ class Service(object):
             raise HTTPNotFound(
                 detail=hint_text
             )
+
+    def geometry_treatment(self, key, value):
+        if key in self.model_description.geometry_column_names:
+            return 'SRID={srid};{wkt}'.format(
+                srid=self.model_description.column_descriptions.get(key).get('srid'),
+                wkt=value
+            )
+        else:
+            return value
 
 
 class Api(object):
