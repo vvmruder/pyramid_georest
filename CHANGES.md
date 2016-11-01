@@ -1,6 +1,10 @@
 Pyramid REST Changelog
 ======================
 
+## 3.0.10
+
+* use srid from model definitions for write operations
+
 ## 3.0.9
 
 * change urls with primary keys
