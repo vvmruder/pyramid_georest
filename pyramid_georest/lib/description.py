@@ -89,6 +89,10 @@ class RelationDescription(object):
         self.nullable = True
         self.default = []
         self.is_m_to_n = True
+        self.connected_foreign_keys = []
+
+        for foreign_key_column in self.relationship._calculated_foreign_keys:
+            self.connected_foreign_keys.append(foreign_key_column.name)
 
     def as_dict(self):
         """
@@ -110,7 +114,8 @@ class RelationDescription(object):
             'nullable': self.nullable,
             'default': self.default,
             'is_m_to_n': self.is_m_to_n,
-            'is_geometry_column': self.is_geometry_column
+            'is_geometry_column': self.is_geometry_column,
+            'connected_foreign_keys': self.connected_foreign_keys
         }
 
 

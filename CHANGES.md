@@ -1,6 +1,10 @@
 Pyramid REST Changelog
 ======================
 
+## 3.0.11
+
+* provide link between relationship and foreign key
+
 ## 3.0.10
 
 * use srid from model definitions for write operations
