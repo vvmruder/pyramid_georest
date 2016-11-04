@@ -240,7 +240,7 @@ class ColumnDescription(object):
             default = None
         elif type(self.column.default) is ColumnDefault:
             if hasattr(self.column.default.arg, '__call__'):
-                default = self.column.default.is_callable
+                default = None
             else:
                 default = self.column.default.arg
         else:

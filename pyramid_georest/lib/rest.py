@@ -165,14 +165,15 @@ class FilterDefinition(object):
             column_description.get('column_name')
         ]
         db_path = '.'.join(db_path_list)
+        srid = column_description.get('srid')
         if geometry_type == 'GEOMETRYCOLLECTION' and 'GEOMETRYCOLLECTION' not in value:
-            clause_construct = self.extract_geometry_collection_db(db_path, value, operator)
+            clause_construct = self.extract_geometry_collection_db(db_path, value, operator, srid)
         elif 'GEOMETRYCOLLECTION' in value and geometry_type != 'GEOMETRYCOLLECTION':
-            clause_construct = self.extract_geometry_collection_input(db_path, value, operator)
+            clause_construct = self.extract_geometry_collection_input(db_path, value, operator, srid)
         elif 'GEOMETRYCOLLECTION' in value and geometry_type == 'GEOMETRYCOLLECTION':
-            clause_construct = self.extract_geometry_collection_input_and_db(db_path, value, operator)
+            clause_construct = self.extract_geometry_collection_input_and_db(db_path, value, operator, srid)
         elif geometry_type != 'GEOMETRYCOLLECTION' and 'GEOMETRYCOLLECTION' not in value:
-            clause_construct = self.decide_geometric_operation(column, operator, value)
+            clause_construct = self.decide_geometric_operation(column, operator, value, srid)
         else:
             hint_text = "You found some bad geometric circumstance. Sorry for that. We can't handle your " \
                         "request uses the operation {operation} on a geometric column with the type " \
@@ -186,7 +187,7 @@ class FilterDefinition(object):
         return clause_construct
 
     @staticmethod
-    def decide_geometric_operation(column, operator, value):
+    def decide_geometric_operation(column, operator, value, srid):
         """
         Decides the simple cases of geometric filter operations.
 
@@ -196,24 +197,26 @@ class FilterDefinition(object):
         :type operator: str
         :param value: The WKT geometry representation which is used for comparison.
         :type value: str
+        :param srid: The SRID/EPSG number to define the coordinate system of the geometry attribute.
+        :type srid: int
         :return: The clause element
         :rtype: sqlalchemy.sql.expression._BinaryExpression
         :raises: HTTPBadRequest
         """
         if operator == 'INTERSECTS':
-            clause = column.ST_Intersects(WKTElement(value, srid=2056))
+            clause = column.ST_Intersects(WKTElement(value, srid=srid))
         elif operator == 'TOUCHES':
-            clause = column.ST_Touches(WKTElement(value, srid=2056))
+            clause = column.ST_Touches(WKTElement(value, srid=srid))
         elif operator == 'COVERED_BY':
-            clause = column.ST_CoveredBy(WKTElement(value, srid=2056))
+            clause = column.ST_CoveredBy(WKTElement(value, srid=srid))
         elif operator == 'WITHIN':
-            clause = column.ST_DFullyWithin(WKTElement(value, srid=2056))
+            clause = column.ST_DFullyWithin(WKTElement(value, srid=srid))
         else:
             raise HTTPBadRequest('The operator "{operator}" you passed is not implemented.'.format(operator=operator))
         return clause
 
     @staticmethod
-    def extract_geometry_collection_db(db_path, value, operator):
+    def extract_geometry_collection_db(db_path, value, operator, srid):
         """
         Decides the geometry collections cases of geometric filter operations when the database contains multi
         geometries but the passed geometry does not.
@@ -226,6 +229,8 @@ class FilterDefinition(object):
         :type value: str
         :param operator: A geometric operation which is used to form the clause.
         :type operator: str
+        :param srid: The SRID/EPSG number to define the coordinate system of the geometry attribute.
+        :type srid: int
         :return: The clause element.
         :rtype: sqlalchemy.sql.elements.BooleanClauseList
         :raises: HTTPBadRequest
@@ -242,15 +247,24 @@ class FilterDefinition(object):
             raise HTTPBadRequest('The operator "{operator}" you passed is not implemented.'.format(
                 operator=operator
             ))
-        sql_text_point = '{0}(ST_CollectionExtract({1}, 1), ST_GeomFromText(\'{2}\', 2056))'.format(operator,
-                                                                                                    db_path,
-                                                                                                    value)
-        sql_text_line = '{0}(ST_CollectionExtract({1}, 2), ST_GeomFromText(\'{2}\', 2056))'.format(operator,
-                                                                                                   db_path,
-                                                                                                   value)
-        sql_text_polygon = '{0}(ST_CollectionExtract({1}, 3), ST_GeomFromText(\'{2}\', 2056))'.format(operator,
-                                                                                                      db_path,
-                                                                                                      value)
+        sql_text_point = '{0}(ST_CollectionExtract({1}, 1), ST_GeomFromText(\'{2}\', {3}))'.format(
+            operator,
+            db_path,
+            value,
+            srid
+        )
+        sql_text_line = '{0}(ST_CollectionExtract({1}, 2), ST_GeomFromText(\'{2}\', {3}))'.format(
+            operator,
+            db_path,
+            value,
+            srid
+        )
+        sql_text_polygon = '{0}(ST_CollectionExtract({1}, 3), ST_GeomFromText(\'{2}\', {3}))'.format(
+            operator,
+            db_path,
+            value,
+            srid
+        )
         clause_blocks = [
             text(sql_text_point),
             text(sql_text_line),
@@ -259,7 +273,7 @@ class FilterDefinition(object):
         return or_(*clause_blocks)
 
     @staticmethod
-    def extract_geometry_collection_input(db_path, value, operator):
+    def extract_geometry_collection_input(db_path, value, operator, srid):
         """
         Decides the geometry collections cases of geometric filter operations when the database contains multi
         geometries but the passed geometry does not.
@@ -272,6 +286,8 @@ class FilterDefinition(object):
         :type value: str
         :param operator: A geometric operation which is used to form the clause.
         :type operator: str
+        :param srid: The SRID/EPSG number to define the coordinate system of the geometry attribute.
+        :type srid: int
         :return: The clause element.
         :rtype: sqlalchemy.sql.elements.BooleanClauseList
         :raises: HTTPBadRequest
@@ -288,15 +304,24 @@ class FilterDefinition(object):
             raise HTTPBadRequest('The operator "{operator}" you passed is not implemented.'.format(
                 operator=operator
             ))
-        sql_text_point = '{0}({1}, ST_CollectionExtract(ST_GeomFromText(\'{2}\', 2056), 1))'.format(operator,
-                                                                                                    db_path,
-                                                                                                    value)
-        sql_text_line = '{0}({1}, ST_CollectionExtract(ST_GeomFromText(\'{2}\', 2056), 2))'.format(operator,
-                                                                                                   db_path,
-                                                                                                   value)
-        sql_text_polygon = '{0}({1}, ST_CollectionExtract(ST_GeomFromText(\'{2}\', 2056), 3))'.format(operator,
-                                                                                                      db_path,
-                                                                                                      value)
+        sql_text_point = '{0}({1}, ST_CollectionExtract(ST_GeomFromText(\'{2}\', {3}), 1))'.format(
+            operator,
+            db_path,
+            value,
+            srid
+        )
+        sql_text_line = '{0}({1}, ST_CollectionExtract(ST_GeomFromText(\'{2}\', {3}), 2))'.format(
+            operator,
+            db_path,
+            value,
+            srid
+        )
+        sql_text_polygon = '{0}({1}, ST_CollectionExtract(ST_GeomFromText(\'{2}\', {3}), 3))'.format(
+            operator,
+            db_path,
+            value,
+            srid
+        )
         clause_blocks = [
             text(sql_text_point),
             text(sql_text_line),
@@ -305,7 +330,7 @@ class FilterDefinition(object):
         return or_(*clause_blocks)
 
     @staticmethod
-    def extract_geometry_collection_input_and_db(db_path, value, operator):
+    def extract_geometry_collection_input_and_db(db_path, value, operator, srid):
         """
         Decides the geometry collections cases of geometric filter operations when the database contains multi
         geometries but the passed geometry does not.
@@ -318,6 +343,8 @@ class FilterDefinition(object):
         :type value: str
         :param operator: A geometric operation which is used to form the clause.
         :type operator: str
+        :param srid: The SRID/EPSG number to define the coordinate system of the geometry attribute.
+        :type srid: int
         :return: The clause element.
         :rtype: sqlalchemy.sql.elements.BooleanClauseList
         :raises: HTTPBadRequest
@@ -334,12 +361,24 @@ class FilterDefinition(object):
             raise HTTPBadRequest('The operator "{operator}" you passed is not implemented.'.format(
                 operator=operator
             ))
-        sql_text_point = '{0}(ST_CollectionExtract({1}, 1), ST_CollectionExtract(ST_GeomFromText(\'{2}\', 2056), 1))'.format(
-            operator, db_path, value)
-        sql_text_line = '{0}(ST_CollectionExtract({1}, 2), ST_CollectionExtract(ST_GeomFromText(\'{2}\', 2056), 2))'.format(
-            operator, db_path, value)
-        sql_text_polygon = '{0}(ST_CollectionExtract({1}, 3), ST_CollectionExtract(ST_GeomFromText(\'{2}\', 2056), 3))'.format(
-            operator, db_path, value)
+        sql_text_point = '{0}(ST_CollectionExtract({1}, 1), ST_CollectionExtract(ST_GeomFromText(\'{2}\', {3}), 1))'.format(
+            operator,
+            db_path,
+            value,
+            srid
+        )
+        sql_text_line = '{0}(ST_CollectionExtract({1}, 2), ST_CollectionExtract(ST_GeomFromText(\'{2}\', {3}), 2))'.format(
+            operator,
+            db_path,
+            value,
+            srid
+        )
+        sql_text_polygon = '{0}(ST_CollectionExtract({1}, 3), ST_CollectionExtract(ST_GeomFromText(\'{2}\', {3}), 3))'.format(
+            operator,
+            db_path,
+            value,
+            srid
+        )
         clause_blocks = [
             text(sql_text_point),
             text(sql_text_line),

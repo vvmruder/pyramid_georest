@@ -1,6 +1,11 @@
 Pyramid REST Changelog
 ======================
 
+## 3.0.12
+
+* set default value to None if it is a callable
+* set srid automatically dependent on the model
+
 ## 3.0.11
 
 * provide link between relationship and foreign key
