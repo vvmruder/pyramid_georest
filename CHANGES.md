@@ -1,6 +1,10 @@
 Pyramid REST Changelog
 ======================
 
+## 3.0.13
+
+* hanle NULL values for geometry
+
 ## 3.0.12
 
 * set default value to None if it is a callable
