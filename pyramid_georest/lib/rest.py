@@ -714,7 +714,7 @@ class Service(object):
             )
 
     def geometry_treatment(self, key, value):
-        if key in self.model_description.geometry_column_names:
+        if value is not None and key in self.model_description.geometry_column_names:
             return 'SRID={srid};{wkt}'.format(
                 srid=self.model_description.column_descriptions.get(key).get('srid'),
                 wkt=value
