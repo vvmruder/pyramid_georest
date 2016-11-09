@@ -30,6 +30,7 @@ from sqlalchemy.sql.expression import text
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.exc import MultipleResultsFound
 from geoalchemy2 import WKTElement
+from shapely.geometry import asShape
 
 __author__ = 'Clemens Rudert'
 __create_date__ = '29.07.2015'
@@ -566,11 +567,32 @@ class Service(object):
         :rtype: pyramid.response.Response
         """
         if request.matchdict['format'] == 'json':
+            # At this moment there is no check for valid json data this leads to normal behaving process, but no
+            # data will be written at all because the keys are not matching.
             if request.json_body.get('feature'):
                 orm_object = self.orm_model()
                 data = request.json_body.get('feature')
                 for key, value in data.iteritems():
                     setattr(orm_object, key, self.geometry_treatment(key, value))
+                session.add(orm_object)
+                session.flush()
+                return HTTPOk()
+            else:
+                raise HTTPBadRequest('No features where found in request...')
+        elif request.matchdict['format'] == 'geojson':
+            if request.json_body.get('feature'):
+                orm_object = self.orm_model()
+                data = request.json_body.get('feature')
+                properties = data.get('properties')
+                for key, value in properties.iteritems():
+                    setattr(orm_object, key, value)
+                geometry = data.get('geometry')
+                # GeoJson supports only one geometry attribute per feature, so we use the first geometry column from
+                # model description... Not the best way but as long we have only one geometry attribute per table it
+                # will work
+                geometry_column_name = self.model_description.geometry_column_names[0]
+                concrete_wkt = self.geometry_treatment(geometry_column_name, asShape(geometry).wkt)
+                setattr(orm_object, geometry_column_name, concrete_wkt)
                 session.add(orm_object)
                 session.flush()
                 return HTTPOk()
@@ -640,21 +662,24 @@ class Service(object):
         :return: An pyramid response object
         :rtype: pyramid.response.Response
         """
-        if request.matchdict['format'] == 'json':
-            requested_primary_keys = request.matchdict['primary_keys']
-            model_description = ModelDescription(self.orm_model)
-            model_primary_keys = model_description.primary_key_columns.items()
-            if len(requested_primary_keys) != len(model_primary_keys):
-                hint_text = "The number of passed primary keys mismatch the model given. Can't complete the request. Sorry..."
-                log.error(hint_text)
-                raise HTTPBadRequest(
-                    detail=hint_text
-                )
-            query = session.query(self.orm_model)
-            for index, requested_primary_key in enumerate(requested_primary_keys):
-                query = query.filter(model_primary_keys[index][1] == requested_primary_key)
-            try:
-                result = query.one()
+        requested_primary_keys = request.matchdict['primary_keys']
+        model_description = ModelDescription(self.orm_model)
+        model_primary_keys = model_description.primary_key_columns.items()
+        if len(requested_primary_keys) != len(model_primary_keys):
+            hint_text = "The number of passed primary keys mismatch the model given. Can't complete the request. Sorry..."
+            log.error(hint_text)
+            raise HTTPBadRequest(
+                detail=hint_text
+            )
+        query = session.query(self.orm_model)
+
+        for index, requested_primary_key in enumerate(requested_primary_keys):
+            query = query.filter(model_primary_keys[index][1] == requested_primary_key)
+        try:
+            result = query.one()
+            if request.matchdict['format'] == 'json':
+                # At this moment there is no check for valid json data this leads to normal behaving process, but no
+                # data will be written at all because the keys are not matching.
                 if request.json_body.get('feature'):
                     data = request.json_body.get('feature')
                     for key, value in data.iteritems():
@@ -663,18 +688,35 @@ class Service(object):
                     return HTTPOk()
                 else:
                     raise HTTPBadRequest('No features where found in request...')
-            except MultipleResultsFound, e:
-                hint_text = "Strange thing happened... Found more than one record for the primary key(s) you passed."
-                log.error('{text}, Original error was: {error}'.format(text=hint_text, error=e))
-                raise HTTPBadRequest(
+            elif request.matchdict['format'] == 'geojson':
+                if request.json_body.get('feature'):
+                    data = request.json_body.get('feature')
+                    properties = data.get('properties')
+                    for key, value in properties.iteritems():
+                        setattr(result, key, value)
+                    geometry = data.get('geometry')
+                    # GeoJson supports only one geometry attribute per feature, so we use the first geometry column from
+                    # model description... Not the best way but as long we have only one geometry attribute per table it
+                    # will work
+                    geometry_column_name = self.model_description.geometry_column_names[0]
+                    concrete_wkt = self.geometry_treatment(geometry_column_name, asShape(geometry).wkt)
+                    setattr(result, geometry_column_name, concrete_wkt)
+                    session.flush()
+                    return HTTPOk()
+                else:
+                    raise HTTPBadRequest('No features where found in request...')
+            else:
+                hint_text = 'The Format "{format}" is not defined for this service. Sorry...'.format(
+                    format=request.matchdict['format']
+                )
+                log.error(hint_text)
+                raise HTTPNotFound(
                     detail=hint_text
                 )
-        else:
-            hint_text = 'The Format "{format}" is not defined for this service. Sorry...'.format(
-                format=request.matchdict['format']
-            )
-            log.error(hint_text)
-            raise HTTPNotFound(
+        except MultipleResultsFound, e:
+            hint_text = "Strange thing happened... Found more than one record for the primary key(s) you passed."
+            log.error('{text}, Original error was: {error}'.format(text=hint_text, error=e))
+            raise HTTPBadRequest(
                 detail=hint_text
             )
 
