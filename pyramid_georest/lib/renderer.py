@@ -23,7 +23,7 @@ import dicttoxml
 from geoalchemy2 import WKBElement
 from geoalchemy2.shape import to_shape
 from pyramid.exceptions import ConfigurationError
-from pyramid.httpexceptions import HTTPNotFound
+from pyramid.httpexceptions import HTTPNotFound, HTTPServerError
 from pyramid.renderers import JSON, render_to_response, get_renderer
 
 from sqlalchemy.ext.associationproxy import _AssociationList
@@ -199,8 +199,7 @@ class RestfulJson(JSON):
         """
         return list(association)
 
-    @staticmethod
-    def geometry_formatter(geometry):
+    def geometry_formatter(self, geometry):
         """
 
         :param geometry: A geoalchemy wkb element object which should be converted
@@ -257,8 +256,7 @@ class RestfulGeoJson(RestfulJson):
                 elif isinstance(value, _AssociationList):
                     value = self.association_formatter(value)
                 elif isinstance(value, WKBElement):
-                    geometry["coordinates"] = self.geometry_formatter(value)
-                    geometry["type"] = self.geometry_type_formatter(value)
+                    result_dict['geometry'] = self.geometry_formatter(value)
                     continue
                 elif isinstance(value, decimal.Decimal):
                     value = self.float_formatter(value)
@@ -280,8 +278,7 @@ class RestfulGeoJson(RestfulJson):
         """
         return to_shape(geometry).geom_type
 
-    @staticmethod
-    def geometry_formatter(geometry):
+    def geometry_formatter(self, geometry):
         """
 
         :param geometry: A geoalchemy wkb element object which should be converted
@@ -291,11 +288,58 @@ class RestfulGeoJson(RestfulJson):
         """
         shapely_object = to_shape(geometry)
         geom_type = shapely_object.geom_type
-        if geom_type == 'Point':
-            coordinates = list(shapely_object.coords)
+        if geom_type.upper() == 'POINT':
+            return {
+                "type": geom_type,
+                "coordinates": list(shapely_object.coords)
+            }
+        elif geom_type.upper() == 'LINESTRING':
+            return {
+                "type": geom_type,
+                "coordinates": list(shapely_object.coords)
+            }
+        elif geom_type.upper() == 'POLYGON':
+            return {
+                "type": geom_type,
+                "coordinates": list(shapely_object.coords)
+            }
+        elif geom_type.upper() == 'MULTIPOINT':
+            coordinates = list()
+            for point in shapely_object.geoms:
+                coordinates.append([list(point.coords)])
+            return {
+                "type": geom_type,
+                "coordinates": coordinates
+            }
+        elif geom_type.upper() == 'MULTILINESTRING':
+            coordinates = list()
+            for point in shapely_object.geoms:
+                coordinates.append([list(point.coords)])
+            return {
+                "type": geom_type,
+                "coordinates": coordinates
+            }
+        elif geom_type.upper() == 'MULTIPOLYGON':
+            coordinates = list()
+            for polygon in shapely_object.geoms:
+                coordinates.append([list(polygon.exterior.coords)])
+            return {
+                "type": geom_type,
+                "coordinates": coordinates
+            }
+        elif geom_type.upper() == 'GEOMETRYCOLLECTION':
+            members = []
+            for inner_geometry in shapely_object.geoms:
+                members.append(self.geometry_formatter(WKBElement(inner_geometry.wkb)))
+            return {
+                "type": geom_type,
+                "members": members
+            }
         else:
-            coordinates = list(shapely_object.exterior.coords)
-        return coordinates
+            raise HTTPServerError(
+                'You try to access a Dataset with a "{type}" geometry type. This is not supported in the moment. '
+                'Sorry...'.format(type=geom_type)
+            )
 
 
 class RestfulXML(RestfulJson):
