@@ -1,9 +1,14 @@
 Pyramid REST Changelog
 ======================
 
+## 3.0.14
+
+* improve output for geojson format
+* now it is possible to send data as geojson for create and update services
+
 ## 3.0.13
 
-* hanle NULL values for geometry
+* handle NULL values for geometry
 
 ## 3.0.12
 
