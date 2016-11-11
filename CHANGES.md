@@ -1,6 +1,10 @@
 Pyramid REST Changelog
 ======================
 
+## 3.0.16
+
+* fix bug when rendering polygon types to geojson
+
 ## 3.0.15
 
 * fix bug when creating multiple stand alone api's
