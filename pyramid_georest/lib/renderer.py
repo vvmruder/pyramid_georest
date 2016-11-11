@@ -301,7 +301,7 @@ class RestfulGeoJson(RestfulJson):
         elif geom_type.upper() == 'POLYGON':
             return {
                 "type": geom_type,
-                "coordinates": list(shapely_object.exterior.coords)
+                "coordinates": [list(shapely_object.exterior.coords)]
             }
         elif geom_type.upper() == 'MULTIPOINT':
             coordinates = list()

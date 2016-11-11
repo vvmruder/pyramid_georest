@@ -1,6 +1,10 @@
 Pyramid REST Changelog
 ======================
 
+## 3.0.17
+
+* implement correct export of geometry for polygons in geojson
+
 ## 3.0.16
 
 * fix bug when rendering polygon types to geojson
