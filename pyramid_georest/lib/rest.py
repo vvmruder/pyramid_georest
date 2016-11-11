@@ -823,28 +823,40 @@ class Api(object):
             if settings.get('http_update_method'):
                 update_method = settings.get('http_update_method')
 
-            config.add_route('read', '/' + name + '/{schema_name}/{table_name}/read/{format}')
-            config.add_view(self, route_name='read', attr='read', request_method=(read_method, read_filter_method))
+            config.add_route('{api_name}/read'.format(api_name=name),
+                             '/' + name + '/{schema_name}/{table_name}/read/{format}')
+            config.add_view(self, route_name='{api_name}/read'.format(api_name=name), attr='read',
+                            request_method=(read_method, read_filter_method))
 
             # delivers specific record
-            config.add_route('show', '/' + name + '/{schema_name}/{table_name}/read/{format}/*primary_keys')
-            config.add_view(self, route_name='show', attr='show', request_method=read_method)
+            config.add_route('{api_name}/show'.format(api_name=name),
+                             '/' + name + '/{schema_name}/{table_name}/read/{format}/*primary_keys')
+            config.add_view(self, route_name='{api_name}/show'.format(api_name=name), attr='show',
+                            request_method=read_method)
 
             # create specific record
-            config.add_route('create', '/' + name + '/{schema_name}/{table_name}/create/{format}')
-            config.add_view(self, route_name='create', attr='create', request_method=create_method)
+            config.add_route('{api_name}/create'.format(api_name=name),
+                             '/' + name + '/{schema_name}/{table_name}/create/{format}')
+            config.add_view(self, route_name='{api_name}/create'.format(api_name=name), attr='create',
+                            request_method=create_method)
 
             # update specific record
-            config.add_route('update', '/' + name + '/{schema_name}/{table_name}/update/{format}/*primary_keys')
-            config.add_view(self, route_name='update', attr='update', request_method=update_method)
+            config.add_route('{api_name}/update'.format(api_name=name),
+                             '/' + name + '/{schema_name}/{table_name}/update/{format}/*primary_keys')
+            config.add_view(self, route_name='{api_name}/update'.format(api_name=name), attr='update',
+                            request_method=update_method)
 
             # delete specific record
-            config.add_route('delete', '/' + name + '/{schema_name}/{table_name}/delete/{format}/*primary_keys')
-            config.add_view(self, route_name='delete', attr='delete', request_method=delete_method)
+            config.add_route('{api_name}/delete'.format(api_name=name),
+                             '/' + name + '/{schema_name}/{table_name}/delete/{format}/*primary_keys')
+            config.add_view(self, route_name='{api_name}/delete'.format(api_name=name), attr='delete',
+                            request_method=delete_method)
 
             # delivers the description of the desired dataset
-            config.add_route('model', '/' + name + '/{schema_name}/{table_name}/model/{format}')
-            config.add_view(self, route_name='model', attr='model', request_method=read_method)
+            config.add_route('{api_name}/model'.format(api_name=name),
+                             '/' + name + '/{schema_name}/{table_name}/model/{format}')
+            config.add_view(self, route_name='{api_name}/model'.format(api_name=name), attr='model',
+                            request_method=read_method)
         else:
             if name not in config.registry.pyramid_georest_apis:
                 config.registry.pyramid_georest_apis[name] = self
