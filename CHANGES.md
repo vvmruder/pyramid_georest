@@ -1,6 +1,10 @@
 Pyramid REST Changelog
 ======================
 
+## 3.0.18
+
+* deliver the persisted/deleted feature as response on update/create/delete
+
 ## 3.0.17
 
 * implement correct export of geometry for polygons in geojson

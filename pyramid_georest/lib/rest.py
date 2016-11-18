@@ -576,7 +576,8 @@ class Service(object):
                     setattr(orm_object, key, self.geometry_treatment(key, value))
                 session.add(orm_object)
                 session.flush()
-                return HTTPOk()
+                request.response.status_int = 201
+                return self.renderer_proxy.render(request, [orm_object], self.model_description)
             else:
                 raise HTTPBadRequest('No features where found in request...')
         elif request.matchdict['format'] == 'geojson':
@@ -595,7 +596,8 @@ class Service(object):
                 setattr(orm_object, geometry_column_name, concrete_wkt)
                 session.add(orm_object)
                 session.flush()
-                return HTTPOk()
+                request.response.status_int = 201
+                return self.renderer_proxy.render(request, [orm_object], self.model_description)
             else:
                 raise HTTPBadRequest('No features where found in request...')
         else:
@@ -635,7 +637,8 @@ class Service(object):
                 result = query.one()
                 session.delete(result)
                 session.flush()
-                return HTTPOk()
+                request.response.status_int = 202
+                return self.renderer_proxy.render(request, [result], self.model_description)
             except MultipleResultsFound, e:
                 hint_text = "Strange thing happened... Found more than one record for the primary key(s) you passed."
                 log.error('{text}, Original error was: {error}'.format(text=hint_text, error=e))
@@ -685,7 +688,8 @@ class Service(object):
                     for key, value in data.iteritems():
                         setattr(result, key, self.geometry_treatment(key, value))
                     session.flush()
-                    return HTTPOk()
+                    request.response.status_int = 202
+                    return self.renderer_proxy.render(request, [result], self.model_description)
                 else:
                     raise HTTPBadRequest('No features where found in request...')
             elif request.matchdict['format'] == 'geojson':
@@ -702,7 +706,8 @@ class Service(object):
                     concrete_wkt = self.geometry_treatment(geometry_column_name, asShape(geometry).wkt)
                     setattr(result, geometry_column_name, concrete_wkt)
                     session.flush()
-                    return HTTPOk()
+                    request.response.status_int = 202
+                    return self.renderer_proxy.render(request, [result], self.model_description)
                 else:
                     raise HTTPBadRequest('No features where found in request...')
             else:
