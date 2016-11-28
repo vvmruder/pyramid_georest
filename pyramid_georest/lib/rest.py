@@ -16,7 +16,7 @@
 # portions of the Software.
 import logging
 import transaction
-from pyramid.httpexceptions import HTTPNotFound, HTTPBadRequest, HTTPOk
+from pyramid.httpexceptions import HTTPNotFound, HTTPBadRequest
 from pyramid.renderers import render_to_response
 from pyramid.request import Request
 from pyramid_georest.lib.description import ModelDescription
@@ -762,9 +762,9 @@ class Service(object):
 
     def geometry_treatment(self, key, value):
         if value is not None and key in self.model_description.geometry_column_names:
-            return 'SRID={srid};{wkt}'.format(
-                srid=self.model_description.column_descriptions.get(key).get('srid'),
-                wkt=value
+            return WKTElement(
+                value,
+                self.model_description.column_descriptions.get(key).get('srid')
             )
         else:
             return value
