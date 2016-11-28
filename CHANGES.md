@@ -1,6 +1,11 @@
 Pyramid REST Changelog
 ======================
 
+## 3.0.19
+
+* fix problem where the geometry was not set as valid value in 
+update/create after flush 
+
 ## 3.0.18
 
 * deliver the persisted/deleted feature as response on update/create/delete
