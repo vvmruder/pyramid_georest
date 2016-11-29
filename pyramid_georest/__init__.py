@@ -54,11 +54,11 @@ def includeme(config):
     config.include('pyramid_georest.routes')
 
     # add standard renderers
-    config.add_renderer(name='restful_json', factory=RestfulJson)
-    config.add_renderer(name='restful_geo_json', factory=RestfulGeoJson)
-    config.add_renderer(name='restful_xml', factory=RestfulXML)
-    config.add_renderer(name='model_restful_json', factory=RestfulModelJSON)
-    config.add_renderer(name='model_restful_xml', factory=RestfulModelXML)
+    config.add_renderer(name='geo_restful_json', factory=RestfulJson)
+    config.add_renderer(name='geo_restful_geo_json', factory=RestfulGeoJson)
+    config.add_renderer(name='geo_restful_xml', factory=RestfulXML)
+    config.add_renderer(name='geo_restful_model_json', factory=RestfulModelJSON)
+    config.add_renderer(name='geo_restful_model_xml', factory=RestfulModelXML)
 
     # add request attributes
     config.registry.pyramid_georest_database_connections = {}

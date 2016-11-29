@@ -1,6 +1,11 @@
 Pyramid REST Changelog
 ======================
 
+## 3.0.20
+
+* set renderers under a more specific name space to avoid interferences 
+with other plugins
+
 ## 3.0.19
 
 * fix problem where the geometry was not set as valid value in 

@@ -54,9 +54,9 @@ class RenderProxy(object):
         http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/renderers.html#adding-and-changing-renderers
         """
         self._format_to_renderer = {
-            'json': 'restful_json',
-            'xml': 'restful_xml',
-            'geojson': 'restful_geo_json'
+            'json': 'geo_restful_json',
+            'xml': 'geo_restful_xml',
+            'geojson': 'geo_restful_geo_json'
         }
 
     def render(self, request, result, model_description):

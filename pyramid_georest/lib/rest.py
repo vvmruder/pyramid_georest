@@ -741,13 +741,13 @@ class Service(object):
         response_format = request.matchdict['format']
         if response_format == 'json':
             return render_to_response(
-                'model_restful_json',
+                'geo_restful_model_json',
                 self.model_description,
                 request=request
             )
         elif response_format == 'xml':
             return render_to_response(
-                'model_restful_xml',
+                'geo_restful_model_xml',
                 self.model_description,
                 request=request
             )
