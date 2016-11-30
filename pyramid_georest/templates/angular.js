@@ -22,7 +22,6 @@
     api_name = request.matchdict['api_name']
     schema_name = request.matchdict['schema_name']
     table_name = request.matchdict['table_name']
-    response.content_type = 'application/javascript'
     application_base_url = request.application_url
     if route_prefix is not None and len(route_prefix) > 0:
         application_base_url += '/' + route_prefix
