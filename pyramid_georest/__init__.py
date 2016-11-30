@@ -14,13 +14,19 @@
 #
 # The above copyright notice and this permission notice shall be included in all copies or substantial
 # portions of the Software.
+import logging
 from pyramid.config import Configurator
+from pyramid.exceptions import ConfigurationConflictError
 from pyramid_georest.lib.renderer import RestfulJson, RestfulXML, RestfulModelJSON, RestfulModelXML, RestfulGeoJson
+from pyramid_georest.lib.rest import Api, Service
+from pyramid_mako import add_mako_renderer
 
 __author__ = 'Clemens Rudert'
 __create_date__ = '23.07.2015'
 
+log = logging.getLogger('geo_controller')
 
+route_prefix = None
 READ = None
 READ_FILTER = None
 UPDATE = None
@@ -48,7 +54,21 @@ def includeme(config):
     :param config: The pyramid apps config object
     :type config: Configurator
     """
-    global CREATE, DELETE, READ, UPDATE, READ_FILTER
+    global CREATE, DELETE, READ, UPDATE, READ_FILTER, route_prefix
+
+    route_prefix = config.route_prefix
+
+    # bind the mako renderer to other file extensions
+    try:
+        add_mako_renderer(config, ".html")
+        config.commit()
+    except ConfigurationConflictError as e:
+        log.debug('Renderer for "html" already exists: {0}'.format(e.message))
+    try:
+        add_mako_renderer(config, ".js")
+        config.commit()
+    except ConfigurationConflictError as e:
+        log.debug('Renderer for "js" already exists: {0}'.format(e.message))
 
     # create routes
     config.include('pyramid_georest.routes')
@@ -63,7 +83,6 @@ def includeme(config):
     # add request attributes
     config.registry.pyramid_georest_database_connections = {}
     config.registry.pyramid_georest_apis = {}
-    config.registry.pyramid_georest_services = []
 
     # read settings from ini file
     settings = config.get_settings()
