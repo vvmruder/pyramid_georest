@@ -49,6 +49,10 @@ class RenderProxy(object):
         is fully extend able. You can add renderers via the add renderer method.
         Please note that all renderers which are added to the proxy need to be added to the pyramid config before.
         Otherwise a error will be thrown on startup of the application.
+        Please note in advance that the renderer system of pyramid works in a global way. It is your responsibility to
+        ensure each renderer added is unique by its name. Please keep this in mind when some thing is not generating
+        the output you want. Than it probably happens that you accidentally over wrote some renderer in another part of
+        the application.
 
         See the following link for further information:
         http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/renderers.html#adding-and-changing-renderers
@@ -109,6 +113,69 @@ class RenderProxy(object):
         if self._format_to_renderer.get(delivery_format):
             log.warning('You overwrite the renderer for the "{format_name}" format'.format(format_name=delivery_format))
         self._format_to_renderer[delivery_format] = renderer_name
+
+
+class AdapterProxy(object):
+
+    def __init__(self):
+        """
+        A proxy which matches a client side adapter script to a adapter name which is passed in the url as format
+        parameter. It implements some basic adapters but is fully extend able. You can add renderers via the
+        "add_adapters" method.
+
+        This enables you to provide every client side base implementation you like which is bound to a restful resource.
+        """
+        self._format_to_adapter = {
+            'angular': 'pyramid_georest:templates/angular.js'
+        }
+
+    def render(self, request, model_description):
+        """
+        Execute the rendering process by matching the requested format to the mapped renderer. If no renderer could be
+        found a error is raised.
+
+        :param request: The request which comes all the way through the application from the client
+        :type request: pyramid.request.Request
+        :param model_description: The description object of the data set which will be rendered.
+        :type model_description: pyramid_georest.lib.description.ModelDescription
+        :return: An pyramid response object
+        :rtype: pyramid.response.Response
+        :raises: HTTPNotFound
+        """
+        adapter_format = request.matchdict['format']
+        adapter_renderer = self._format_to_adapter.get(adapter_format, False)
+        if adapter_renderer:
+            return render_to_response(
+                adapter_renderer,
+                {
+                    'model_description': model_description
+                },
+                request=request
+            )
+        else:
+            text = 'The Format "{format}" is not defined for this service. Sorry...'.format(
+                format=adapter_renderer
+            )
+            log.error(text)
+            raise HTTPNotFound(
+                detail=text
+            )
+
+    def add_adapter(self, delivery_format, adapter_renderer_path):
+        """
+        Adds a matching to the render proxy's matching dict. It is possible to overwrite an existing one. If you do, a
+        notice (warning) is printed to your server logs.
+
+        :param delivery_format: The format string to which the renderer should be bound to (e.g. "json", "xml", ...)
+        :type delivery_format: str
+        :param adapter_renderer_path: The name of the renderer which was used to assign it to the pyramid applications
+        configuration.
+        :type adapter_renderer_path: str
+        :raises: ConfigurationError
+        """
+        if self._format_to_adapter.get(delivery_format):
+            log.warning('You overwrite the renderer for the "{format_name}" format'.format(format_name=delivery_format))
+        self._format_to_adapter[delivery_format] = adapter_renderer_path
 
 
 class RestfulJson(JSON):

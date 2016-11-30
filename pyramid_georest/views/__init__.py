@@ -92,3 +92,12 @@ class RestProxy(object):
         :rtype: pyramid.response.Response
         """
         return self.api.model(self.request)
+
+    def adapter(self):
+        """
+        Simple pass through method.
+
+        :return: An pyramid response object
+        :rtype: pyramid.response.Response
+        """
+        return self.api.adapter(self.request)

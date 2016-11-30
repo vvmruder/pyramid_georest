@@ -64,3 +64,7 @@ def includeme(config):
     # delivers the description of the desired dataset
     config.add_route('model', '/{api_name}/{schema_name}/{table_name}/model/{format}')
     config.add_view(RestProxy, route_name='model', attr='model', request_method=read_method)
+
+    # delivers an adapter for restful interaction via angular
+    config.add_route('adapter', '/{api_name}/{schema_name}/{table_name}/adapter/{format}')
+    config.add_view(RestProxy, route_name='adapter', attr='adapter', request_method=read_method)

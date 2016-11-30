@@ -20,7 +20,7 @@ from pyramid.httpexceptions import HTTPNotFound, HTTPBadRequest
 from pyramid.renderers import render_to_response
 from pyramid.request import Request
 from pyramid_georest.lib.description import ModelDescription
-from pyramid_georest.lib.renderer import RenderProxy
+from pyramid_georest.lib.renderer import RenderProxy, AdapterProxy
 from pyramid_georest.lib.database import Connection
 from pyramid_georest.routes import read_filter_method
 from sqlalchemy import or_, and_
@@ -464,7 +464,7 @@ class Filter(object):
 
 class Service(object):
 
-    def __init__(self, model, renderer_proxy=None):
+    def __init__(self, model, renderer_proxy=None, adapter_proxy=None):
         """
         A object which represents an restful service. It offers all the necessary methods and is able to consume a
         renderer proxy. This way we assure a plug able system to use custom renderers. If some custom behaviour is
@@ -475,6 +475,9 @@ class Service(object):
         :type model: sqlalchemy.ext.declarative.DeclarativeMeta
         :param renderer_proxy: A renderer proxy may be passed to achieve custom rendering
         :type renderer_proxy: RenderProxy or None
+        :param adapter_proxy: An adapter which provides special client side library handling. It is a AdapterProxy
+        per default.
+        :type adapter_proxy: AdapterProxy or None
         """
         self.orm_model = model
         self.model_description = ModelDescription(self.orm_model)
@@ -484,6 +487,11 @@ class Service(object):
             self.renderer_proxy = RenderProxy()
         else:
             self.renderer_proxy = renderer_proxy
+
+        if adapter_proxy is None:
+            self.adapter_proxy = AdapterProxy()
+        else:
+            self.adapter_proxy = adapter_proxy
 
     @staticmethod
     def name_from_definition(schema_name, table_name):
@@ -760,6 +768,18 @@ class Service(object):
                 detail=hint_text
             )
 
+    def adapter(self, request):
+        """
+        The method which is used by the api to deliver a client side usable adapter to handle the REST API.
+
+        :param request: The request which comes all the way through the application from the client
+        :type request: pyramid.request.Request
+        :return: An pyramid response object
+        :rtype: pyramid.response.Response
+        :raises: HTTPNotFound
+        """
+        return self.adapter_proxy.render(request, self.model_description)
+
     def geometry_treatment(self, key, value):
         if value is not None and key in self.model_description.geometry_column_names:
             return WKTElement(
@@ -862,15 +882,20 @@ class Api(object):
                              '/' + name + '/{schema_name}/{table_name}/model/{format}')
             config.add_view(self, route_name='{api_name}/model'.format(api_name=name), attr='model',
                             request_method=read_method)
+
+            # delivers the description of the desired dataset
+            config.add_route('{api_name}/adapter'.format(api_name=name),
+                             '/' + name + '/{schema_name}/{table_name}/adapter/{format}')
+            config.add_view(self, route_name='{api_name}/adapter'.format(api_name=name), attr='adapter',
+                            request_method=read_method)
+        if name not in config.registry.pyramid_georest_apis:
+            config.registry.pyramid_georest_apis[name] = self
         else:
-            if name not in config.registry.pyramid_georest_apis:
-                config.registry.pyramid_georest_apis[name] = self
-            else:
-                log.error(
-                    "The Api-Object you created seems to already exist in the registry. It has to be unique at all. "
-                    "Couldn't be added. Sorry..."
-                )
-                raise LookupError()
+            log.error(
+                "The Api-Object you created seems to already exist in the registry. It has to be unique at all. "
+                "Couldn't be added. Sorry..."
+            )
+            raise LookupError()
 
     def add_service(self, service):
         """
@@ -973,7 +998,7 @@ class Api(object):
         The api wide method to receive the show request and passing it to the correct service. At this point it is
         possible to implement some post or pre processing by overwriting this method. The most common use case for this
         will be the implementation of an authorisation mechanism which has influence on the whole api. To have influence
-        on special services please see the service class implementations read method.
+        on special services please see the service class implementations show method.
 
         :param request: The request which comes all the way through the application from the client
         :type request: pyramid.request.Request
@@ -990,7 +1015,7 @@ class Api(object):
         The api wide method to receive the create request and passing it to the correct service. At this point it is
         possible to implement some post or pre processing by overwriting this method. The most common use case for this
         will be the implementation of an authorisation mechanism which has influence on the whole api. To have influence
-        on special services please see the service class implementations read method.
+        on special services please see the service class implementations create method.
 
         :param request: The request which comes all the way through the application from the client
         :type request: pyramid.request.Request
@@ -1007,7 +1032,7 @@ class Api(object):
         The api wide method to receive the delete request and passing it to the correct service. At this point it is
         possible to implement some post or pre processing by overwriting this method. The most common use case for this
         will be the implementation of an authorisation mechanism which has influence on the whole api. To have influence
-        on special services please see the service class implementations read method.
+        on special services please see the service class implementations delete method.
 
         :param request: The request which comes all the way through the application from the client
         :type request: pyramid.request.Request
@@ -1024,7 +1049,7 @@ class Api(object):
         The api wide method to receive the update request and passing it to the correct service. At this point it is
         possible to implement some post or pre processing by overwriting this method. The most common use case for this
         will be the implementation of an authorisation mechanism which has influence on the whole api. To have influence
-        on special services please see the service class implementations read method.
+        on special services please see the service class implementations update method.
 
         :param request: The request which comes all the way through the application from the client
         :type request: pyramid.request.Request
@@ -1041,7 +1066,7 @@ class Api(object):
         The api wide method to receive the model request and passing it to the correct service. At this point it is
         possible to implement some post or pre processing by overwriting this method. The most common use case for this
         will be the implementation of an authorisation mechanism which has influence on the whole api. To have influence
-        on special services please see the service class implementations read method.
+        on special services please see the service class implementations model method.
 
         :param request: The request which comes all the way through the application from the client
         :type request: pyramid.request.Request
@@ -1049,5 +1074,21 @@ class Api(object):
         :rtype: pyramid.response.Response
         """
         return self.find_service_by_request(request).model(
+            request
+        )
+
+    def adapter(self, request):
+        """
+        The api wide method to receive the adapter request and passing it to the correct service. At this point it is
+        possible to implement some post or pre processing by overwriting this method. The most common use case for this
+        will be the implementation of an authorisation mechanism which has influence on the whole api. To have influence
+        on special services please see the service class implementations adapter method.
+
+        :param request: The request which comes all the way through the application from the client
+        :type request: pyramid.request.Request
+        :return: An pyramid response object
+        :rtype: pyramid.response.Response
+        """
+        return self.find_service_by_request(request).adapter(
             request
         )
