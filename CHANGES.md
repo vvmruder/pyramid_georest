@@ -1,6 +1,11 @@
 Pyramid REST Changelog
 ======================
 
+## 3.0.22
+
+* remove default client side adapter, it is not useful to have it 
+predefined
+
 ## 3.0.21
 
 * implement the possibility to add client side adapters via mako 

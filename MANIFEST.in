@@ -2,4 +2,3 @@ include *.md
 include .gitignore
 include *.txt
 include *.ini
-include pyramid_georest/templates/*
