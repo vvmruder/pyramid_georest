@@ -1,6 +1,13 @@
 Pyramid REST Changelog
 ======================
 
+## 3.0.21
+
+* implement the possibility to add client side adapters via mako 
+templates
+* remove the central api solution to avoid confusion, there are only 
+stand alone api's from now
+
 ## 3.0.20
 
 * set renderers under a more specific name space to avoid interferences 

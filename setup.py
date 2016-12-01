@@ -49,11 +49,11 @@ requires = [
 
 setup(
     name='pyramid_georest',
-    version='3.0.20',
+    version='3.0.21rc',
     description='pyramid_georest, extension for pyramid web frame work to provide rest interface for sql-alchemy mappers',
     long_description=README + '\n\n' + CHANGES,
     classifiers=[
-        "Development Status :: 4 - Beta",
+        "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
         "Programming Language :: Python :: 2.7",
         "Framework :: Pyramid",

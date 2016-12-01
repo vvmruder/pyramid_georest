@@ -20,18 +20,15 @@ from pyramid.exceptions import ConfigurationConflictError
 from pyramid_georest.lib.renderer import RestfulJson, RestfulXML, RestfulModelJSON, RestfulModelXML, RestfulGeoJson
 from pyramid_georest.lib.rest import Api, Service
 from pyramid_mako import add_mako_renderer
+from sqlalchemy import Column, types
+from sqlalchemy import MetaData
+from sqlalchemy import text
+from sqlalchemy.ext.declarative import declarative_base
 
 __author__ = 'Clemens Rudert'
 __create_date__ = '23.07.2015'
 
 log = logging.getLogger('geo_controller')
-
-route_prefix = None
-READ = None
-READ_FILTER = None
-UPDATE = None
-CREATE = None
-DELETE = None
 
 
 def main(global_config, **settings):
@@ -42,7 +39,7 @@ def main(global_config, **settings):
     environment at all!
     """
     config = Configurator(settings=settings)
-    config.include('pyramid_georest')
+    config.include('pyramid_georest', route_prefix='rest_api')
     config.scan()
     return config.make_wsgi_app()
 
@@ -54,9 +51,6 @@ def includeme(config):
     :param config: The pyramid apps config object
     :type config: Configurator
     """
-    global CREATE, DELETE, READ, UPDATE, READ_FILTER, route_prefix
-
-    route_prefix = config.route_prefix
 
     # bind the mako renderer to other file extensions
     try:
@@ -81,14 +75,13 @@ def includeme(config):
     config.add_renderer(name='geo_restful_model_xml', factory=RestfulModelXML)
 
     # add request attributes
+
+    # global database connection holder see database script/rest script in api class
+    # this feature is mainly used to reduce open database connections. They will be shared if they are exactly the same.
     config.registry.pyramid_georest_database_connections = {}
+    # global api holder
     config.registry.pyramid_georest_apis = {}
-
-    # read settings from ini file
-    settings = config.get_settings()
-
-    # set the methods from settings
-    CREATE = settings.get('http_create_method', None)
-    UPDATE = settings.get('http_update_method', None)
-    DELETE = settings.get('http_delete_method', None)
-    READ = settings.get('http_read_method', None)
+    # place where the api is available on each request
+    config.registry.pyramid_georest_requested_api = None
+    # place where the service is available on each request
+    config.registry.pyramid_georest_requested_service = None

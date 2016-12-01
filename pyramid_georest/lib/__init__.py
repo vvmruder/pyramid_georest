@@ -17,3 +17,7 @@
 
 __author__ = 'Clemens Rudert'
 __create_date__ = '29.07.2015'
+
+
+def camel_casify(string):
+    return ''.join(x for x in string.title() if not x.isspace())

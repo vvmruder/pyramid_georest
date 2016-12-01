@@ -17,17 +17,23 @@
  */
 
 <%
-    from pyramid_georest import route_prefix
+    from pyramid_georest.routes import route_prefix
+    from pyramid_georest.lib import camel_casify
     import simplejson
-    api_name = request.matchdict['api_name']
+    api_name = request.registry.pyramid_georest_requested_api.name
     schema_name = request.matchdict['schema_name']
     table_name = request.matchdict['table_name']
     application_base_url = request.application_url
     if route_prefix is not None and len(route_prefix) > 0:
         application_base_url += '/' + route_prefix
+    module_name = 'rest{0}'.format(camel_casify('{api_name} {schema_name} {table_name}'.format(
+        api_name=api_name,
+        schema_name=schema_name,
+        table_name=table_name
+    )))
 %>
 
-var app = angular.module('rest.${api_name}.${schema_name}.${table_name}', []);
+var app = angular.module('${module_name}', []);
 
 app.Model = function () {
     function Model() {
@@ -60,16 +66,16 @@ app.Model = function () {
     return Model;
 };
 
-app.module.factory('restModel', app.Model);
+app.module.factory('${module_name}Model', app.Model);
 
-app.restResource = function ($http, restModel) {
+app.restResource = function ($http, ${module_name}Model) {
     var restfulFeature = function (properties){
         this.manipulated = false;
         this.persisted = false;
         this.errors = {};
         this.urlCreate = '${application_base_url}/${api_name}/${schema_name}/${table_name}/create/geojson';
         this.urlUpdate = '${application_base_url}/${api_name}/${schema_name}/${table_name}/update/geojson/';
-        this.model = new restModel();
+        this.model = new ${module_name}Model;
         var formatter = new ol.format.GeoJSON();
 
         if(!angular.isDefined(properties)){
@@ -133,16 +139,15 @@ app.restResource = function ($http, restModel) {
     return restfulFeature;
 };
 
-app.restResource['$inject'] = ['$http', 'restModel'];
-app.module.factory('restResource', app.restResource);
+app.restResource['$inject'] = ['$http', '${module_name}Model'];
+app.module.factory('${module_name}Resource', app.restResource);
 
-app.restCollection = function ($http, restResource, restModel) {
+app.restCollection = function ($http, ${module_name}Resource) {
     var restfulCollection = function (settings){
         this.urlRead = '${application_base_url}/${api_name}/${schema_name}/${table_name}/read/geojson';
-        this.model = new restModel();
 
         this.new = function(){
-            var rr = new restResource();
+            var rr = new ${module_name}Resource();
             this.push(rr);
             return rr;
         };
@@ -158,7 +163,7 @@ app.restCollection = function ($http, restResource, restModel) {
                 self.clear();
                 angular.forEach(response.data.features, function (item) {
                     var feature = formatter.readFeature(item);
-                    var resource = new restResource();
+                    var resource = new ${module_name}Resource();
                     resource.setProperties(feature.getProperties());
                     resource.setGeometry(feature.getGeometry());
                     resource.persisted = true;
@@ -182,5 +187,5 @@ app.restCollection = function ($http, restResource, restModel) {
     return restfulCollection;
 };
 
-app.restCollection['$inject'] = ['$http', 'restResource', 'restModel'];
-app.module.factory('restCollection', app.restCollection);
+app.restCollection['$inject'] = ['$http', '${module_name}Resource'];
+app.module.factory('${module_name}Collection', app.restCollection);

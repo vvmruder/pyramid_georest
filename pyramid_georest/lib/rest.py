@@ -22,7 +22,7 @@ from pyramid.request import Request
 from pyramid_georest.lib.description import ModelDescription
 from pyramid_georest.lib.renderer import RenderProxy, AdapterProxy
 from pyramid_georest.lib.database import Connection
-from pyramid_georest.routes import read_filter_method
+from pyramid_georest.routes import create_api_routing
 from sqlalchemy import or_, and_
 from sqlalchemy import cast
 from sqlalchemy import String
@@ -522,7 +522,7 @@ class Service(object):
         :rtype: pyramid.response.Response
         """
         query = session.query(self.orm_model)
-        if request.method == read_filter_method:
+        if request.method == request.registry.pyramid_georest_requested_api.read_filter_method:
             rest_filter = Filter(self.model_description, **request.json_body.get('filter'))
             query = rest_filter.filter(query)
         results = query.all()
@@ -792,7 +792,8 @@ class Service(object):
 
 class Api(object):
 
-    def __init__(self, url, config, name, stand_alone=False):
+    def __init__(self, url, config, name, read_method='GET', read_filter_method='POST', create_method='POST',
+                 update_method='PUT', delete_method='DELETE'):
         """
         A Object which holds the connection to the database and arbitrary numbers of services. It works like a proxy
         for the request. It decides which service will be finally called by reading the requested url parts and calls
@@ -811,11 +812,24 @@ class Api(object):
         api's. This name must be unique all over the application. If not an error will be thrown on application start
         up.
         :type name: str
-        :param stand_alone: Switch to create an api with own name space (True) or an api which is bound to the global
-        match system (False).
-        :type stand_alone: bool
+        :param read_method: The HTTP method which is used to match the routing to the API.
+        :type read_method: str
+        :param read_filter_method: The HTTP method which is used to match the routing to the API.
+        :type read_filter_method: str
+        :param create_method: The HTTP method which is used to match the routing to the API.
+        :type create_method: str
+        :param update_method: The HTTP method which is used to match the routing to the API.
+        :type update_method: str
+        :param delete_method: The HTTP method which is used to match the routing to the API.
+        :type delete_method: str
         :raises: LookupError
         """
+        self.read_method = read_method
+        self.read_filter_method = read_filter_method
+        self.create_method = create_method
+        self.update_method = update_method
+        self.delete_method = delete_method
+
         connection_already_exists = False
         for key, value in config.registry.pyramid_georest_database_connections.iteritems():
             if url in key:
@@ -827,69 +841,12 @@ class Api(object):
             config.registry.pyramid_georest_database_connections[url] = self.connection
 
         self.services = {}
+        self.name = name
 
-        if stand_alone:
-            from pyramid_georest.routes import create_method, read_filter_method, read_method, delete_method, \
-                update_method
-            settings = config.get_settings()
-
-            if settings.get('http_create_method'):
-                create_method = settings.get('http_create_method')
-
-            if settings.get('http_read_filter_method'):
-                read_filter_method = settings.get('http_read_filter_method')
-
-            if settings.get('http_read_method'):
-                read_method = settings.get('http_read_method')
-
-            if settings.get('http_delete_method'):
-                delete_method = settings.get('http_delete_method')
-
-            if settings.get('http_update_method'):
-                update_method = settings.get('http_update_method')
-
-            config.add_route('{api_name}/read'.format(api_name=name),
-                             '/' + name + '/{schema_name}/{table_name}/read/{format}')
-            config.add_view(self, route_name='{api_name}/read'.format(api_name=name), attr='read',
-                            request_method=(read_method, read_filter_method))
-
-            # delivers specific record
-            config.add_route('{api_name}/show'.format(api_name=name),
-                             '/' + name + '/{schema_name}/{table_name}/read/{format}/*primary_keys')
-            config.add_view(self, route_name='{api_name}/show'.format(api_name=name), attr='show',
-                            request_method=read_method)
-
-            # create specific record
-            config.add_route('{api_name}/create'.format(api_name=name),
-                             '/' + name + '/{schema_name}/{table_name}/create/{format}')
-            config.add_view(self, route_name='{api_name}/create'.format(api_name=name), attr='create',
-                            request_method=create_method)
-
-            # update specific record
-            config.add_route('{api_name}/update'.format(api_name=name),
-                             '/' + name + '/{schema_name}/{table_name}/update/{format}/*primary_keys')
-            config.add_view(self, route_name='{api_name}/update'.format(api_name=name), attr='update',
-                            request_method=update_method)
-
-            # delete specific record
-            config.add_route('{api_name}/delete'.format(api_name=name),
-                             '/' + name + '/{schema_name}/{table_name}/delete/{format}/*primary_keys')
-            config.add_view(self, route_name='{api_name}/delete'.format(api_name=name), attr='delete',
-                            request_method=delete_method)
-
-            # delivers the description of the desired dataset
-            config.add_route('{api_name}/model'.format(api_name=name),
-                             '/' + name + '/{schema_name}/{table_name}/model/{format}')
-            config.add_view(self, route_name='{api_name}/model'.format(api_name=name), attr='model',
-                            request_method=read_method)
-
-            # delivers the description of the desired dataset
-            config.add_route('{api_name}/adapter'.format(api_name=name),
-                             '/' + name + '/{schema_name}/{table_name}/adapter/{format}')
-            config.add_view(self, route_name='{api_name}/adapter'.format(api_name=name), attr='adapter',
-                            request_method=read_method)
         if name not in config.registry.pyramid_georest_apis:
             config.registry.pyramid_georest_apis[name] = self
+            config.commit()
+            create_api_routing(config, self)
         else:
             log.error(
                 "The Api-Object you created seems to already exist in the registry. It has to be unique at all. "
@@ -974,6 +931,7 @@ class Api(object):
             raise HTTPNotFound(
                 detail=hint_text
             )
+        request.registry.pyramid_georest_requested_service = service
         return service
 
     def read(self, request):
@@ -988,6 +946,7 @@ class Api(object):
         :return: An pyramid response object
         :rtype: pyramid.response.Response
         """
+        request.registry.pyramid_georest_requested_api = self
         return self.find_service_by_request(request).read(
             request,
             self.provide_session(request)
@@ -1005,6 +964,7 @@ class Api(object):
         :return: An pyramid response object
         :rtype: pyramid.response.Response
         """
+        request.registry.pyramid_georest_requested_api = self
         return self.find_service_by_request(request).show(
             request,
             self.provide_session(request)
@@ -1022,6 +982,7 @@ class Api(object):
         :return: An pyramid response object
         :rtype: pyramid.response.Response
         """
+        request.registry.pyramid_georest_requested_api = self
         return self.find_service_by_request(request).create(
             request,
             self.provide_session(request)
@@ -1039,6 +1000,7 @@ class Api(object):
         :return: An pyramid response object
         :rtype: pyramid.response.Response
         """
+        request.registry.pyramid_georest_requested_api = self
         return self.find_service_by_request(request).delete(
             request,
             self.provide_session(request)
@@ -1056,6 +1018,7 @@ class Api(object):
         :return: An pyramid response object
         :rtype: pyramid.response.Response
         """
+        request.registry.pyramid_georest_requested_api = self
         return self.find_service_by_request(request).update(
             request,
             self.provide_session(request)
@@ -1073,6 +1036,7 @@ class Api(object):
         :return: An pyramid response object
         :rtype: pyramid.response.Response
         """
+        request.registry.pyramid_georest_requested_api = self
         return self.find_service_by_request(request).model(
             request
         )
@@ -1089,6 +1053,7 @@ class Api(object):
         :return: An pyramid response object
         :rtype: pyramid.response.Response
         """
+        request.registry.pyramid_georest_requested_api = self
         return self.find_service_by_request(request).adapter(
             request
         )

@@ -14,57 +14,112 @@
 #
 # The above copyright notice and this permission notice shall be included in all copies or substantial
 # portions of the Software.
-from pyramid_georest.views import RestProxy
 
 __author__ = 'Clemens Rudert'
 
-read_method = 'GET'
-read_filter_method = 'POST'
-create_method = 'POST'
-update_method = 'PUT'
-delete_method = 'DELETE'
+route_prefix = None
 
 
 def includeme(config):
-    global read_method, read_filter_method, create_method, update_method, delete_method
-    from pyramid_georest import CREATE, UPDATE, DELETE, READ, READ_FILTER
 
-    # set methods from ini configuration if set. Use standard if not.
-    if CREATE is not None:
-        create_method = CREATE
-    if UPDATE is not None:
-        update_method = UPDATE
-    if DELETE is not None:
-        delete_method = DELETE
-    if READ is not None:
-        read_method = READ
-    if READ_FILTER is not None:
-        read_filter_method = READ_FILTER
+    # read settings from ini file
+    settings = config.get_settings()
 
-    # delivers multiple records
-    config.add_route('read', '/{api_name}/{schema_name}/{table_name}/read/{format}')
-    config.add_view(RestProxy, route_name='read', attr='read', request_method=(read_method, read_filter_method))
+    # set route prefix
+    route_prefix = config.route_prefix
+
+
+def create_api_routing(config, api):
+    """
+    Central method to create the routing per api. This way a independent routing is created which takes even the
+    route prefix into account.
+
+    :param config: The pyramid apps config object
+    :type config: pyramid.config.Configurator
+    :param api: The Api which the routing is bound to.
+    :type api: pyramid_georest.lib.rest.Api
+    """
+
+    # delivers multiple records/filtered
+    config.add_route(
+        '{api_name}/read'.format(api_name=api.name),
+        '/' + api.name + '/{schema_name}/{table_name}/read/{format}'
+    )
+    config.add_view(
+        api,
+        route_name='{api_name}/read'.format(api_name=api.name),
+        attr='read',
+        request_method=(api.read_method, api.read_filter_method)
+    )
 
     # delivers specific record
-    config.add_route('show', '/{api_name}/{schema_name}/{table_name}/read/{format}/*primary_keys')
-    config.add_view(RestProxy, route_name='show', attr='show', request_method=read_method)
+    config.add_route(
+        '{api_name}/show'.format(api_name=api.name),
+        '/' + api.name + '/{schema_name}/{table_name}/read/{format}/*primary_keys'
+    )
+    config.add_view(
+        api,
+        route_name='{api_name}/show'.format(api_name=api.name),
+        attr='show',
+        request_method=api.read_method
+    )
 
     # create specific record
-    config.add_route('create', '/{api_name}/{schema_name}/{table_name}/create/{format}')
-    config.add_view(RestProxy, route_name='create', attr='create', request_method=create_method)
+    config.add_route(
+        '{api_name}/create'.format(api_name=api.name),
+        '/' + api.name + '/{schema_name}/{table_name}/create/{format}'
+    )
+    config.add_view(
+        api,
+        route_name='{api_name}/create'.format(api_name=api.name),
+        attr='create',
+        request_method=api.create_method
+    )
 
     # update specific record
-    config.add_route('update', '/{api_name}/{schema_name}/{table_name}/update/{format}/*primary_keys')
-    config.add_view(RestProxy, route_name='update', attr='update', request_method=update_method)
+    config.add_route(
+        '{api_name}/update'.format(api_name=api.name),
+        '/' + api.name + '/{schema_name}/{table_name}/update/{format}/*primary_keys'
+    )
+    config.add_view(
+        api,
+        route_name='{api_name}/update'.format(api_name=api.name),
+        attr='update',
+        request_method=api.update_method
+    )
 
     # delete specific record
-    config.add_route('delete', '/{api_name}/{schema_name}/{table_name}/delete/{format}/*primary_keys')
-    config.add_view(RestProxy, route_name='delete', attr='delete', request_method=delete_method)
+    config.add_route(
+        '{api_name}/delete'.format(api_name=api.name),
+        '/' + api.name + '/{schema_name}/{table_name}/delete/{format}/*primary_keys'
+    )
+    config.add_view(
+        api,
+        route_name='{api_name}/delete'.format(api_name=api.name),
+        attr='delete',
+        request_method=api.delete_method
+    )
 
     # delivers the description of the desired dataset
-    config.add_route('model', '/{api_name}/{schema_name}/{table_name}/model/{format}')
-    config.add_view(RestProxy, route_name='model', attr='model', request_method=read_method)
+    config.add_route(
+        '{api_name}/model'.format(api_name=api.name),
+        '/' + api.name + '/{schema_name}/{table_name}/model/{format}'
+    )
+    config.add_view(
+        api,
+        route_name='{api_name}/model'.format(api_name=api.name),
+        attr='model',
+        request_method=api.read_method
+    )
 
     # delivers an adapter for restful interaction via angular
-    config.add_route('adapter', '/{api_name}/{schema_name}/{table_name}/adapter/{format}')
-    config.add_view(RestProxy, route_name='adapter', attr='adapter', request_method=read_method)
+    config.add_route(
+        '{api_name}/adapter'.format(api_name=api.name),
+        '/' + api.name + '/{schema_name}/{table_name}/adapter/{format}'
+    )
+    config.add_view(
+        api,
+        route_name='{api_name}/adapter'.format(api_name=api.name),
+        attr='adapter',
+        request_method=api.read_method
+    )
