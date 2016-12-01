@@ -125,9 +125,7 @@ class AdapterProxy(object):
 
         This enables you to provide every client side base implementation you like which is bound to a restful resource.
         """
-        self._format_to_adapter = {
-            'angular': 'pyramid_georest:templates/angular.js'
-        }
+        self._format_to_adapter = {}
 
     def render(self, request, model_description):
         """
