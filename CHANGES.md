@@ -1,6 +1,10 @@
 Pyramid REST Changelog
 ======================
 
+## 3.0.24
+
+* add not equals operator '!=' to filter
+
 ## 3.0.22
 
 * remove default client side adapter, it is not useful to have it 
