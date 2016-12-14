@@ -120,6 +120,8 @@ class FilterDefinition(object):
             clause = column == value
         elif operator == '<>':
             clause = column != value
+        elif operator == '!=':
+            clause = column != value
         elif operator == '<':
             clause = column < value
         elif operator == '<=':
