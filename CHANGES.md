@@ -1,6 +1,11 @@
 Pyramid REST Changelog
 ======================
 
+## 3.0.25
+
+* implement an easier way to extend the parmas of the adapter proxy
+which are sent to the template
+
 ## 3.0.24
 
 * add not equals operator '!=' to filter

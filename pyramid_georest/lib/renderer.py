@@ -143,11 +143,11 @@ class AdapterProxy(object):
         adapter_format = request.matchdict['format']
         adapter_renderer = self._format_to_adapter.get(adapter_format, False)
         if adapter_renderer:
+            params = self.extend_return_params({})
+            params['model_description'] = model_description
             return render_to_response(
                 adapter_renderer,
-                {
-                    'model_description': model_description
-                },
+                params,
                 request=request
             )
         else:
@@ -158,6 +158,17 @@ class AdapterProxy(object):
             raise HTTPNotFound(
                 detail=text
             )
+
+    @staticmethod
+    def extend_return_params(params):
+        """
+        This method enables the developer to extend the parameter which are send to the template.
+        :param params: The dictionary which holds the params.
+        :type params: dict
+        :return: The extended dictionary
+        :rtype: dict
+        """
+        return params
 
     def add_adapter(self, delivery_format, adapter_renderer_path):
         """
