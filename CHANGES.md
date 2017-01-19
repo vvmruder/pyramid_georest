@@ -1,6 +1,10 @@
 Pyramid REST Changelog
 ======================
 
+## 3.0.28
+
+* fix api naming bug
+
 ## 3.0.27
 
 * fix import bug

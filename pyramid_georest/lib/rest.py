@@ -844,6 +844,7 @@ class Api(object):
 
         self.services = {}
         self.name = check_route_prefix(config.route_prefix) + name
+        self.pure_name = name
 
         if self.name not in config.registry.pyramid_georest_apis:
             config.registry.pyramid_georest_apis[self.name] = self
