@@ -1,6 +1,10 @@
 Pyramid REST Changelog
 ======================
 
+## 3.0.26
+
+* add route prefix to api names, they are unique per pyramid plugin then
+
 ## 3.0.25
 
 * implement an easier way to extend the parmas of the adapter proxy
