@@ -22,7 +22,7 @@ from pyramid.request import Request
 from pyramid_georest.lib.description import ModelDescription
 from pyramid_georest.lib.renderer import RenderProxy, AdapterProxy
 from pyramid_georest.lib.database import Connection
-from pyramid_georest.routes import create_api_routing
+from pyramid_georest.routes import create_api_routing, check_route_prefix
 from sqlalchemy import or_, and_
 from sqlalchemy import cast
 from sqlalchemy import String
@@ -796,7 +796,6 @@ class Api(object):
 
     def __init__(self, url, config, name, read_method='GET', read_filter_method='POST', create_method='POST',
                  update_method='PUT', delete_method='DELETE'):
-        from pyramid_georest.routes import route_prefix
         """
         A Object which holds the connection to the database and arbitrary numbers of services. It works like a proxy
         for the request. It decides which service will be finally called by reading the requested url parts and calls
@@ -844,7 +843,7 @@ class Api(object):
             config.registry.pyramid_georest_database_connections[url] = self.connection
 
         self.services = {}
-        self.name = route_prefix + name
+        self.name = check_route_prefix(config.route_prefix) + name
 
         if self.name not in config.registry.pyramid_georest_apis:
             config.registry.pyramid_georest_apis[self.name] = self

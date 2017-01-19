@@ -1,6 +1,10 @@
 Pyramid REST Changelog
 ======================
 
+## 3.0.27
+
+* fix import bug
+
 ## 3.0.26
 
 * add route prefix to api names, they are unique per pyramid plugin then
