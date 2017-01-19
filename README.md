@@ -60,7 +60,7 @@ at the following example to see how:
       return config.make_wsgi_app()
 ```
 
-Calling the config.include method with the packages name will do some 
+Calling the config.include method with the package name will do some
 initializing stuff (Note that the optional
 parameter 'route_prefix' can be used to set the restful interface below 
 a fix name space. This may be helpful especially
@@ -81,57 +81,19 @@ to take care of.
 Therefor this api ships with a mechanism which takes care of reusing 
 database connections as long as their definition is exactly the same 
 (we use the connections string for this as a key).
-To reduce the number of constructed urls on server startup we have one 
-global pattern which is able to match a requested url through its name 
-to the requested service. So in normal mode you get an global space 
-where you can bind api's to which you can bind services 
-(standard mode).
+To reduce the number of constructed urls on server startup we create 
+only one set of restful urls per api. So every service added to an api 
+will fit in this set and will be identified by a match pattern.
 
-However this might useful in the most cases. But often 
-you have some bigger applications and it is necessary to do some more 
-dedicated and more structured organization of api's and to this effect 
-of the urls. Especially if you are using the possibility of pyramid 
-plugins which you include in the pyramid way ([pyramid include](http://docs.pylonsproject.org/projects/pyramid/en/latest/api/config.html#pyramid.config.Configurator.include 'pyramid include')).
-To achieve this we have implemented a flag (stand_alone) to create an 
-api not in a global scope but in a stand alone way. This kind of api 
-object creates its own url scope and will respect the route_prefix of 
-the including application. This is much more flexible in big 
-applications which have different scopes to use the rest api.
-
-**One global API for the whole application**
-
-To have an api which is assigned to the global scope you can use this 
-code:
-
-```python
-   from pyramid_georest.lib.rest import Api, Service
-   from application.model import GlobalModel
-   def main(global_config, **settings):
-      """ This function returns a Pyramid WSGI application."""
-      config = Configurator(settings=settings)
-      config.include('pyramid_georest', route_prefix='api')
-      global_api = Api(
-         'postgresql://postgres:password@localhost:5432/test',
-         config,
-         'test'
-      )
-      global_service = Service(GlobalModel)
-      global_api.add_service(global_service)
-      config.scan()
-      return config.make_wsgi_app()
-```
-
-Of cause it is possible to add as many services to your api object. But 
-it is also possible to create an arbitrary number of apis.
-In a simple stand alone pyramid application this might be the way you 
-like to go.
-
-Looking at the code above you will get an api which is running under 
-the prefix '/api/' and with the name 'test'.
-So you will find each service bound to this api under /api/test/...
-
-Note that each api created this way will have the route prefix of the 
-global scope!
+Often you have some bigger applications and it is necessary to do some 
+more dedicated and more structured organization of api's. 
+Especially if you are using the possibility of pyramid plugins which 
+you include in the pyramid way ([pyramid include](http://docs.pylonsproject.org/projects/pyramid/en/latest/api/config.html#pyramid.config.Configurator.include 'pyramid include')).
+This kind of api object creates its own url scope and will respect the 
+route_prefix of the including application. This is much more flexible 
+in big applications which have different scopes to use the rest api. 
+Of cause it is possible to have several levels of includes. All 
+combined route_prefixes will be taken into account.
 
 **One dedicated API for a specific plugin**
 
@@ -147,7 +109,7 @@ In your main pyramid application:
    def main(global_config, **settings):
       """ This function returns a Pyramid WSGI application."""
       config = Configurator(settings=settings)
-      config.include('pyramid_georest', route_prefix='api')
+      config.include('pyramid_georest')
       config.include('my_plugin', route_prefix='my_plugin')
       config.scan()
       return config.make_wsgi_app()
@@ -162,14 +124,11 @@ In your plugins includeme mehtod:
       dedicated_api = Api(
          'postgresql://postgres:password@localhost:5432/test',
          config,
-         'api',
-         stand_alone=True
+         'api'
       )
       dedicated_service = Service(PluginModel)
       dedicated_api.add_service(dedicated_service)
 ```
-
-Note the 'stand_alone' flag in api object creation!
 
 Please note also that the route prefix in the include method is not 
 mandatory but useful for the api created by this package.
@@ -177,48 +136,3 @@ mandatory but useful for the api created by this package.
 Looking at the code above you will get an api which is running under 
 the prefix '/my_plugin/' and with the name 'api'.
 So you will find each service bound to this api under /my_plugin/api/...
-
-**Combination of both**
-
-Of cause it is possible to combine both:
-
-```python
-   def main(global_config, **settings):
-      from pyramid_georest.lib.rest import Api, Service
-      from application.model import GlobalModel
-      """ This function returns a Pyramid WSGI application."""
-      config = Configurator(settings=settings)
-      config.include('pyramid_georest', route_prefix='api')
-      config.include('my_plugin', route_prefix='my_plugin')
-      global_api = Api(
-         'postgresql://postgres:password@localhost:5432/test',
-         config,
-         'test'
-      )
-      global_service = Service(GlobalModel)
-      global_api.add_service(global_service)
-      config.scan()
-      return config.make_wsgi_app()
-```
-
-```python
-   from pyramid_georest.lib.rest import Api, Service
-   from my_plugin.model import PluginModel
-   def includeme(config):
-      dedicated_api = Api(
-         'postgresql://postgres:password@localhost:5432/test',
-         config,
-         'api',
-         stand_alone=True
-      )
-      dedicated_service = Service(PluginModel)
-      dedicated_api.add_service(dedicated_service)
-```
-
-This ends up in the following urls where you can find your services 
-under.
-
-The global one:
-/api/test/...
-The dedicated one:
-/my_plugin/api/...

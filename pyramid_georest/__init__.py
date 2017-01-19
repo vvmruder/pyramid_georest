@@ -64,9 +64,6 @@ def includeme(config):
     except ConfigurationConflictError as e:
         log.debug('Renderer for "js" already exists: {0}'.format(e.message))
 
-    # create routes
-    config.include('pyramid_georest.routes')
-
     # add standard renderers
     config.add_renderer(name='geo_restful_json', factory=RestfulJson)
     config.add_renderer(name='geo_restful_geo_json', factory=RestfulGeoJson)

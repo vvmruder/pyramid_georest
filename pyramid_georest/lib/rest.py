@@ -796,6 +796,7 @@ class Api(object):
 
     def __init__(self, url, config, name, read_method='GET', read_filter_method='POST', create_method='POST',
                  update_method='PUT', delete_method='DELETE'):
+        from pyramid_georest.routes import route_prefix
         """
         A Object which holds the connection to the database and arbitrary numbers of services. It works like a proxy
         for the request. It decides which service will be finally called by reading the requested url parts and calls
@@ -843,10 +844,10 @@ class Api(object):
             config.registry.pyramid_georest_database_connections[url] = self.connection
 
         self.services = {}
-        self.name = name
+        self.name = route_prefix + name
 
-        if name not in config.registry.pyramid_georest_apis:
-            config.registry.pyramid_georest_apis[name] = self
+        if self.name not in config.registry.pyramid_georest_apis:
+            config.registry.pyramid_georest_apis[self.name] = self
             config.commit()
             create_api_routing(config, self)
         else:
