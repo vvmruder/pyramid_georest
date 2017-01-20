@@ -848,8 +848,8 @@ class Api(object):
 
         if self.name not in config.registry.pyramid_georest_apis:
             config.registry.pyramid_georest_apis[self.name] = self
-            config.commit()
             create_api_routing(config, self)
+            config.commit()
         else:
             log.error(
                 "The Api-Object you created seems to already exist in the registry. It has to be unique at all. "

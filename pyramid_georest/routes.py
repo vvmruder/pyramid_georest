@@ -119,3 +119,6 @@ def create_api_routing(config, api):
         attr='adapter',
         request_method=api.read_method
     )
+
+    # commit the configuration
+    config.commit()

@@ -1,9 +1,13 @@
 Pyramid REST Changelog
 ======================
 
+## 3.0.31
+
+* add a commit to the configuration of the api
+
 ## 3.0.30
 
-* fix url name spacing bug 
+* fix url name spacing bug
 
 ## 3.0.29
 
