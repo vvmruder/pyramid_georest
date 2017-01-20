@@ -108,7 +108,6 @@ def create_api_routing(config, api):
         request_method=api.read_method
     )
 
-    print '{api_name}/adapter'.format(api_name=api.name)
     # delivers an adapter for restful interaction via angular
     config.add_route(
         '{api_name}/adapter'.format(api_name=api.name),
