@@ -1,6 +1,10 @@
 Pyramid REST Changelog
 ======================
 
+## 3.0.30
+
+* fix url name spacing bug 
+
 ## 3.0.29
 
 * remove trailing print

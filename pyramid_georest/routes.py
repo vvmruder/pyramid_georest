@@ -39,7 +39,7 @@ def create_api_routing(config, api):
     # delivers multiple records/filtered
     config.add_route(
         '{api_name}/read'.format(api_name=api.name),
-        '/' + api.name + '/{schema_name}/{table_name}/read/{format}'
+        '/' + api.pure_name + '/{schema_name}/{table_name}/read/{format}'
     )
     config.add_view(
         api,
@@ -51,7 +51,7 @@ def create_api_routing(config, api):
     # delivers specific record
     config.add_route(
         '{api_name}/show'.format(api_name=api.name),
-        '/' + api.name + '/{schema_name}/{table_name}/read/{format}/*primary_keys'
+        '/' + api.pure_name + '/{schema_name}/{table_name}/read/{format}/*primary_keys'
     )
     config.add_view(
         api,
@@ -63,7 +63,7 @@ def create_api_routing(config, api):
     # create specific record
     config.add_route(
         '{api_name}/create'.format(api_name=api.name),
-        '/' + api.name + '/{schema_name}/{table_name}/create/{format}'
+        '/' + api.pure_name + '/{schema_name}/{table_name}/create/{format}'
     )
     config.add_view(
         api,
@@ -75,7 +75,7 @@ def create_api_routing(config, api):
     # update specific record
     config.add_route(
         '{api_name}/update'.format(api_name=api.name),
-        '/' + api.name + '/{schema_name}/{table_name}/update/{format}/*primary_keys'
+        '/' + api.pure_name + '/{schema_name}/{table_name}/update/{format}/*primary_keys'
     )
     config.add_view(
         api,
@@ -87,7 +87,7 @@ def create_api_routing(config, api):
     # delete specific record
     config.add_route(
         '{api_name}/delete'.format(api_name=api.name),
-        '/' + api.name + '/{schema_name}/{table_name}/delete/{format}/*primary_keys'
+        '/' + api.pure_name + '/{schema_name}/{table_name}/delete/{format}/*primary_keys'
     )
     config.add_view(
         api,
@@ -99,7 +99,7 @@ def create_api_routing(config, api):
     # delivers the description of the desired dataset
     config.add_route(
         '{api_name}/model'.format(api_name=api.name),
-        '/' + api.name + '/{schema_name}/{table_name}/model/{format}'
+        '/' + api.pure_name + '/{schema_name}/{table_name}/model/{format}'
     )
     config.add_view(
         api,
@@ -111,7 +111,7 @@ def create_api_routing(config, api):
     # delivers an adapter for restful interaction via angular
     config.add_route(
         '{api_name}/adapter'.format(api_name=api.name),
-        '/' + api.name + '/{schema_name}/{table_name}/adapter/{format}'
+        '/' + api.pure_name + '/{schema_name}/{table_name}/adapter/{format}'
     )
     config.add_view(
         api,
