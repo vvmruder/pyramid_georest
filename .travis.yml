@@ -1,0 +1,12 @@
+language: python
+python:
+  - "2.7"
+# command to install dependencies
+install:
+  - pip install .
+  - pip install pytest
+  - ls -l /home/travis/virtualenv/python2.7.9/bin
+  - echo $PATH
+# command to run tests
+script:
+  - py.test
