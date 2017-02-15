@@ -8,4 +8,5 @@ install:
   - ls -l /home/travis/virtualenv/python2.7.9/bin
   - echo $PATH
 # command to run tests
-script: pytest
+script:
+  - py.test
