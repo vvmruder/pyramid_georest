@@ -1,6 +1,6 @@
-# -*- coding: iso-8859-1 -*-
+# -*- coding: utf-8 -*-
 
-# Copyright (c) 2012 - 2015, GIS-Fachstelle des Amtes für Geoinformation des Kantons Basel-Landschaft
+# Copyright (c) 2012 - 2015, GIS-Fachstelle des Amtes fï¿½r Geoinformation des Kantons Basel-Landschaft
 # All rights reserved.
 #
 # This program is free software and completes the GeoMapFish License for the geoview.bl.ch specific
@@ -14,6 +14,8 @@
 #
 # The above copyright notice and this permission notice shall be included in all copies or substantial
 # portions of the Software.
+
+from __future__ import print_function
 
 __author__ = 'Clemens Rudert'
 
@@ -108,7 +110,7 @@ def create_api_routing(config, api):
         request_method=api.read_method
     )
 
-    print '{api_name}/adapter'.format(api_name=api.name)
+    print('{api_name}/adapter'.format(api_name=api.name))
     # delivers an adapter for restful interaction via angular
     config.add_route(
         '{api_name}/adapter'.format(api_name=api.name),

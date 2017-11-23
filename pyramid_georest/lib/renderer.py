@@ -1,17 +1,17 @@
-# -*- coding: iso-8859-1 -*-
+# -*- coding: utf-8 -*-
 
-# Copyright (c) 2012 - 2015, GIS-Fachstelle des Amtes für Geoinformation des Kantons Basel-Landschaft
+# Copyright (c) 2012 - 2015, GIS-Fachstelle des Amtes fï¿½r Geoinformation des Kantons Basel-Landschaft
 # All rights reserved.
 #
 # This program is free software and completes the GeoMapFish License for the geoview.bl.ch specific
-# parts of the code. You can redistribute it and/or modify it under the terms of the GNU General 
+# parts of the code. You can redistribute it and/or modify it under the terms of the GNU General
 # Public License as published by the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
 # even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 # General Public License for more details.
-# 
+#
 # The above copyright notice and this permission notice shall be included in all copies or substantial
 # portions of the Software.
 import decimal
@@ -22,9 +22,8 @@ import logging
 import dicttoxml
 from geoalchemy2 import WKBElement
 from geoalchemy2.shape import to_shape
-from pyramid.exceptions import ConfigurationError
 from pyramid.httpexceptions import HTTPNotFound, HTTPServerError
-from pyramid.renderers import JSON, render_to_response, get_renderer
+from pyramid.renderers import JSON, render_to_response
 
 from sqlalchemy.ext.associationproxy import _AssociationList
 
@@ -45,14 +44,14 @@ class RenderProxy(object):
 
     def __init__(self):
         """
-        A proxy which matches a renderer to a format which is passed in the url. It implements some basic renderers but
-        is fully extend able. You can add renderers via the add renderer method.
-        Please note that all renderers which are added to the proxy need to be added to the pyramid config before.
-        Otherwise a error will be thrown on startup of the application.
-        Please note in advance that the renderer system of pyramid works in a global way. It is your responsibility to
-        ensure each renderer added is unique by its name. Please keep this in mind when some thing is not generating
-        the output you want. Than it probably happens that you accidentally over wrote some renderer in another part of
-        the application.
+        A proxy which matches a renderer to a format which is passed in the url. It implements some basic
+        renderers but is fully extend able. You can add renderers via the add renderer method.
+        Please note that all renderers which are added to the proxy need to be added to the pyramid config
+        before. Otherwise a error will be thrown on startup of the application.
+        Please note in advance that the renderer system of pyramid works in a global way. It is your
+        responsibility to ensure each renderer added is unique by its name. Please keep this in mind when
+        some thing is not generating the output you want. Than it probably happens that you accidentally
+        over wrote some renderer in another part of the application.
 
         See the following link for further information:
         http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/renderers.html#adding-and-changing-renderers
@@ -65,8 +64,8 @@ class RenderProxy(object):
 
     def render(self, request, result, model_description):
         """
-        Execute the rendering process by matching the requested format to the mapped renderer. If no renderer could be
-        found a error is raised.
+        Execute the rendering process by matching the requested format to the mapped renderer. If no
+        renderer could be found a error is raised.
 
         :param request: The request which comes all the way through the application from the client
         :type request: pyramid.request.Request
@@ -100,18 +99,21 @@ class RenderProxy(object):
 
     def add_renderer(self, delivery_format, renderer_name):
         """
-        Adds a matching to the render proxy's matching dict. It is possible to overwrite an existing one. If you do, a
-        notice (warning) is printed to your server logs.
+        Adds a matching to the render proxy's matching dict. It is possible to overwrite an existing one.
+        If you do, a notice (warning) is printed to your server logs.
 
-        :param delivery_format: The format string to which the renderer should be bound to (e.g. "json", "xml", ...)
+        :param delivery_format: The format string to which the renderer should be bound to
+            (e.g. "json", "xml", ...)
         :type delivery_format: str
-        :param renderer_name: The name of the renderer which was used to assign it to the pyramid applications
-        configuration.
+        :param renderer_name: The name of the renderer which was used to assign it to the pyramid
+            applications configuration.
         :type renderer_name: str
         :raises: ConfigurationError
         """
         if self._format_to_renderer.get(delivery_format):
-            log.warning('You overwrite the renderer for the "{format_name}" format'.format(format_name=delivery_format))
+            log.warning('You overwrite the renderer for the "{format_name}" format'.format(
+                format_name=delivery_format)
+            )
         self._format_to_renderer[delivery_format] = renderer_name
 
 
@@ -119,18 +121,19 @@ class AdapterProxy(object):
 
     def __init__(self):
         """
-        A proxy which matches a client side adapter script to a adapter name which is passed in the url as format
-        parameter. It implements some basic adapters but is fully extend able. You can add renderers via the
-        "add_adapters" method.
+        A proxy which matches a client side adapter script to a adapter name which is passed in the url as
+        format parameter. It implements some basic adapters but is fully extend able. You can add renderers
+        via the "add_adapters" method.
 
-        This enables you to provide every client side base implementation you like which is bound to a restful resource.
+        This enables you to provide every client side base implementation you like which is bound to a
+        restful resource.
         """
         self._format_to_adapter = {}
 
     def render(self, request, model_description):
         """
-        Execute the rendering process by matching the requested format to the mapped renderer. If no renderer could be
-        found a error is raised.
+        Execute the rendering process by matching the requested format to the mapped renderer. If no renderer
+        could be found a error is raised.
 
         :param request: The request which comes all the way through the application from the client
         :type request: pyramid.request.Request
@@ -172,13 +175,14 @@ class AdapterProxy(object):
 
     def add_adapter(self, delivery_format, adapter_renderer_path):
         """
-        Adds a matching to the render proxy's matching dict. It is possible to overwrite an existing one. If you do, a
-        notice (warning) is printed to your server logs.
+        Adds a matching to the render proxy's matching dict. It is possible to overwrite an existing one.
+        If you do, a notice (warning) is printed to your server logs.
 
-        :param delivery_format: The format string to which the renderer should be bound to (e.g. "json", "xml", ...)
+        :param delivery_format: The format string to which the renderer should be bound to
+            (e.g. "json", "xml", ...)
         :type delivery_format: str
-        :param adapter_renderer_path: The name of the renderer which was used to assign it to the pyramid applications
-        configuration.
+        :param adapter_renderer_path: The name of the renderer which was used to assign it to the
+            pyramid applications configuration.
         :type adapter_renderer_path: str
         :raises: ConfigurationError
         """
@@ -189,9 +193,9 @@ class AdapterProxy(object):
 
 class RestfulJson(JSON):
     """
-    This represents an standard pyramid renderer which can consume a list of database instances and renders them to
-    json. It is important to use the Base which is provided by this package. Because this class delivers additional
-    methods.
+    This represents an standard pyramid renderer which can consume a list of database instances and renders
+    them to json. It is important to use the Base which is provided by this package. Because this class
+    delivers additional methods.
     """
 
     def __init__(self, info):
@@ -239,7 +243,8 @@ class RestfulJson(JSON):
         results = results.get('features', False)
         for result in results:
             result_dict = {}
-            for column_name, column in model_description.column_descriptions.iteritems():
+            column_description = model_description.column_descriptions
+            for column_name in column_description:
                 value = getattr(result, column_name)
                 if isinstance(value, (datetime.date, datetime.datetime, datetime.time)):
                     value = self.date_formatter(value)
@@ -299,9 +304,9 @@ class RestfulJson(JSON):
 
 class RestfulGeoJson(RestfulJson):
     """
-        This represents an standard pyramid renderer which can consume a list of database instances and renders them to
-        json. It is important to use the Base which is provided by this package. Because this class delivers additional
-        methods.
+        This represents an standard pyramid renderer which can consume a list of database instances and
+        renders them to json. It is important to use the Base which is provided by this package. Because
+        this class delivers additional methods.
         """
 
     def __init__(self, info):
@@ -325,7 +330,7 @@ class RestfulGeoJson(RestfulJson):
                 "geometry": geometry,
                 "properties": properties
             }
-            for column_name, column in model_description.column_descriptions.iteritems():
+            for column_name in model_description.column_descriptions:
                 value = getattr(result, column_name)
                 if isinstance(value, (datetime.date, datetime.datetime, datetime.time)):
                     value = self.date_formatter(value)
@@ -420,9 +425,9 @@ class RestfulGeoJson(RestfulJson):
 
 class RestfulXML(RestfulJson):
     """
-    This represents an standard pyramid renderer which can consume a list of database instances and renders them to
-    xml. It is important to use the Base which is provided by this package. Because this class delivers additional
-    methods.
+    This represents an standard pyramid renderer which can consume a list of database instances and renders
+    them to xml. It is important to use the Base which is provided by this package. Because this class
+    delivers additional methods.
     """
 
     def __init__(self, info):
@@ -465,9 +470,9 @@ class RestfulXML(RestfulJson):
 
 class RestfulModelJSON(JSON):
     """
-    This represents an standard pyramid renderer which can consume a list of database instances and renders them to
-    xml. It is important to use the Base which is provided by this package. Because this class delivers additional
-    methods.
+    This represents an standard pyramid renderer which can consume a list of database instances and renders
+    them to xml. It is important to use the Base which is provided by this package. Because this class
+    delivers additional methods.
     """
 
     def __init__(self, info):
@@ -504,9 +509,9 @@ class RestfulModelJSON(JSON):
 
 class RestfulModelXML(JSON):
     """
-    This represents an standard pyramid renderer which can consume a list of database instances and renders them to
-    xml. It is important to use the Base which is provided by this package. Because this class delivers additional
-    methods.
+    This represents an standard pyramid renderer which can consume a list of database instances and renders
+    them to xml. It is important to use the Base which is provided by this package. Because this class
+    delivers additional methods.
     """
 
     def __init__(self, info):
