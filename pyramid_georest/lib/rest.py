@@ -1,19 +1,20 @@
-# -*- coding: iso-8859-1 -*-
+# -*- coding: utf-8 -*-
 
-# Copyright (c) 2012 - 2015, GIS-Fachstelle des Amtes für Geoinformation des Kantons Basel-Landschaft
+# Copyright (c) 2012 - 2015, GIS-Fachstelle des Amtes fÃ¼r Geoinformation des Kantons Basel-Landschaft
 # All rights reserved.
 #
 # This program is free software and completes the GeoMapFish License for the geoview.bl.ch specific
-# parts of the code. You can redistribute it and/or modify it under the terms of the GNU General 
+# parts of the code. You can redistribute it and/or modify it under the terms of the GNU General
 # Public License as published by the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
 # even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 # General Public License for more details.
-# 
+#
 # The above copyright notice and this permission notice shall be included in all copies or substantial
 # portions of the Software.
+from __future__ import print_function
 import logging
 import transaction
 from pyramid.httpexceptions import HTTPNotFound, HTTPBadRequest
@@ -42,25 +43,32 @@ class FilterDefinition(object):
 
     def __init__(self, model_description, **kwargs):
         """
-        This implements an object which is able to parse the filter definition passed as a dict. It is possible to
-        construct arbitrary deep filters with this class.
+        This implements an object which is able to parse the filter definition passed as a dict. It is
+        possible to construct arbitrary deep filters with this class.
 
-        The main goal of the FilterDefinition is to have a parsing from dict to an object which holds the whole filter
-        definition in an sqlalchemy consumable way.
+        The main goal of the FilterDefinition is to have a parsing from dict to an object which holds the
+        whole filter definition in an sqlalchemy consumable way.
 
         :param model_description: The description of the model which is being filtered.
         :type model_description: ModelDescription
-        :param kwargs: The definition of the Filter. It has to be dict like {"mode": "OR/AND", "clauses": []}. The
-        clauses are also dict objects with the pattern:
-        {"column_name": "<name>", "operator": "<see static method decide_operator for further detail>", "value":<value>}
-        It is possible to pack a definition of filter inside the clause array. This enables complex queries.
+        :param kwargs: The definition of the Filter.
+            It has to be dict like {"mode": "OR/AND", "clauses": []}.
+            The clauses are also dict objects with the pattern:
+                {
+                    "column_name": "<name>",
+                    "operator": "<see static method decide_operator for further detail>",
+                    "value":<value>
+                }
+            It is possible to pack a definition of filter inside the clause array.
+            This enables complex queries.
         :raises: HTTPBadRequest
         """
         self.model_description = model_description
         self.clause_blocks = []
         self.clause = None
         self.passed_filter_clauses = []
-        for key, value in kwargs.iteritems():
+        for key in kwargs:
+            value = kwargs[key]
             if key == 'mode':
                 self.mode = value
             elif key == 'clauses':
@@ -85,7 +93,12 @@ class FilterDefinition(object):
                     raise HTTPBadRequest('somewhere in the filter the value is missing!')
                 # special handling for geometry columns
                 if column_description.get('is_geometry_column'):
-                    clause_construct = self.decide_multi_geometries(column_description, column, value, operator)
+                    clause_construct = self.decide_multi_geometries(
+                        column_description,
+                        column,
+                        value,
+                        operator
+                    )
                 else:
                     clause_construct = self.decide_operator(column, operator, value)
                 self.clause_blocks.append(clause_construct)
@@ -97,12 +110,12 @@ class FilterDefinition(object):
     @staticmethod
     def decide_operator(column, operator, value):
         """
-        This method is used by the filter object to make a simple matching between the passed operators and the
-        operators which are useable for filtering against the database.
-        There are only some base operators implemented by default. If you like some more specific ones feel free to
-        subclass this class and overwrite this method with your special behaviour and maching.
-        Note that this method does not only do the matching thing. It constructs the whole binary expression. So you can
-        get some influence on this process too.
+        This method is used by the filter object to make a simple matching between the passed operators and
+        the operators which are useable for filtering against the database.
+        There are only some base operators implemented by default. If you like some more specific ones feel
+        free to subclass this class and overwrite this method with your special behaviour and matching.
+        Note that this method does not only do the matching thing. It constructs the whole binary expression.
+        So you can get some influence on this process too.
 
         :param column: The sqlalchemy column which the clause should be formed with.
         :type column: sqlalchemy.schema.Column
@@ -139,14 +152,17 @@ class FilterDefinition(object):
         elif operator == 'NOT_NULL':
             clause = column != None
         else:
-            raise HTTPBadRequest('The operator "{operator}" you passed is not implemented.'.format(operator=operator))
+            raise HTTPBadRequest('The operator "{operator}" you passed is not implemented.'.format(
+                operator=operator)
+            )
         return clause
 
     def decide_multi_geometries(self, column_description, column, value, operator):
         """
-        This method decides if the clause will contain geometry collections (in the value or in the database or in
-        both).
-        If it does it is necessary to "unpack" all collections to make them valid for geometric operations in database.
+        This method decides if the clause will contain geometry collections (in the value or in the
+        database or in both).
+        If it does it is necessary to "unpack" all collections to make them valid for geometric operations
+        in database.
         If it does not it uses a normal geometric operation.
 
         :param column_description: The machine readable description of the column.
@@ -215,7 +231,9 @@ class FilterDefinition(object):
         elif operator == 'WITHIN':
             clause = column.ST_DFullyWithin(WKTElement(value, srid=srid))
         else:
-            raise HTTPBadRequest('The operator "{operator}" you passed is not implemented.'.format(operator=operator))
+            raise HTTPBadRequest('The operator "{operator}" you passed is not implemented.'.format(
+                operator=operator)
+            )
         return clause
 
     @staticmethod
@@ -225,8 +243,8 @@ class FilterDefinition(object):
         geometries but the passed geometry does not.
         The multi geometry will be extracted to it's sub parts for operation.
 
-        :param db_path: The point separated string of schema_name.table_name.column_name from which we can construct
-         a correct SQL statement.
+        :param db_path: The point separated string of schema_name.table_name.column_name from which we can
+            construct a correct SQL statement.
         :type db_path: str
         :param value: The WKT geometry representation which is used for comparison.
         :type value: str
@@ -278,12 +296,12 @@ class FilterDefinition(object):
     @staticmethod
     def extract_geometry_collection_input(db_path, value, operator, srid):
         """
-        Decides the geometry collections cases of geometric filter operations when the database contains multi
-        geometries but the passed geometry does not.
+        Decides the geometry collections cases of geometric filter operations when the database
+        contains multi geometries but the passed geometry does not.
         The multi geometry will be extracted to it's sub parts for operation.
 
-        :param db_path: The point separated string of schema_name.table_name.column_name from which we can construct
-         a correct SQL statement.
+        :param db_path: The point separated string of schema_name.table_name.column_name from which we can
+            construct a correct SQL statement.
         :type db_path: str
         :param value: The WKT geometry representation which is used for comparison.
         :type value: str
@@ -339,8 +357,8 @@ class FilterDefinition(object):
         geometries but the passed geometry does not.
         The multi geometry will be extracted to it's sub parts for operation.
 
-        :param db_path: The point separated string of schema_name.table_name.column_name from which we can construct
-         a correct SQL statement.
+        :param db_path: The point separated string of schema_name.table_name.column_name from which we can
+            construct a correct SQL statement.
         :type db_path: str
         :param value: The WKT geometry representation which is used for comparison.
         :type value: str
@@ -364,24 +382,12 @@ class FilterDefinition(object):
             raise HTTPBadRequest('The operator "{operator}" you passed is not implemented.'.format(
                 operator=operator
             ))
-        sql_text_point = '{0}(ST_CollectionExtract({1}, 1), ST_CollectionExtract(ST_GeomFromText(\'{2}\', {3}), 1))'.format(
-            operator,
-            db_path,
-            value,
-            srid
-        )
-        sql_text_line = '{0}(ST_CollectionExtract({1}, 2), ST_CollectionExtract(ST_GeomFromText(\'{2}\', {3}), 2))'.format(
-            operator,
-            db_path,
-            value,
-            srid
-        )
-        sql_text_polygon = '{0}(ST_CollectionExtract({1}, 3), ST_CollectionExtract(ST_GeomFromText(\'{2}\', {3}), 3))'.format(
-            operator,
-            db_path,
-            value,
-            srid
-        )
+        sql_text_point = '{0}(ST_CollectionExtract({1}, 1), ST_CollectionExtract(' \
+                         'ST_GeomFromText(\'{2}\', {3}), 1))'.format(operator, db_path, value, srid)
+        sql_text_line = '{0}(ST_CollectionExtract({1}, 2), ST_CollectionExtract(' \
+                        'ST_GeomFromText(\'{2}\', {3}), 2))'.format(operator, db_path, value, srid)
+        sql_text_polygon = '{0}(ST_CollectionExtract({1}, 3), ST_CollectionExtract(' \
+                           'ST_GeomFromText(\'{2}\', {3}), 3))'.format(operator, db_path, value, srid)
         clause_blocks = [
             text(sql_text_point),
             text(sql_text_line),
@@ -392,10 +398,10 @@ class FilterDefinition(object):
     @staticmethod
     def decide_mode(mode, clause_blocks):
         """
-        This method is used to match the mode and construct a clause list in which are each single filter clause is
-        combined by logical expression like OR or AND.
-        If you need some other behaviour, it is possible to overwrite this method to implement your own matching or do
-        some pre/post processing.
+        This method is used to match the mode and construct a clause list in which are each single
+        filter clause is combined by logical expression like OR or AND.
+        If you need some other behaviour, it is possible to overwrite this method to implement your own
+        matching or do some pre/post processing.
 
         :param mode: The mode to combine the clause blocks.
         :type mode: str
@@ -420,13 +426,13 @@ class Filter(object):
 
     def __init__(self, model_description, filter_definition_class=None, **kwargs):
         """
-        Kind of an proxy class which is the gate to the concrete filter definition object. This enables us to add some
-        pre/post processing.
+        Kind of an proxy class which is the gate to the concrete filter definition object. This enables
+        us to add some pre/post processing.
 
         :param model: The model for which the service will be created for.
         :type model: ModelDescription
-        :param filter_definition_class: A subclass type of FilterDefinition may be passed to override behaviour of
-        filtering.
+        :param filter_definition_class: A subclass type of FilterDefinition may be passed to override
+            behaviour of filtering.
         :type filter_definition_class: class FilterDefinition
         :param kwargs:
         """
@@ -435,7 +441,8 @@ class Filter(object):
             self.filter_definition_class = FilterDefinition
         else:
             self.filter_definition_class = filter_definition_class
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs:
+            value = kwargs[key]
             if key == 'definition':
                 self.definition = self.filter_definition_class(model_description, **value)
             else:
@@ -452,7 +459,8 @@ class Filter(object):
 
     def filter(self, query):
         """
-        The actual filter execution against the database via the constructed clause from the FilterDefinition object.
+        The actual filter execution against the database via the constructed clause from the
+        FilterDefinition object.
 
         :param query: The query where the filter should be applied to.
         :type query: sqlalchemy.orm.query.Query
@@ -468,23 +476,26 @@ class Service(object):
 
     def __init__(self, model, renderer_proxy=None, adapter_proxy=None):
         """
-        A object which represents an restful service. It offers all the necessary methods and is able to consume a
-        renderer proxy. This way we assure a plug able system to use custom renderers. If some custom behaviour is
-        wanted at all, you can achieve this by subclassing this class and adding some post or pre processing to the
-        desired method.
+        A object which represents an restful service. It offers all the necessary methods and is able to
+        consume a renderer proxy. This way we assure a plug able system to use custom renderers.
+        If some custom behaviour is wanted at all, you can achieve this by subclassing this class and
+        adding some post or pre processing to the desired method.
 
         :param model: The model for which the service will be created for.
         :type model: sqlalchemy.ext.declarative.DeclarativeMeta
         :param renderer_proxy: A renderer proxy may be passed to achieve custom rendering
         :type renderer_proxy: RenderProxy or None
-        :param adapter_proxy: An adapter which provides special client side library handling. It is a AdapterProxy
-        per default.
+        :param adapter_proxy: An adapter which provides special client side library handling. It is a
+            AdapterProxy per default.
         :type adapter_proxy: AdapterProxy or None
         """
         self.orm_model = model
         self.model_description = ModelDescription(self.orm_model)
         self.primary_key_names = self.model_description.primary_key_column_names
-        self.name = self.name_from_definition(self.model_description.schema_name, self.model_description.table_name)
+        self.name = self.name_from_definition(
+            self.model_description.schema_name,
+            self.model_description.table_name
+        )
         if renderer_proxy is None:
             self.renderer_proxy = RenderProxy()
         else:
@@ -543,11 +554,11 @@ class Service(object):
         :raises: HTTPBadRequest
         """
         requested_primary_keys = request.matchdict['primary_keys']
-        print requested_primary_keys
         model_description = ModelDescription(self.orm_model)
         model_primary_keys = model_description.primary_key_columns.items()
         if len(requested_primary_keys) != len(model_primary_keys):
-            hint_text = "The number of passed primary keys mismatch the model given. Can't complete the request. Sorry..."
+            hint_text = "The number of passed primary keys mismatch the model given. Can't complete the " \
+                        "request. Sorry..."
             log.error(hint_text)
             raise HTTPBadRequest(
                 detail=hint_text
@@ -558,8 +569,9 @@ class Service(object):
         try:
             result = query.one()
             return self.renderer_proxy.render(request, [result], self.model_description)
-        except MultipleResultsFound, e:
-            hint_text = "Strange thing happened... Found more than one record for the primary key(s) you passed."
+        except MultipleResultsFound as e:
+            hint_text = "Strange thing happened... Found more than one record for the primary key(s) " \
+                        "you passed."
             log.error('{text}, Original error was: {error}'.format(text=hint_text, error=e))
             raise HTTPBadRequest(
                 detail=hint_text
@@ -577,12 +589,13 @@ class Service(object):
         :rtype: pyramid.response.Response
         """
         if request.matchdict['format'] == 'json':
-            # At this moment there is no check for valid json data this leads to normal behaving process, but no
-            # data will be written at all because the keys are not matching.
+            # At this moment there is no check for valid json data this leads to normal
+            # behaving process, but no data will be written at all because the keys are not matching.
             if request.json_body.get('feature'):
                 orm_object = self.orm_model()
                 data = request.json_body.get('feature')
-                for key, value in data.iteritems():
+                for key in data:
+                    value = data[key]
                     setattr(orm_object, key, self.geometry_treatment(key, value))
                 session.add(orm_object)
                 session.flush()
@@ -595,12 +608,13 @@ class Service(object):
                 orm_object = self.orm_model()
                 data = request.json_body.get('feature')
                 properties = data.get('properties')
-                for key, value in properties.iteritems():
+                for key in properties:
+                    value = properties[key]
                     setattr(orm_object, key, value)
                 geometry = data.get('geometry')
-                # GeoJson supports only one geometry attribute per feature, so we use the first geometry column from
-                # model description... Not the best way but as long we have only one geometry attribute per table it
-                # will work
+                # GeoJson supports only one geometry attribute per feature, so we use the first geometry
+                # column from model description... Not the best way but as long we have only one geometry
+                # attribute per table it will work
                 geometry_column_name = self.model_description.geometry_column_names[0]
                 concrete_wkt = self.geometry_treatment(geometry_column_name, asShape(geometry).wkt)
                 setattr(orm_object, geometry_column_name, concrete_wkt)
@@ -635,7 +649,8 @@ class Service(object):
             model_description = ModelDescription(self.orm_model)
             model_primary_keys = model_description.primary_key_columns.items()
             if len(requested_primary_keys) != len(model_primary_keys):
-                hint_text = "The number of passed primary keys mismatch the model given. Can't complete the request. Sorry..."
+                hint_text = "The number of passed primary keys mismatch the model given. " \
+                            "Can't complete the request. Sorry..."
                 log.error(hint_text)
                 raise HTTPBadRequest(
                     detail=hint_text
@@ -649,8 +664,9 @@ class Service(object):
                 session.flush()
                 request.response.status_int = 202
                 return self.renderer_proxy.render(request, [result], self.model_description)
-            except MultipleResultsFound, e:
-                hint_text = "Strange thing happened... Found more than one record for the primary key(s) you passed."
+            except MultipleResultsFound as e:
+                hint_text = "Strange thing happened... Found more than one record for the primary " \
+                            "key(s) you passed."
                 log.error('{text}, Original error was: {error}'.format(text=hint_text, error=e))
                 raise HTTPBadRequest(
                     detail=hint_text
@@ -679,7 +695,8 @@ class Service(object):
         model_description = ModelDescription(self.orm_model)
         model_primary_keys = model_description.primary_key_columns.items()
         if len(requested_primary_keys) != len(model_primary_keys):
-            hint_text = "The number of passed primary keys mismatch the model given. Can't complete the request. Sorry..."
+            hint_text = "The number of passed primary keys mismatch the model given. Can't complete " \
+                        "the request. Sorry..."
             log.error(hint_text)
             raise HTTPBadRequest(
                 detail=hint_text
@@ -691,12 +708,12 @@ class Service(object):
         try:
             result = query.one()
             if request.matchdict['format'] == 'json':
-                # At this moment there is no check for valid json data this leads to normal behaving process, but no
-                # data will be written at all because the keys are not matching.
+                # At this moment there is no check for valid json data this leads to normal behaving
+                # process, but no data will be written at all because the keys are not matching.
                 if request.json_body.get('feature'):
                     data = request.json_body.get('feature')
-                    for key, value in data.iteritems():
-                        setattr(result, key, self.geometry_treatment(key, value))
+                    for key in data:
+                        setattr(result, key, self.geometry_treatment(key, data[key]))
                     session.flush()
                     request.response.status_int = 202
                     return self.renderer_proxy.render(request, [result], self.model_description)
@@ -706,12 +723,12 @@ class Service(object):
                 if request.json_body.get('feature'):
                     data = request.json_body.get('feature')
                     properties = data.get('properties')
-                    for key, value in properties.iteritems():
-                        setattr(result, key, value)
+                    for key in properties:
+                        setattr(result, key, properties[key])
                     geometry = data.get('geometry')
-                    # GeoJson supports only one geometry attribute per feature, so we use the first geometry column from
-                    # model description... Not the best way but as long we have only one geometry attribute per table it
-                    # will work
+                    # GeoJson supports only one geometry attribute per feature, so we use the first
+                    # geometry column from model description... Not the best way but as long we have only
+                    # one geometry attribute per table it will work
                     geometry_column_name = self.model_description.geometry_column_names[0]
                     concrete_wkt = self.geometry_treatment(geometry_column_name, asShape(geometry).wkt)
                     setattr(result, geometry_column_name, concrete_wkt)
@@ -728,8 +745,9 @@ class Service(object):
                 raise HTTPNotFound(
                     detail=hint_text
                 )
-        except MultipleResultsFound, e:
-            hint_text = "Strange thing happened... Found more than one record for the primary key(s) you passed."
+        except MultipleResultsFound as e:
+            hint_text = "Strange thing happened... Found more than one record for the " \
+                        "primary key(s) you passed."
             log.error('{text}, Original error was: {error}'.format(text=hint_text, error=e))
             raise HTTPBadRequest(
                 detail=hint_text
@@ -737,13 +755,11 @@ class Service(object):
 
     def model(self, request):
         """
-        The method which is used by the api to deliver a machine readable and serializable description of the underlying
-        database table/model.
+        The method which is used by the api to deliver a machine readable and serializable description of
+        the underlying database table/model.
 
         :param request: The request which comes all the way through the application from the client
         :type request: pyramid.request.Request
-        :param session: The session which is uesed to emit the query.
-        :type session: sqlalchemy.orm.Session
         :return: An pyramid response object
         :rtype: pyramid.response.Response
         :raises: HTTPNotFound
@@ -797,12 +813,12 @@ class Api(object):
     def __init__(self, url, config, name, read_method='GET', read_filter_method='POST', create_method='POST',
                  update_method='PUT', delete_method='DELETE'):
         """
-        A Object which holds the connection to the database and arbitrary numbers of services. It works like a proxy
-        for the request. It decides which service will be finally called by reading the requested url parts and calls
-        the appropriate service method.
+        A Object which holds the connection to the database and arbitrary numbers of services. It works
+        like a proxy for the request. It decides which service will be finally called by reading
+        the requested url parts and calls the appropriate service method.
 
-        In addition you can implement api wide behaviour like authorization be subclassing this class and adding some
-        pre or post processing to the particular methods.
+        In addition you can implement api wide behaviour like authorization be subclassing this class
+        and adding some pre or post processing to the particular methods.
 
         :param url: The connection string which is used to let the api connect with the desired database.
         It must have the form as described here:
@@ -810,9 +826,9 @@ class Api(object):
         :type url: str
         :param config: The config of the hosting pyramid application.
         :type config: pyramid.config.Configurator
-        :param name: The name which is used internally as an identifier of the api, to make it selectable between other
-        api's. This name must be unique all over the application. If not an error will be thrown on application start
-        up.
+        :param name: The name which is used internally as an identifier of the api, to make it selectable
+        between other api's. This name must be unique all over the application. If not an error will be
+        thrown on application start up.
         :type name: str
         :param read_method: The HTTP method which is used to match the routing to the API.
         :type read_method: str
@@ -833,10 +849,11 @@ class Api(object):
         self.delete_method = delete_method
 
         connection_already_exists = False
-        for key, value in config.registry.pyramid_georest_database_connections.iteritems():
+        connections = config.registry.pyramid_georest_database_connections
+        for key, in connections:
             if url in key:
                 connection_already_exists = True
-                self.connection = value
+                self.connection = connections[key]
 
         if not connection_already_exists:
             self.connection = Connection(url)
@@ -852,8 +869,8 @@ class Api(object):
             config.commit()
         else:
             log.error(
-                "The Api-Object you created seems to already exist in the registry. It has to be unique at all. "
-                "Couldn't be added. Sorry..."
+                "The Api-Object you created seems to already exist in the registry. It has to "
+                "be unique at all. Couldn't be added. Sorry..."
             )
             raise LookupError()
 
@@ -939,10 +956,11 @@ class Api(object):
 
     def read(self, request):
         """
-        The api wide method to receive the read request and passing it to the correct service. At this point it is
-        possible to implement some post or pre processing by overwriting this method. The most common use case for this
-        will be the implementation of an authorisation mechanism which has influence on the whole api. To have influence
-        on special services please see the service class implementations read method.
+        The api wide method to receive the read request and passing it to the correct service. At this
+        point it is possible to implement some post or pre processing by overwriting this method.
+        The most common use case for this will be the implementation of an authorisation mechanism which has
+        influence on the whole api. To have influence on special services please see the service class
+        implementations read method.
 
         :param request: The request which comes all the way through the application from the client
         :type request: pyramid.request.Request
@@ -957,10 +975,11 @@ class Api(object):
 
     def show(self, request):
         """
-        The api wide method to receive the show request and passing it to the correct service. At this point it is
-        possible to implement some post or pre processing by overwriting this method. The most common use case for this
-        will be the implementation of an authorisation mechanism which has influence on the whole api. To have influence
-        on special services please see the service class implementations show method.
+        The api wide method to receive the show request and passing it to the correct service. At this
+        point it is possible to implement some post or pre processing by overwriting this method.
+        The most common use case for this will be the implementation of an authorisation mechanism
+        which has influence on the whole api. To have influence on special services please see the service
+        class implementations show method.
 
         :param request: The request which comes all the way through the application from the client
         :type request: pyramid.request.Request
@@ -975,10 +994,11 @@ class Api(object):
 
     def create(self, request):
         """
-        The api wide method to receive the create request and passing it to the correct service. At this point it is
-        possible to implement some post or pre processing by overwriting this method. The most common use case for this
-        will be the implementation of an authorisation mechanism which has influence on the whole api. To have influence
-        on special services please see the service class implementations create method.
+        The api wide method to receive the create request and passing it to the correct service.
+        At this point it is possible to implement some post or pre processing by overwriting this method.
+        The most common use case for this will be the implementation of an authorisation mechanism which
+        has influence on the whole api. To have influence on special services please see the service class
+        implementations create method.
 
         :param request: The request which comes all the way through the application from the client
         :type request: pyramid.request.Request
@@ -993,10 +1013,11 @@ class Api(object):
 
     def delete(self, request):
         """
-        The api wide method to receive the delete request and passing it to the correct service. At this point it is
-        possible to implement some post or pre processing by overwriting this method. The most common use case for this
-        will be the implementation of an authorisation mechanism which has influence on the whole api. To have influence
-        on special services please see the service class implementations delete method.
+        The api wide method to receive the delete request and passing it to the correct service.
+        At this point it is possible to implement some post or pre processing by overwriting this method.
+        The most common use case for this will be the implementation of an authorisation mechanism which has
+        influence on the whole api. To have influence on special services please see the service class
+        implementations delete method.
 
         :param request: The request which comes all the way through the application from the client
         :type request: pyramid.request.Request
@@ -1011,10 +1032,11 @@ class Api(object):
 
     def update(self, request):
         """
-        The api wide method to receive the update request and passing it to the correct service. At this point it is
-        possible to implement some post or pre processing by overwriting this method. The most common use case for this
-        will be the implementation of an authorisation mechanism which has influence on the whole api. To have influence
-        on special services please see the service class implementations update method.
+        The api wide method to receive the update request and passing it to the correct service.
+        At this point it is possible to implement some post or pre processing by overwriting this method.
+        The most common use case for this will be the implementation of an authorisation mechanism which has
+        influence on the whole api. To have influence on special services please see the service class
+        implementations update method.
 
         :param request: The request which comes all the way through the application from the client
         :type request: pyramid.request.Request
@@ -1029,10 +1051,11 @@ class Api(object):
 
     def model(self, request):
         """
-        The api wide method to receive the model request and passing it to the correct service. At this point it is
-        possible to implement some post or pre processing by overwriting this method. The most common use case for this
-        will be the implementation of an authorisation mechanism which has influence on the whole api. To have influence
-        on special services please see the service class implementations model method.
+        The api wide method to receive the model request and passing it to the correct service.
+        At this point it is possible to implement some post or pre processing by overwriting this method.
+        The most common use case for this will be the implementation of an authorisation mechanism which
+        has influence on the whole api. To have influence on special services please see the service class
+        implementations model method.
 
         :param request: The request which comes all the way through the application from the client
         :type request: pyramid.request.Request
@@ -1046,10 +1069,11 @@ class Api(object):
 
     def adapter(self, request):
         """
-        The api wide method to receive the adapter request and passing it to the correct service. At this point it is
-        possible to implement some post or pre processing by overwriting this method. The most common use case for this
-        will be the implementation of an authorisation mechanism which has influence on the whole api. To have influence
-        on special services please see the service class implementations adapter method.
+        The api wide method to receive the adapter request and passing it to the correct service.
+        At this point it is possible to implement some post or pre processing by overwriting this method.
+        The most common use case for this will be the implementation of an authorisation mechanism which
+        has influence on the whole api. To have influence on special services please see the service class
+        implementations adapter method.
 
         :param request: The request which comes all the way through the application from the client
         :type request: pyramid.request.Request
