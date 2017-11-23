@@ -1,6 +1,6 @@
-# -*- coding: iso-8859-1 -*-
+# -*- coding: utf-8 -*-
 
-# Copyright (c) 2012 - 2015, GIS-Fachstelle des Amtes für Geoinformation des Kantons Basel-Landschaft
+# Copyright (c) 2012 - 2015, GIS-Fachstelle des Amtes fï¿½r Geoinformation des Kantons Basel-Landschaft
 # All rights reserved.
 #
 # This program is free software and completes the GeoMapFish License for the geoview.bl.ch specific
@@ -17,13 +17,10 @@
 import logging
 from pyramid.config import Configurator
 from pyramid.exceptions import ConfigurationConflictError
-from pyramid_georest.lib.renderer import RestfulJson, RestfulXML, RestfulModelJSON, RestfulModelXML, RestfulGeoJson
+from pyramid_georest.lib.renderer import RestfulJson, RestfulXML, RestfulModelJSON, RestfulModelXML, \
+    RestfulGeoJson
 from pyramid_georest.lib.rest import Api, Service
 from pyramid_mako import add_mako_renderer
-from sqlalchemy import Column, types
-from sqlalchemy import MetaData
-from sqlalchemy import text
-from sqlalchemy.ext.declarative import declarative_base
 
 __author__ = 'Clemens Rudert'
 __create_date__ = '23.07.2015'
@@ -74,7 +71,8 @@ def includeme(config):
     # add request attributes
 
     # global database connection holder see database script/rest script in api class
-    # this feature is mainly used to reduce open database connections. They will be shared if they are exactly the same.
+    # this feature is mainly used to reduce open database connections. They will be shared if they are exactly
+    # the same.
     config.registry.pyramid_georest_database_connections = {}
     # global api holder
     config.registry.pyramid_georest_apis = {}

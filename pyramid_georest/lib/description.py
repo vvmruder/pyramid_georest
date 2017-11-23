@@ -1,17 +1,17 @@
-# -*- coding: iso-8859-1 -*-
+# -*- coding: utf-8 -*-
 
-# Copyright (c) 2012 - 2016, GIS-Fachstelle des Amtes für Geoinformation des Kantons Basel-Landschaft
+# Copyright (c) 2012 - 2016, GIS-Fachstelle des Amtes fï¿½r Geoinformation des Kantons Basel-Landschaft
 # All rights reserved.
 #
 # This program is free software and completes the GeoMapFish License for the geoview.bl.ch specific
-# parts of the code. You can redistribute it and/or modify it under the terms of the GNU General 
+# parts of the code. You can redistribute it and/or modify it under the terms of the GNU General
 # Public License as published by the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
 # even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 # General Public License for more details.
-# 
+#
 # The above copyright notice and this permission notice shall be included in all copies or substantial
 # portions of the Software.
 from sqlalchemy import ColumnDefault
@@ -26,8 +26,8 @@ __create_date__ = '21.09.16'
 
 def translate(string_to_translate, dictionary, lang='de'):
     """
-    A method which is able to translate a string with a given dictionary path on the file system. It acts in pyramid
-    way.
+    A method which is able to translate a string with a given dictionary path on the file system. It acts in
+    pyramid way.
     See:
     http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/i18n.html?highlight=translation
 
@@ -161,11 +161,8 @@ class ColumnDescription(object):
     def _column_fk(self):
         """
         Helper function, if column has foreign key relation.
-
-
-        :param column: A SQLAlchemy column object
-        :type column: Column
-        :return: Tuple of first: has foreign key relation or not (true/false) and corresponding a list of them or None
+        :return: Tuple of first: has foreign key relation or not (true/false) and corresponding a list of
+            them or None
         :rtype : (bool, list) or (bool, None)
         """
         if self.column.foreign_keys:
@@ -181,10 +178,6 @@ class ColumnDescription(object):
     def _column_length(self):
         """
         Helper function, to obtain the lenght of the column which was provided (if type supports).
-
-
-        :param column: A SQLAlchemy column object
-        :type column: Column
         :return: defined length for the passed column, None if so
         :rtype : int
         """
@@ -197,10 +190,6 @@ class ColumnDescription(object):
     def _column_precision(self):
         """
         Helper function, to obtain the precision of the column which was provided (if type supports).
-
-
-        :param column: A SQLAlchemy column object
-        :type column: Column
         :return: defined precision for the passed column, None if so
         :rtype : int
         """
@@ -213,10 +202,6 @@ class ColumnDescription(object):
     def _column_scale(self):
         """
         Helper function, to obtain the scale of the column which was provided (if type supports).
-
-
-        :param column: A SQLAlchemy column object
-        :type column: Column
         :return: defined scale for the passed column, None if so
         :rtype : int
         """
@@ -229,10 +214,6 @@ class ColumnDescription(object):
     def _column_default(self):
         """
         Helper function, to obtain the default value of the column which was provided (if type supports).
-
-
-        :param column: A SQLAlchemy column object
-        :type column: Column
         :return: the value which was set as default for the passed column
         :rtype : int or str
         """
@@ -302,8 +283,9 @@ class ModelDescription(object):
 
         self.schema_name = self.model.__table__.schema
         self.table_name = self.model.__table__.name
-
-        for name, value in class_mapper(self.model)._props.iteritems():
+        props = class_mapper(self.model)._props
+        for name in props:
+            value = props[name]
             if type(value) is not RelationshipProperty:
                 if len(value.columns) != 1:
                     # print name, value.columns
