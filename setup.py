@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2012 - 2015, GIS-Fachstelle des Amtes f�r Geoinformation des Kantons Basel-Landschaft
+# Copyright (c) 2012 - 2015, GIS-Fachstelle des Amtes für Geoinformation des Kantons Basel-Landschaft
 # All rights reserved.
 #
 # This program is free software and completes the GeoMapFish License for the geoview.bl.ch specific
@@ -49,13 +49,15 @@ requires = [
 
 setup(
     name='pyramid_georest',
-    version='3.0.31',
-    description='pyramid_georest, extension for pyramid web frame work to provide rest interface for sql-alchemy mappers',
+    version='3.0.32',
+    description='pyramid_georest, extension for pyramid web frame work to provide rest interface for '
+                'sql-alchemy mappers',
     long_description=README + '\n\n' + CHANGES,
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
         "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.6",
         "Framework :: Pyramid",
         "Topic :: Internet :: WWW/HTTP",
         "Topic :: Internet :: WWW/HTTP :: WSGI :: Application"
@@ -75,8 +77,6 @@ setup(
     entry_points="""\
     [paste.app_factory]
     main = pyramid_georest:main
-    [console_scripts]
-    initialize_pyramid_georest_db = pyramid_georest.scripts.initializedb:main
 
     """,
 )

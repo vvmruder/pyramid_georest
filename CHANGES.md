@@ -1,6 +1,11 @@
 Pyramid REST Changelog
 ======================
 
+## 3.0.32
+
+* improve code styling
+* add python 3 compatibility
+
 ## 3.0.31
 
 * add a commit to the configuration of the api
