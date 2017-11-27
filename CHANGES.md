@@ -1,6 +1,10 @@
 Pyramid REST Changelog
 ======================
 
+## 3.0.33
+
+* fix bug in filter iteration
+
 ## 3.0.32
 
 * improve code styling
