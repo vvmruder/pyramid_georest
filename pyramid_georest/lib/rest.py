@@ -441,7 +441,7 @@ class Filter(object):
             self.filter_definition_class = FilterDefinition
         else:
             self.filter_definition_class = filter_definition_class
-        for key, value in kwargs:
+        for key in kwargs:
             value = kwargs[key]
             if key == 'definition':
                 self.definition = self.filter_definition_class(model_description, **value)
@@ -850,7 +850,7 @@ class Api(object):
 
         connection_already_exists = False
         connections = config.registry.pyramid_georest_database_connections
-        for key, in connections:
+        for key in connections:
             if url in key:
                 connection_already_exists = True
                 self.connection = connections[key]
