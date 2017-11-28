@@ -372,7 +372,7 @@ class RestfulGeoJson(RestfulJson):
         if geom_type.upper() == 'POINT':
             return {
                 "type": geom_type,
-                "coordinates": list(shapely_object.coords)
+                "coordinates": list(shapely_object.coords[0])
             }
         elif geom_type.upper() == 'LINESTRING':
             return {
@@ -387,7 +387,7 @@ class RestfulGeoJson(RestfulJson):
         elif geom_type.upper() == 'MULTIPOINT':
             coordinates = list()
             for point in shapely_object.geoms:
-                coordinates.append([list(point.coords)])
+                coordinates.append([list(point.coords[0])])
             return {
                 "type": geom_type,
                 "coordinates": coordinates
