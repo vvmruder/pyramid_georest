@@ -1,6 +1,10 @@
 Pyramid REST Changelog
 ======================
 
+## 3.0.34
+
+* fix bug on geojson point and multipoint formatting
+
 ## 3.0.33
 
 * fix bug in filter iteration
