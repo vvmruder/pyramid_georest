@@ -25,7 +25,7 @@ from pyramid_mako import add_mako_renderer
 __author__ = 'Clemens Rudert'
 __create_date__ = '23.07.2015'
 
-log = logging.getLogger('geo_controller')
+log = logging.getLogger('pyramid_georest')
 
 
 def main(global_config, **settings):

@@ -1,6 +1,13 @@
 Pyramid REST Changelog
 ======================
 
+## 3.1.0-rc1
+
+* reorganizing service=>api structure
+* cleaning methods
+* minimize redundant code
+* finalize inline documentation
+
 ## 3.0.34
 
 * fix bug on geojson point and multipoint formatting
