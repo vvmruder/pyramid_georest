@@ -39,76 +39,46 @@ __create_date__ = '29.07.2015'
 log = logging.getLogger('pyramid_georest')
 
 
-class FilterDefinition(object):
+class Clause(object):
 
-    def __init__(self, model_description, **kwargs):
+    def __init__(self, definition, model_description):
         """
-        This implements an object which is able to parse the filter definition passed as a dict. It is
-        possible to construct arbitrary deep filters with this class.
+        The class which represents the clause block.
 
-        The main goal of the FilterDefinition is to have a parsing from dict to an object which holds the
-        whole filter definition in an sqlalchemy consumable way.
-
-        :param model_description: The description of the model which is being filtered.
-        :type model_description: ModelDescription
-        :param kwargs: The definition of the Filter.
-            It has to be dict like {"mode": "OR/AND", "clauses": []}.
-            The clauses are also dict objects with the pattern:
-                {
-                    "column_name": "<name>",
-                    "operator": "<see static method decide_operator for further detail>",
-                    "value":<value>
-                }
-            It is possible to pack a definition of filter inside the clause array.
-            This enables complex queries.
-        :raises: HTTPBadRequest
+        Args:
+            definition (dict): The values which are assigned to the object.
+            model_description (pyramid_georest.lib.description.ModelDescription): The description of the model
+                which is being filtered.
+        Raises:
+            HTTPBadRequest
         """
+
         self.model_description = model_description
-        self.clause_blocks = []
-        self.clause = None
-        self.passed_filter_clauses = []
-        for key in kwargs:
-            value = kwargs[key]
-            if key == 'mode':
-                self.mode = value
-            elif key == 'clauses':
-                self.passed_filter_clauses = value
-        for clause in self.passed_filter_clauses:
-            if clause.get('mode', False):
-                self.clause_blocks.append(FilterDefinition(self.model_description, **clause).clause)
-            else:
-                if clause.get('column_name', False):
-                    column_name = clause.get('column_name')
-                    column = model_description.column_classes.get(column_name)
-                    column_description = self.model_description.column_descriptions.get(column_name)
-                else:
-                    raise HTTPBadRequest('somewhere in the filter the column name is missing!')
-                if clause.get('operator', False):
-                    operator = clause.get('operator')
-                else:
-                    raise HTTPBadRequest('somewhere in the filter the operator is missing!')
-                if clause.get('value', False):
-                    value = clause.get('value')
-                else:
-                    raise HTTPBadRequest('somewhere in the filter the value is missing!')
-                # special handling for geometry columns
-                if column_description.get('is_geometry_column'):
-                    clause_construct = self.decide_multi_geometries(
-                        column_description,
-                        column,
-                        value,
-                        operator
-                    )
-                else:
-                    clause_construct = self.decide_operator(column, operator, value)
-                self.clause_blocks.append(clause_construct)
-                # print self.clause_blocks
-        # print self.clause_blocks
-        self.clause = self.decide_mode(self.mode, self.clause_blocks)
-        # print type(self.clause)
 
-    @staticmethod
-    def decide_operator(column, operator, value):
+        if definition.get('column_name'):
+            self.column_name = definition.get('column_name')
+            self.column = model_description.column_classes.get(self.column_name)
+            self.column_description = model_description.column_descriptions.get(self.column_name)
+        else:
+            raise HTTPBadRequest(
+                'Passed clause block does not contain the column_name. Definition was: {}'.format(definition)
+            )
+
+        if definition.get('operator'):
+            self.operator = definition.get('operator')
+        else:
+            raise HTTPBadRequest(
+                'Passed clause block does not contain the operator. Definition was: {}'.format(definition)
+            )
+
+        self.value = definition.get('value')
+
+        if self.column_description.get('is_geometry_column'):
+            self.clause_construct = self.decide_multi_geometries()
+        else:
+            self.clause_construct = self.decide_operator()
+
+    def decide_operator(self):
         """
         This method is used by the filter object to make a simple matching between the passed operators and
         the operators which are useable for filtering against the database.
@@ -117,47 +87,65 @@ class FilterDefinition(object):
         Note that this method does not only do the matching thing. It constructs the whole binary expression.
         So you can get some influence on this process too.
 
-        :param column: The sqlalchemy column which the clause should be formed with.
-        :type column: sqlalchemy.schema.Column
-        :param operator: A boolean operator which is used to form the clause.
-        :type operator: str
-        :param value: The value which is used for comparison.
-        :type value: Can be any base type
-        :return: The clause element
-        :rtype: sqlalchemy.sql.expression._BinaryExpression
-        :raises: HTTPBadRequest
+        Returns:
+            sqlalchemy.sql.expression._BinaryExpression: The clause element
+        Raises:
+            HTTPBadRequest
         """
-        if operator == '=':
-            clause = column == value
-        elif operator == '==':
-            clause = column == value
-        elif operator == '<>':
-            clause = column != value
-        elif operator == '!=':
-            clause = column != value
-        elif operator == '<':
-            clause = column < value
-        elif operator == '<=':
-            clause = column <= value
-        elif operator == '>':
-            clause = column > value
-        elif operator == '>=':
-            clause = column >= value
-        elif operator == 'LIKE':
-            clause = cast(column, String(length=100)).like(str(value))
-        elif operator == 'IN':
-            clause = column.in_(str(value).split(','))
-        elif operator == 'NULL':
-            clause = column == None
-        elif operator == 'NOT_NULL':
-            clause = column != None
+        if self.operator == '=':
+            clause = self.column == self.value
+        elif self.operator == '==':
+            clause = self.column == self.value
+        elif self.operator == '<>':
+            clause = self.column != self.value
+        elif self.operator == '!=':
+            clause = self.column != self.value
+        elif self.operator == '<':
+            clause = self.column < self.value
+        elif self.operator == '<=':
+            clause = self.column <= self.value
+        elif self.operator == '>':
+            clause = self.column > self.value
+        elif self.operator == '>=':
+            clause = self.column >= self.value
+        elif self.operator == 'LIKE':
+            clause = cast(self.column, String(length=100)).like(str(self.value))
+        elif self.operator == 'IN':
+            clause = self.column.in_(str(self.value).split(','))
+        elif self.operator == 'NULL':
+            clause = self.column == None
+        elif self.operator == 'NOT_NULL':
+            clause = self.column != None
         else:
             raise HTTPBadRequest('The operator "{operator}" you passed is not implemented.'.format(
-                operator=operator)
+                operator=self.operator)
             )
         return clause
 
-    def decide_multi_geometries(self, column_description, column, value, operator):
+    @staticmethod
+    def decide_geometric_operator_(operator):
+        """
+        Maps the passed operator to the correct database method operator
+        Args:
+            operator (str): The Operator from api request.
+        Returns:
+            str
+        """
+        if operator == 'INTERSECTS':
+            operator = 'ST_Intersects'
+        elif operator == 'TOUCHES':
+            operator = 'ST_Touches'
+        elif operator == 'COVERED_BY':
+            operator = 'ST_CoveredBy'
+        elif operator == 'WITHIN':
+            operator = 'ST_DFullyWithin'
+        else:
+            raise HTTPBadRequest('The operator "{operator}" you passed is not implemented.'.format(
+                operator=operator
+            ))
+        return operator
+
+    def decide_multi_geometries(self):
         """
         This method decides if the clause will contain geometry collections (in the value or in the
         database or in both).
@@ -165,125 +153,101 @@ class FilterDefinition(object):
         in database.
         If it does not it uses a normal geometric operation.
 
-        :param column_description: The machine readable description of the column.
-        :type column_description: pyramid_georest.description.ColumnDescription
-        :param column: The sqlalchemy column which the clause should be formed with.
-        :type column: sqlalchemy.schema.Column
-        :param value: The WKT geometry representation which is used for comparison.
-        :type value: str
-        :param operator: A geometric operation which is used to form the clause.
-        :type operator: str
-        :return: The clause element
-        :rtype: sqlalchemy.sql.expression._BinaryExpression
-        :raises: HTTPBadRequest
+        Returns:
+            sqlalchemy.sql.expression._BinaryExpression: The clause element
+
+        Raises:
+            HTTPBadRequest
         """
-        geometry_type = str(column_description.get('type')).upper()
+        geometry_type = str(self.column_description.get('type')).upper()
         db_path_list = [
             self.model_description.schema_name,
             self.model_description.table_name,
-            column_description.get('column_name')
+            self.column_description.get('column_name')
         ]
         db_path = '.'.join(db_path_list)
-        srid = column_description.get('srid')
-        if geometry_type == 'GEOMETRYCOLLECTION' and 'GEOMETRYCOLLECTION' not in value:
-            clause_construct = self.extract_geometry_collection_db(db_path, value, operator, srid)
-        elif 'GEOMETRYCOLLECTION' in value and geometry_type != 'GEOMETRYCOLLECTION':
-            clause_construct = self.extract_geometry_collection_input(db_path, value, operator, srid)
-        elif 'GEOMETRYCOLLECTION' in value and geometry_type == 'GEOMETRYCOLLECTION':
-            clause_construct = self.extract_geometry_collection_input_and_db(db_path, value, operator, srid)
-        elif geometry_type != 'GEOMETRYCOLLECTION' and 'GEOMETRYCOLLECTION' not in value:
-            clause_construct = self.decide_geometric_operation(column, operator, value, srid)
+        srid = self.column_description.get('srid')
+        if geometry_type == 'GEOMETRYCOLLECTION' and 'GEOMETRYCOLLECTION' not in self.value:
+            clause_construct = self.extract_geometry_collection_db(db_path, srid)
+        elif 'GEOMETRYCOLLECTION' in self.value and geometry_type != 'GEOMETRYCOLLECTION':
+            clause_construct = self.extract_geometry_collection_input(db_path, srid)
+        elif 'GEOMETRYCOLLECTION' in self.value and geometry_type == 'GEOMETRYCOLLECTION':
+            clause_construct = self.extract_geometry_collection_input_and_db(db_path, srid)
+        elif geometry_type != 'GEOMETRYCOLLECTION' and 'GEOMETRYCOLLECTION' not in self.value:
+            clause_construct = self.decide_geometric_operation(srid)
         else:
             hint_text = "You found some bad geometric circumstance. Sorry for that. We can't handle your " \
                         "request uses the operation {operation} on a geometric column with the type " \
                         "{geometry_type} and your passed geometry was of the value {value}. This is not " \
                         "supported in the moment.".format(
-                            operation=operator,
+                            operation=self.operator,
                             geometry_type=geometry_type,
-                            value=value
+                            value=self.value
                         )
             raise HTTPBadRequest(hint_text)
         return clause_construct
 
-    @staticmethod
-    def decide_geometric_operation(column, operator, value, srid):
+    def decide_geometric_operation(self, srid):
         """
         Decides the simple cases of geometric filter operations.
 
-        :param column: The sqlalchemy column which the clause should be formed with.
-        :type column: sqlalchemy.schema.Column
-        :param operator: A geometric operation which is used to form the clause.
-        :type operator: str
-        :param value: The WKT geometry representation which is used for comparison.
-        :type value: str
-        :param srid: The SRID/EPSG number to define the coordinate system of the geometry attribute.
-        :type srid: int
-        :return: The clause element
-        :rtype: sqlalchemy.sql.expression._BinaryExpression
-        :raises: HTTPBadRequest
+        Args:
+            srid (int): The SRID/EPSG number to define the coordinate system of the geometry attribute.
+
+        Returns:
+            sqlalchemy.sql.expression._BinaryExpression: The clause element
+
+        Raises:
+            HTTPBadRequest
         """
-        if operator == 'INTERSECTS':
-            clause = column.ST_Intersects(WKTElement(value, srid=srid))
-        elif operator == 'TOUCHES':
-            clause = column.ST_Touches(WKTElement(value, srid=srid))
-        elif operator == 'COVERED_BY':
-            clause = column.ST_CoveredBy(WKTElement(value, srid=srid))
-        elif operator == 'WITHIN':
-            clause = column.ST_DFullyWithin(WKTElement(value, srid=srid))
+        if self.operator == 'INTERSECTS':
+            clause = self.column.ST_Intersects(WKTElement(self.value, srid=srid))
+        elif self.operator == 'TOUCHES':
+            clause = self.column.ST_Touches(WKTElement(self.value, srid=srid))
+        elif self.operator == 'COVERED_BY':
+            clause = self.column.ST_CoveredBy(WKTElement(self.value, srid=srid))
+        elif self.operator == 'WITHIN':
+            clause = self.column.ST_DFullyWithin(WKTElement(self.value, srid=srid))
         else:
             raise HTTPBadRequest('The operator "{operator}" you passed is not implemented.'.format(
-                operator=operator)
+                operator=self.operator)
             )
         return clause
 
-    @staticmethod
-    def extract_geometry_collection_db(db_path, value, operator, srid):
+    def extract_geometry_collection_db(self, db_path, srid):
         """
         Decides the geometry collections cases of geometric filter operations when the database contains multi
         geometries but the passed geometry does not.
         The multi geometry will be extracted to it's sub parts for operation.
 
-        :param db_path: The point separated string of schema_name.table_name.column_name from which we can
-            construct a correct SQL statement.
-        :type db_path: str
-        :param value: The WKT geometry representation which is used for comparison.
-        :type value: str
-        :param operator: A geometric operation which is used to form the clause.
-        :type operator: str
-        :param srid: The SRID/EPSG number to define the coordinate system of the geometry attribute.
-        :type srid: int
-        :return: The clause element.
-        :rtype: sqlalchemy.sql.elements.BooleanClauseList
-        :raises: HTTPBadRequest
+        Args:
+            srid (int): The SRID/EPSG number to define the coordinate system of the geometry attribute.
+            db_path (str): The point separated string of schema_name.table_name.column_name from which we can
+                construct a correct SQL statement.
+
+        Returns:
+            sqlalchemy.sql.elements.BooleanClauseList: The clause element.
+
+        Raises:
+            HTTPBadRequest
         """
-        if operator == 'INTERSECTS':
-            operator = 'ST_Intersects'
-        elif operator == 'TOUCHES':
-            operator = 'ST_Touches'
-        elif operator == 'COVERED_BY':
-            operator = 'ST_CoveredBy'
-        elif operator == 'WITHIN':
-            operator = 'ST_DFullyWithin'
-        else:
-            raise HTTPBadRequest('The operator "{operator}" you passed is not implemented.'.format(
-                operator=operator
-            ))
+        operator = self.decide_geometric_operator_(self.operator)
         sql_text_point = '{0}(ST_CollectionExtract({1}, 1), ST_GeomFromText(\'{2}\', {3}))'.format(
             operator,
             db_path,
-            value,
+            self.value,
             srid
         )
         sql_text_line = '{0}(ST_CollectionExtract({1}, 2), ST_GeomFromText(\'{2}\', {3}))'.format(
             operator,
             db_path,
-            value,
+            self.value,
             srid
         )
         sql_text_polygon = '{0}(ST_CollectionExtract({1}, 3), ST_GeomFromText(\'{2}\', {3}))'.format(
             operator,
             db_path,
-            value,
+            self.value,
             srid
         )
         clause_blocks = [
@@ -293,54 +257,40 @@ class FilterDefinition(object):
         ]
         return or_(*clause_blocks)
 
-    @staticmethod
-    def extract_geometry_collection_input(db_path, value, operator, srid):
+    def extract_geometry_collection_input(self, db_path, srid):
         """
         Decides the geometry collections cases of geometric filter operations when the database
         contains multi geometries but the passed geometry does not.
         The multi geometry will be extracted to it's sub parts for operation.
 
-        :param db_path: The point separated string of schema_name.table_name.column_name from which we can
-            construct a correct SQL statement.
-        :type db_path: str
-        :param value: The WKT geometry representation which is used for comparison.
-        :type value: str
-        :param operator: A geometric operation which is used to form the clause.
-        :type operator: str
-        :param srid: The SRID/EPSG number to define the coordinate system of the geometry attribute.
-        :type srid: int
-        :return: The clause element.
-        :rtype: sqlalchemy.sql.elements.BooleanClauseList
-        :raises: HTTPBadRequest
+         Args:
+            srid (int): The SRID/EPSG number to define the coordinate system of the geometry attribute.
+            db_path (str): The point separated string of schema_name.table_name.column_name from which we can
+                construct a correct SQL statement.
+
+        Returns:
+            sqlalchemy.sql.elements.BooleanClauseList: The clause element.
+
+        Raises:
+            HTTPBadRequest
         """
-        if operator == 'INTERSECTS':
-            operator = 'ST_Intersects'
-        elif operator == 'TOUCHES':
-            operator = 'ST_Touches'
-        elif operator == 'COVERED_BY':
-            operator = 'ST_CoveredBy'
-        elif operator == 'WITHIN':
-            operator = 'ST_DFullyWithin'
-        else:
-            raise HTTPBadRequest('The operator "{operator}" you passed is not implemented.'.format(
-                operator=operator
-            ))
+        operator = self.decide_geometric_operator_(self.operator)
         sql_text_point = '{0}({1}, ST_CollectionExtract(ST_GeomFromText(\'{2}\', {3}), 1))'.format(
             operator,
             db_path,
-            value,
+            self.value,
             srid
         )
         sql_text_line = '{0}({1}, ST_CollectionExtract(ST_GeomFromText(\'{2}\', {3}), 2))'.format(
             operator,
             db_path,
-            value,
+            self.value,
             srid
         )
         sql_text_polygon = '{0}({1}, ST_CollectionExtract(ST_GeomFromText(\'{2}\', {3}), 3))'.format(
             operator,
             db_path,
-            value,
+            self.value,
             srid
         )
         clause_blocks = [
@@ -350,44 +300,30 @@ class FilterDefinition(object):
         ]
         return or_(*clause_blocks)
 
-    @staticmethod
-    def extract_geometry_collection_input_and_db(db_path, value, operator, srid):
+    def extract_geometry_collection_input_and_db(self, db_path, srid):
         """
-        Decides the geometry collections cases of geometric filter operations when the database contains multi
-        geometries but the passed geometry does not.
+        Decides the geometry collections cases of geometric filter operations when the database
+        contains multi geometries but the passed geometry does not.
         The multi geometry will be extracted to it's sub parts for operation.
 
-        :param db_path: The point separated string of schema_name.table_name.column_name from which we can
-            construct a correct SQL statement.
-        :type db_path: str
-        :param value: The WKT geometry representation which is used for comparison.
-        :type value: str
-        :param operator: A geometric operation which is used to form the clause.
-        :type operator: str
-        :param srid: The SRID/EPSG number to define the coordinate system of the geometry attribute.
-        :type srid: int
-        :return: The clause element.
-        :rtype: sqlalchemy.sql.elements.BooleanClauseList
-        :raises: HTTPBadRequest
+         Args:
+            srid (int): The SRID/EPSG number to define the coordinate system of the geometry attribute.
+            db_path (str): The point separated string of schema_name.table_name.column_name from which we can
+                construct a correct SQL statement.
+
+        Returns:
+            sqlalchemy.sql.elements.BooleanClauseList: The clause element.
+
+        Raises:
+            HTTPBadRequest
         """
-        if operator == 'INTERSECTS':
-            operator = 'ST_Intersects'
-        elif operator == 'TOUCHES':
-            operator = 'ST_Touches'
-        elif operator == 'COVERED_BY':
-            operator = 'ST_CoveredBy'
-        elif operator == 'WITHIN':
-            operator = 'ST_DFullyWithin'
-        else:
-            raise HTTPBadRequest('The operator "{operator}" you passed is not implemented.'.format(
-                operator=operator
-            ))
+        operator = self.decide_geometric_operator_(self.operator)
         sql_text_point = '{0}(ST_CollectionExtract({1}, 1), ST_CollectionExtract(' \
-                         'ST_GeomFromText(\'{2}\', {3}), 1))'.format(operator, db_path, value, srid)
+                         'ST_GeomFromText(\'{2}\', {3}), 1))'.format(operator, db_path, self.value, srid)
         sql_text_line = '{0}(ST_CollectionExtract({1}, 2), ST_CollectionExtract(' \
-                        'ST_GeomFromText(\'{2}\', {3}), 2))'.format(operator, db_path, value, srid)
+                        'ST_GeomFromText(\'{2}\', {3}), 2))'.format(operator, db_path, self.value, srid)
         sql_text_polygon = '{0}(ST_CollectionExtract({1}, 3), ST_CollectionExtract(' \
-                           'ST_GeomFromText(\'{2}\', {3}), 3))'.format(operator, db_path, value, srid)
+                           'ST_GeomFromText(\'{2}\', {3}), 3))'.format(operator, db_path, self.value, srid)
         clause_blocks = [
             text(sql_text_point),
             text(sql_text_line),
@@ -395,58 +331,113 @@ class FilterDefinition(object):
         ]
         return or_(*clause_blocks)
 
-    @staticmethod
-    def decide_mode(mode, clause_blocks):
+
+class FilterBlock(object):
+
+    def __init__(self, model_description, definition=None):
+        """
+        The class which represents the filter block.
+
+        Args:
+            definition (dict): The values which are assigned to the object. The definition of the Filter.
+                It has to be dict like {"mode": "OR/AND", "clauses": []}.
+                The clauses are also dict objects with the pattern:
+                    {
+                        "column_name": "<name>",
+                        "operator": "<see static method decide_operator for further detail>",
+                        "value":<value>
+                    }
+                It is possible to pack a definition of filter inside the clause array.
+                This enables complex queries.
+            model_description (pyramid_georest.lib.description.ModelDescription): The description of the model
+                which is being filtered.
+        """
+
+        if definition is None:
+            definition = {}
+
+        self.model_description = model_description
+
+        self.mode = 'AND'
+
+        if definition.get('mode'):
+            self.mode = definition.get('mode')
+        else:
+            log.info('Initialize empty filter block with mode AND')
+
+        self.clauses = []
+        if definition.get('clauses'):
+            for clause_definition in definition.get('clauses'):
+                self.add_clause(clause_definition)
+        else:
+            log.info('Initialize filter block with empty clauses')
+
+        self.clause = self.decide_mode()
+
+    def add_clause(self, clause_definition):
+        """
+        The class which represents the clause block.
+
+        Args:
+            clause_definition (dict): The values which are assigned to the object.
+        """
+        if clause_definition.get('mode'):
+            self.clauses.append(FilterBlock(self.model_description, clause_definition).clause)
+        else:
+            self.clauses.append(Clause(clause_definition, self.model_description).clause_construct)
+
+    def decide_mode(self):
         """
         This method is used to match the mode and construct a clause list in which are each single
         filter clause is combined by logical expression like OR or AND.
         If you need some other behaviour, it is possible to overwrite this method to implement your own
         matching or do some pre/post processing.
 
-        :param mode: The mode to combine the clause blocks.
-        :type mode: str
-        :param clause_blocks: The clause blocks which should be combined.
-        :type clause_blocks: list of sqlalchemy.sql.expression._BinaryExpression
-        :return: The combined clause blocks which wrapped in a sqlalchemy readable way
-        :rtype: sqlalchemy.sql.elements.BooleanClauseList
+        Returns:
+            sqlalchemy.sql.elements.BooleanClauseList: The combined clause blocks which wrapped in a
+                sqlalchemy readable way
         """
-        if len(clause_blocks) == 1:
-            clause = clause_blocks[0]
+        if len(self.clauses) == 1:
+            clause = self.clauses[0]
+        elif len(self.clauses) == 0:
+            clause = None
         else:
-            if mode == 'OR':
-                clause = or_(*clause_blocks)
-            elif mode == 'AND':
-                clause = and_(*clause_blocks)
+            if self.mode == 'OR':
+                clause = or_(*self.clauses)
+            elif self.mode == 'AND':
+                clause = and_(*self.clauses)
             else:
-                raise HTTPBadRequest(('The mode "{mode}" you passed is not implemented.'.format(mode=mode)))
+                raise HTTPBadRequest(
+                    'The mode "{mode}" you passed is not implemented.'.format(mode=self.mode)
+                )
         return clause
 
 
 class Filter(object):
 
-    def __init__(self, model_description, filter_definition_class=None, **kwargs):
+    def __init__(self, model_description, definition=None):
         """
-        Kind of an proxy class which is the gate to the concrete filter definition object. This enables
-        us to add some pre/post processing.
+        The class which represents the filter.
 
-        :param model: The model for which the service will be created for.
-        :type model: ModelDescription
-        :param filter_definition_class: A subclass type of FilterDefinition may be passed to override
-            behaviour of filtering.
-        :type filter_definition_class: class FilterDefinition
-        :param kwargs:
+        Args:
+            definition (dict): The values which are assigned to the object. The definition of the Filter.
+                It has to be dict like {"mode": "OR/AND", "clauses": []}.
+                The clauses are also dict objects with the pattern:
+                    {
+                        "column_name": "<name>",
+                        "operator": "<see static method decide_operator for further detail>",
+                        "value":<value>
+                    }
+                It is possible to pack a definition of filter inside the clause array.
+                This enables complex queries.
+            model_description (pyramid_georest.lib.description.ModelDescription): The description of the model
+                which is being filtered.
         """
-        self.model_description = model_description
-        if filter_definition_class is None:
-            self.filter_definition_class = FilterDefinition
-        else:
-            self.filter_definition_class = filter_definition_class
-        for key in kwargs:
-            value = kwargs[key]
-            if key == 'definition':
-                self.definition = self.filter_definition_class(model_description, **value)
-            else:
-                setattr(self, key, value)
+
+        if definition is None:
+            definition = {}
+
+        self.definition = FilterBlock(model_description, definition)
 
     def __str__(self):
         """
@@ -468,7 +459,8 @@ class Filter(object):
         :rtype: sqlalchemy.orm.query.Query
         """
         # print self.definition.clause
-        query = query.filter(self.definition.clause)
+        if self.definition.clause is not None:
+            query = query.filter(self.definition.clause)
         return query
 
 
@@ -523,52 +515,22 @@ class Service(object):
             table_name
         )
 
-    def read(self, request, session):
-        """
-        The method which is used by the api to read a bunch of records from the database.
-
-        :param request: The request which comes all the way through the application from the client
-        :type request: pyramid.request.Request
-        :param session: The session which is uesed to emit the query.
-        :type session: sqlalchemy.orm.Session
-        :return: An pyramid response object
-        :rtype: pyramid.response.Response
-        """
+    def record_by_primary_keys_(self, session, primary_keys):
         query = session.query(self.orm_model)
-        if request.method == request.registry.pyramid_georest_requested_api.read_filter_method:
-            rest_filter = Filter(self.model_description, **request.json_body.get('filter'))
-            query = rest_filter.filter(query)
-        results = query.all()
-        return self.renderer_proxy.render(request, results, self.model_description)
-
-    def show(self, request, session):
-        """
-        The method which is used by the api to read exact one record from the database.
-
-        :param request: The request which comes all the way through the application from the client
-        :type request: pyramid.request.Request
-        :param session: The session which is uesed to emit the query.
-        :type session: sqlalchemy.orm.Session
-        :return: An pyramid response object
-        :rtype: pyramid.response.Response
-        :raises: HTTPBadRequest
-        """
-        requested_primary_keys = request.matchdict['primary_keys']
         model_description = ModelDescription(self.orm_model)
         model_primary_keys = model_description.primary_key_columns.items()
-        if len(requested_primary_keys) != len(model_primary_keys):
+        if len(primary_keys) != len(model_primary_keys):
             hint_text = "The number of passed primary keys mismatch the model given. Can't complete the " \
                         "request. Sorry..."
             log.error(hint_text)
             raise HTTPBadRequest(
                 detail=hint_text
             )
-        query = session.query(self.orm_model)
-        for index, requested_primary_key in enumerate(requested_primary_keys):
+        for index, requested_primary_key in enumerate(primary_keys):
             query = query.filter(model_primary_keys[index][1] == requested_primary_key)
         try:
             result = query.one()
-            return self.renderer_proxy.render(request, [result], self.model_description)
+            return result
         except MultipleResultsFound as e:
             hint_text = "Strange thing happened... Found more than one record for the primary key(s) " \
                         "you passed."
@@ -577,181 +539,174 @@ class Service(object):
                 detail=hint_text
             )
 
-    def create(self, request, session):
+    def handle_json_(self, orm_object, feature):
+        """
+        Method to assign values from passed json feature to the corresponding model object. It takes care of
+        correctly handle geometry values.
+
+        :param orm_object: The orm model object which the values should be assigned to.
+        :type orm_object: sqlalchemy.ext.declarative.DeclarativeMeta
+        :param feature: The feature which contains the values to be assigned to model instance.
+        :type feature: dict
+        """
+        # At this moment there is no check for valid json data this leads to normal
+        # behaving process, but no data will be written at all because the keys are not matching.
+        for key in feature:
+            value = feature[key]
+            setattr(orm_object, key, self.geometry_treatment_(key, value))
+
+    def handle_geojson_(self, orm_object, feature):
+        """
+        Method to assign values from passed geojson feature to the corresponding model object. It takes care
+        of correctly handle geometry values.
+
+        :param orm_object: The orm model object which the values should be assigned to.
+        :type orm_object: sqlalchemy.ext.declarative.DeclarativeMeta
+        :param feature: The feature which contains the values to be assigned to model instance.
+        :type feature: dict
+        """
+        properties = feature.get('properties')
+        for key in properties:
+            value = properties[key]
+            setattr(orm_object, key, value)
+        geometry = feature.get('geometry')
+        # GeoJson supports only one geometry attribute per feature, so we use the first geometry
+        # column from model description... Not the best way but as long we have only one geometry
+        # attribute per table it will work
+        geometry_column_name = self.model_description.geometry_column_names[0]
+        concrete_wkt = self.geometry_treatment_(geometry_column_name, asShape(geometry).wkt)
+        setattr(orm_object, geometry_column_name, concrete_wkt)
+
+    def geometry_treatment_(self, key, value):
+        if value is not None and key in self.model_description.geometry_column_names:
+            return WKTElement(
+                value,
+                self.model_description.column_descriptions.get(key).get('srid')
+            )
+        else:
+            return value
+
+    def read(self, session, request, rest_filter=None):
+        """
+        The method which is used by the api to read a bunch of records from the database.
+
+        Args:
+            session (sqlalchemy.orm.Session): The session which is uesed to emit the query.
+            request (pyramid.request.Request): The request which comes all the way through the application
+                from the client
+            rest_filter (pyramid_georest.lib.rest.Filter or None): The Filter which might be applied to the
+                query in addition.
+
+        Returns:
+             list of sqlalchemy.ext.declarative.DeclarativeMeta: A list of database records found for the
+                request.
+        """
+        query = session.query(self.orm_model)
+        if rest_filter is not None:
+            query = rest_filter.filter(query)
+        results = query.all()
+        return results
+
+    def show(self, session, request, primary_keys):
+        """
+        The method which is used by the api to read exact one record from the database.
+
+        Args:
+            session (sqlalchemy.orm.Session): The sqlalchemy session object
+            request (pyramid.request.Request): The request which comes all the way through the application
+            from the client
+            primary_keys (list of str): The primary keys which are used to filter the exact element.
+
+        Returns:
+             list of sqlalchemy.ext.declarative.DeclarativeMeta: A list of database records found for the
+                request.
+        """
+        result = self.record_by_primary_keys_(session, primary_keys)
+        return [result]
+
+    def create(self, session, request, feature, passed_format):
         """
         The method which is used by the api to create exact one record in the database.
 
-        :param request: The request which comes all the way through the application from the client
-        :type request: pyramid.request.Request
-        :param session: The session which is uesed to emit the query.
-        :type session: sqlalchemy.orm.Session
-        :return: An pyramid response object
-        :rtype: pyramid.response.Response
+        Args:
+            request (pyramid.request.Request): The request which comes all the way through the application
+            from the client
+            session (sqlalchemy.orm.Session): The sqlalchemy session object
+            feature (dict): The feature which should be created in database.
+            passed_format (str): The format which the feature is constructed of.
+
+        Returns:
+            list of sqlalchemy.ext.declarative.DeclarativeMeta: A list of database records found for the
+                request.
         """
-        if request.matchdict['format'] == 'json':
-            # At this moment there is no check for valid json data this leads to normal
-            # behaving process, but no data will be written at all because the keys are not matching.
-            if request.json_body.get('feature'):
-                orm_object = self.orm_model()
-                data = request.json_body.get('feature')
-                for key in data:
-                    value = data[key]
-                    setattr(orm_object, key, self.geometry_treatment(key, value))
-                session.add(orm_object)
-                session.flush()
-                request.response.status_int = 201
-                return self.renderer_proxy.render(request, [orm_object], self.model_description)
-            else:
-                raise HTTPBadRequest('No features where found in request...')
-        elif request.matchdict['format'] == 'geojson':
-            if request.json_body.get('feature'):
-                orm_object = self.orm_model()
-                data = request.json_body.get('feature')
-                properties = data.get('properties')
-                for key in properties:
-                    value = properties[key]
-                    setattr(orm_object, key, value)
-                geometry = data.get('geometry')
-                # GeoJson supports only one geometry attribute per feature, so we use the first geometry
-                # column from model description... Not the best way but as long we have only one geometry
-                # attribute per table it will work
-                geometry_column_name = self.model_description.geometry_column_names[0]
-                concrete_wkt = self.geometry_treatment(geometry_column_name, asShape(geometry).wkt)
-                setattr(orm_object, geometry_column_name, concrete_wkt)
-                session.add(orm_object)
-                session.flush()
-                request.response.status_int = 201
-                return self.renderer_proxy.render(request, [orm_object], self.model_description)
-            else:
-                raise HTTPBadRequest('No features where found in request...')
+        orm_object = self.orm_model()
+        if passed_format == 'json':
+            self.handle_json_(orm_object, feature)
+        elif passed_format == 'geojson':
+            self.handle_geojson_(orm_object, feature)
         else:
             hint_text = 'The Format "{format}" is not defined for this service. Sorry...'.format(
-                format=request.matchdict['format']
+                format=passed_format
             )
             log.error(hint_text)
             raise HTTPNotFound(
                 detail=hint_text
             )
+        session.add(orm_object)
+        session.flush()
+        return [orm_object]
 
-    def delete(self, request, session):
-        """
-        The method which is used by the api to delete exact one record in the database.
-
-        :param request: The request which comes all the way through the application from the client
-        :type request: pyramid.request.Request
-        :param session: The session which is uesed to emit the query.
-        :type session: sqlalchemy.orm.Session
-        :return: An pyramid response object
-        :rtype: pyramid.response.Response
-        """
-        if request.matchdict['format'] == 'json':
-            requested_primary_keys = request.matchdict['primary_keys']
-            model_description = ModelDescription(self.orm_model)
-            model_primary_keys = model_description.primary_key_columns.items()
-            if len(requested_primary_keys) != len(model_primary_keys):
-                hint_text = "The number of passed primary keys mismatch the model given. " \
-                            "Can't complete the request. Sorry..."
-                log.error(hint_text)
-                raise HTTPBadRequest(
-                    detail=hint_text
-                )
-            query = session.query(self.orm_model)
-            for index, requested_primary_key in enumerate(requested_primary_keys):
-                query = query.filter(model_primary_keys[index][1] == requested_primary_key)
-            try:
-                result = query.one()
-                session.delete(result)
-                session.flush()
-                request.response.status_int = 202
-                return self.renderer_proxy.render(request, [result], self.model_description)
-            except MultipleResultsFound as e:
-                hint_text = "Strange thing happened... Found more than one record for the primary " \
-                            "key(s) you passed."
-                log.error('{text}, Original error was: {error}'.format(text=hint_text, error=e))
-                raise HTTPBadRequest(
-                    detail=hint_text
-                )
-        else:
-            hint_text = 'The Format "{format}" is not defined for this service. Sorry...'.format(
-                format=request.matchdict['format']
-            )
-            log.error(hint_text)
-            raise HTTPNotFound(
-                detail=hint_text
-            )
-
-    def update(self, request, session):
+    def update(self, session, request, primary_keys, feature, passed_format):
         """
         The method which is used by the api to update exact one record in the database.
 
-        :param request: The request which comes all the way through the application from the client
-        :type request: pyramid.request.Request
-        :param session: The session which is uesed to emit the query.
-        :type session: sqlalchemy.orm.Session
-        :return: An pyramid response object
-        :rtype: pyramid.response.Response
-        """
-        requested_primary_keys = request.matchdict['primary_keys']
-        model_description = ModelDescription(self.orm_model)
-        model_primary_keys = model_description.primary_key_columns.items()
-        if len(requested_primary_keys) != len(model_primary_keys):
-            hint_text = "The number of passed primary keys mismatch the model given. Can't complete " \
-                        "the request. Sorry..."
-            log.error(hint_text)
-            raise HTTPBadRequest(
-                detail=hint_text
-            )
-        query = session.query(self.orm_model)
+        Args:
+            session (sqlalchemy.orm.Session): The sqlalchemy session object
+            request (pyramid.request.Request): The request which comes all the way through the application
+            from the client
+            primary_keys (list of str): The primary keys which are used to filter the exact element.
+            feature (dict): The feature which should be updated in database.
+            passed_format (str): The format which the feature is constructed of.
 
-        for index, requested_primary_key in enumerate(requested_primary_keys):
-            query = query.filter(model_primary_keys[index][1] == requested_primary_key)
-        try:
-            result = query.one()
-            if request.matchdict['format'] == 'json':
-                # At this moment there is no check for valid json data this leads to normal behaving
-                # process, but no data will be written at all because the keys are not matching.
-                if request.json_body.get('feature'):
-                    data = request.json_body.get('feature')
-                    for key in data:
-                        setattr(result, key, self.geometry_treatment(key, data[key]))
-                    session.flush()
-                    request.response.status_int = 202
-                    return self.renderer_proxy.render(request, [result], self.model_description)
-                else:
-                    raise HTTPBadRequest('No features where found in request...')
-            elif request.matchdict['format'] == 'geojson':
-                if request.json_body.get('feature'):
-                    data = request.json_body.get('feature')
-                    properties = data.get('properties')
-                    for key in properties:
-                        setattr(result, key, properties[key])
-                    geometry = data.get('geometry')
-                    # GeoJson supports only one geometry attribute per feature, so we use the first
-                    # geometry column from model description... Not the best way but as long we have only
-                    # one geometry attribute per table it will work
-                    geometry_column_name = self.model_description.geometry_column_names[0]
-                    concrete_wkt = self.geometry_treatment(geometry_column_name, asShape(geometry).wkt)
-                    setattr(result, geometry_column_name, concrete_wkt)
-                    session.flush()
-                    request.response.status_int = 202
-                    return self.renderer_proxy.render(request, [result], self.model_description)
-                else:
-                    raise HTTPBadRequest('No features where found in request...')
-            else:
-                hint_text = 'The Format "{format}" is not defined for this service. Sorry...'.format(
-                    format=request.matchdict['format']
-                )
-                log.error(hint_text)
-                raise HTTPNotFound(
-                    detail=hint_text
-                )
-        except MultipleResultsFound as e:
-            hint_text = "Strange thing happened... Found more than one record for the " \
-                        "primary key(s) you passed."
-            log.error('{text}, Original error was: {error}'.format(text=hint_text, error=e))
-            raise HTTPBadRequest(
+        Returns:
+            list of sqlalchemy.ext.declarative.DeclarativeMeta: A list of database records found for the
+                request.
+        """
+        orm_object = self.record_by_primary_keys_(session, primary_keys)
+        if passed_format == 'json':
+            self.handle_json_(orm_object, feature)
+        elif passed_format == 'geojson':
+            self.handle_geojson_(orm_object, feature)
+        else:
+            hint_text = 'The Format "{format}" is not defined for this service. Sorry...'.format(
+                format=passed_format
+            )
+            log.error(hint_text)
+            raise HTTPNotFound(
                 detail=hint_text
             )
+        session.add(orm_object)
+        session.flush()
+        return [orm_object]
+
+    def delete(self, session, request, primary_keys):
+        """
+        The method which is used by the api to delete exact one record in the database.
+
+        Args:
+            session (sqlalchemy.orm.Session): The sqlalchemy session object
+            request (pyramid.request.Request): The request which comes all the way through the application
+            from the client
+            primary_keys (list of str): The primary keys which are used to filter the exact element.
+
+        Returns:
+             list of sqlalchemy.ext.declarative.DeclarativeMeta: A list of database records found for the
+                request.
+        """
+        result = self.record_by_primary_keys_(session, primary_keys)
+        session.delete(result)
+        session.flush()
+        return [result]
 
     def model(self, request):
         """
@@ -760,31 +715,10 @@ class Service(object):
 
         :param request: The request which comes all the way through the application from the client
         :type request: pyramid.request.Request
-        :return: An pyramid response object
-        :rtype: pyramid.response.Response
-        :raises: HTTPNotFound
+        :return: The model description of this service.
+        :rtype: pyramid_georest.lib.description.ModelDescription
         """
-        response_format = request.matchdict['format']
-        if response_format == 'json':
-            return render_to_response(
-                'geo_restful_model_json',
-                self.model_description,
-                request=request
-            )
-        elif response_format == 'xml':
-            return render_to_response(
-                'geo_restful_model_xml',
-                self.model_description,
-                request=request
-            )
-        else:
-            hint_text = 'The Format "{format}" is not defined for this service. Sorry...'.format(
-                format=response_format
-            )
-            log.error(hint_text)
-            raise HTTPNotFound(
-                detail=hint_text
-            )
+        return self.model_description
 
     def adapter(self, request):
         """
@@ -792,20 +726,10 @@ class Service(object):
 
         :param request: The request which comes all the way through the application from the client
         :type request: pyramid.request.Request
-        :return: An pyramid response object
-        :rtype: pyramid.response.Response
-        :raises: HTTPNotFound
+        :return: The model description of this service.
+        :rtype: pyramid_georest.lib.description.ModelDescription
         """
-        return self.adapter_proxy.render(request, self.model_description)
-
-    def geometry_treatment(self, key, value):
-        if value is not None and key in self.model_description.geometry_column_names:
-            return WKTElement(
-                value,
-                self.model_description.column_descriptions.get(key).get('srid')
-            )
-        else:
-            return value
+        return self.model_description
 
 
 class Api(object):
@@ -967,11 +891,14 @@ class Api(object):
         :return: An pyramid response object
         :rtype: pyramid.response.Response
         """
+        service = self.find_service_by_request(request)
         request.registry.pyramid_georest_requested_api = self
-        return self.find_service_by_request(request).read(
-            request,
-            self.provide_session(request)
-        )
+        session = self.provide_session(request)
+        rest_filter = None
+        if request.method == request.registry.pyramid_georest_requested_api.read_filter_method:
+            rest_filter = Filter(service.model_description, **request.json_body.get('filter'))
+        results = service.read(session, request, rest_filter)
+        return service.renderer_proxy.render(request, results, service.model_description)
 
     def show(self, request):
         """
@@ -986,11 +913,12 @@ class Api(object):
         :return: An pyramid response object
         :rtype: pyramid.response.Response
         """
+        service = self.find_service_by_request(request)
         request.registry.pyramid_georest_requested_api = self
-        return self.find_service_by_request(request).show(
-            request,
-            self.provide_session(request)
-        )
+        session = self.provide_session(request)
+        primary_keys = request.matchdict['primary_keys']
+        results = service.show(session, request, primary_keys)
+        return service.renderer_proxy.render(request, results, service.model_description)
 
     def create(self, request):
         """
@@ -1005,11 +933,17 @@ class Api(object):
         :return: An pyramid response object
         :rtype: pyramid.response.Response
         """
+        service = self.find_service_by_request(request)
         request.registry.pyramid_georest_requested_api = self
-        return self.find_service_by_request(request).create(
-            request,
-            self.provide_session(request)
-        )
+        session = self.provide_session(request)
+        passed_format = request.matchdict['format']
+        if request.json_body.get('feature'):
+            feature = request.json_body.get('feature')
+            results = service.create(session, request, feature, passed_format)
+            request.response.status_int = 201
+            return service.renderer_proxy.render(request, results, service.model_description)
+        else:
+            raise HTTPBadRequest('No features where found in request...')
 
     def delete(self, request):
         """
@@ -1024,11 +958,12 @@ class Api(object):
         :return: An pyramid response object
         :rtype: pyramid.response.Response
         """
+        service = self.find_service_by_request(request)
         request.registry.pyramid_georest_requested_api = self
-        return self.find_service_by_request(request).delete(
-            request,
-            self.provide_session(request)
-        )
+        session = self.provide_session(request)
+        primary_keys = request.matchdict['primary_keys']
+        results = service.delete(session, request, primary_keys)
+        return service.renderer_proxy.render(request, results, service.model_description)
 
     def update(self, request):
         """
@@ -1043,11 +978,18 @@ class Api(object):
         :return: An pyramid response object
         :rtype: pyramid.response.Response
         """
+        service = self.find_service_by_request(request)
         request.registry.pyramid_georest_requested_api = self
-        return self.find_service_by_request(request).update(
-            request,
-            self.provide_session(request)
-        )
+        session = self.provide_session(request)
+        primary_keys = request.matchdict['primary_keys']
+        passed_format = request.matchdict['format']
+        if request.json_body.get('feature'):
+            feature = request.json_body.get('feature')
+            results = service.update(session, request, primary_keys, feature, passed_format)
+            request.response.status_int = 202
+            return service.renderer_proxy.render(request, results, service.model_description)
+        else:
+            raise HTTPBadRequest('No features where found in request...')
 
     def model(self, request):
         """
@@ -1061,11 +1003,32 @@ class Api(object):
         :type request: pyramid.request.Request
         :return: An pyramid response object
         :rtype: pyramid.response.Response
+        :raises: HTTPNotFound
         """
+        service = self.find_service_by_request(request)
         request.registry.pyramid_georest_requested_api = self
-        return self.find_service_by_request(request).model(
-            request
-        )
+        response_format = request.matchdict['format']
+        model = service.model(request)
+        if response_format == 'json':
+            return render_to_response(
+                'geo_restful_model_json',
+                model,
+                request=request
+            )
+        elif response_format == 'xml':
+            return render_to_response(
+                'geo_restful_model_xml',
+                model,
+                request=request
+            )
+        else:
+            hint_text = 'The Format "{format}" is not defined for this service. Sorry...'.format(
+                format=response_format
+            )
+            log.error(hint_text)
+            raise HTTPNotFound(
+                detail=hint_text
+            )
 
     def adapter(self, request):
         """
@@ -1080,7 +1043,7 @@ class Api(object):
         :return: An pyramid response object
         :rtype: pyramid.response.Response
         """
+        service = self.find_service_by_request(request)
         request.registry.pyramid_georest_requested_api = self
-        return self.find_service_by_request(request).adapter(
-            request
-        )
+        model = service.model(request)
+        return service.adapter_proxy.render(request, model)
