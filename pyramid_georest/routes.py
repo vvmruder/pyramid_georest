@@ -48,6 +48,19 @@ def create_api_routing(config, api):
         request_method=(api.read_method, api.read_filter_method)
     )
 
+    # counts records/filtered in database
+    config.add_route(
+        '{api_name}/count'.format(api_name=api.name),
+        '/' + api.pure_name + '/{schema_name}/{table_name}/count'
+    )
+    config.add_view(
+        api,
+        route_name='{api_name}/count'.format(api_name=api.name),
+        attr='count',
+        request_method=(api.read_method, api.read_filter_method),
+        renderer='string'
+    )
+
     # delivers specific record
     config.add_route(
         '{api_name}/show'.format(api_name=api.name),
