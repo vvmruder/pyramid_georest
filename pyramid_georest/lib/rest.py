@@ -109,7 +109,7 @@ class Clause(object):
         elif self.operator == '>=':
             clause = self.column >= self.value
         elif self.operator == 'LIKE':
-            clause = cast(self.column, String(length=100)).like(str(self.value))
+            clause = cast(self.column, String()).like(self.value)
         elif self.operator == 'IN':
             clause = self.column.in_(str(self.value).split(','))
         elif self.operator == 'NULL':
