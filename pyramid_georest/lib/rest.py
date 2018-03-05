@@ -606,7 +606,7 @@ class Service(object):
                 request.
         """
         query = session.query(self.orm_model)
-        if offset and limit:
+        if isinstance(offset, int) and isinstance(limit, int):
             query = query.offset(offset)
             query = query.limit(limit)
         if rest_filter is not None:
@@ -965,8 +965,8 @@ class Api(object):
         rest_filter = None
         if request.method == request.registry.pyramid_georest_requested_api.read_filter_method:
             rest_filter = Filter(service.model_description, **request.json_body.get('filter'))
-        results = service.read(session, request, rest_filter)
-        return service.renderer_proxy.render(request, results, service.model_description)
+        count = service.count(session, request, rest_filter)
+        return count
 
     def show(self, request):
         """

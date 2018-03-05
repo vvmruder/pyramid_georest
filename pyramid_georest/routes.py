@@ -58,7 +58,7 @@ def create_api_routing(config, api):
         route_name='{api_name}/count'.format(api_name=api.name),
         attr='count',
         request_method=(api.read_method, api.read_filter_method),
-        renderer='text'
+        renderer='string'
     )
 
     # delivers specific record
