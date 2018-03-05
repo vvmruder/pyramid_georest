@@ -1,6 +1,10 @@
 Pyramid REST Changelog
 ======================
 
+## 3.1.0-rc3
+
+* fix filtering for non ascii charsets when LIKE is used
+
 ## 3.1.0-rc2
 
 * implement paging
