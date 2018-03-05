@@ -586,7 +586,7 @@ class Service(object):
         else:
             return value
 
-    def read(self, session, request, rest_filter=None):
+    def read(self, session, request, rest_filter=None, offset=None, limit=None):
         """
         The method which is used by the api to read a bunch of records from the database.
 
@@ -596,16 +596,43 @@ class Service(object):
                 from the client
             rest_filter (pyramid_georest.lib.rest.Filter or None): The Filter which might be applied to the
                 query in addition.
+            offset (int or None): The offset which is used for paging reasons. It is only applied if limit is
+                present too.
+            limit (int or None): The limit which is used for paging reason. It is only applied of offest is
+                present too.
 
         Returns:
              list of sqlalchemy.ext.declarative.DeclarativeMeta: A list of database records found for the
                 request.
         """
         query = session.query(self.orm_model)
+        if offset and limit:
+            query = query.offset(offset)
+            query = query.limit(limit)
         if rest_filter is not None:
             query = rest_filter.filter(query)
         results = query.all()
         return results
+
+    def count(self, session, request, rest_filter=None):
+        """
+        The method which is used by the api to count the number of records in the database.
+
+        Args:
+            session (sqlalchemy.orm.Session): The session which is uesed to emit the query.
+            request (pyramid.request.Request): The request which comes all the way through the application
+                from the client
+            rest_filter (pyramid_georest.lib.rest.Filter or None): The Filter which might be applied to the
+                query in addition.
+
+        Returns:
+             int: The count of records found in the database.
+        """
+        query = session.query(self.orm_model)
+        if rest_filter is not None:
+            query = rest_filter.filter(query)
+        count = query.count()
+        return count
 
     def show(self, session, request, primary_keys):
         """
@@ -881,6 +908,47 @@ class Api(object):
     def read(self, request):
         """
         The api wide method to receive the read request and passing it to the correct service. At this
+        point it is possible to implement some post or pre processing by overwriting this method.
+        The most common use case for this will be the implementation of an authorisation mechanism which has
+        influence on the whole api. To have influence on special services please see the service class
+        implementations read method.
+
+        :param request: The request which comes all the way through the application from the client
+        :type request: pyramid.request.Request
+        :return: An pyramid response object
+        :rtype: pyramid.response.Response
+        """
+        service = self.find_service_by_request(request)
+        request.registry.pyramid_georest_requested_api = self
+        session = self.provide_session(request)
+        rest_filter = None
+        if request.method == request.registry.pyramid_georest_requested_api.read_filter_method:
+            rest_filter = Filter(service.model_description, **request.json_body.get('filter'))
+        offset = request.params.get('offset')
+        limit = request.params.get('limit')
+        if offset and limit:
+            try:
+                offset = int(offset)
+            except ValueError as e:
+                hint_txt = 'Value for offset has to be integer or a string which can be parsed as integer.'
+                log.error(e)
+                log.error(hint_txt)
+                raise HTTPBadRequest(hint_txt)
+            try:
+                limit = int(limit)
+            except ValueError as e:
+                hint_txt = 'Value for limit has to be integer or a string which can be parsed as integer.'
+                log.error(e)
+                log.error(hint_txt)
+                raise HTTPBadRequest(hint_txt)
+            results = service.read(session, request, rest_filter, offset=offset, limit=limit)
+        else:
+            results = service.read(session, request, rest_filter)
+        return service.renderer_proxy.render(request, results, service.model_description)
+
+    def count(self, request):
+        """
+        The api wide method to receive the count request and passing it to the correct service. At this
         point it is possible to implement some post or pre processing by overwriting this method.
         The most common use case for this will be the implementation of an authorisation mechanism which has
         influence on the whole api. To have influence on special services please see the service class

@@ -1,6 +1,11 @@
 Pyramid REST Changelog
 ======================
 
+## 3.1.0-rc2
+
+* implement paging
+* add count method to api
+
 ## 3.1.0-rc1
 
 * reorganizing service=>api structure
