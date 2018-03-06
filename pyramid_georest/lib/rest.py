@@ -24,9 +24,7 @@ from pyramid_georest.lib.description import ModelDescription
 from pyramid_georest.lib.renderer import RenderProxy, AdapterProxy
 from pyramid_georest.lib.database import Connection
 from pyramid_georest.routes import create_api_routing, check_route_prefix
-from sqlalchemy import or_, and_
-from sqlalchemy import cast
-from sqlalchemy import String
+from sqlalchemy import or_, and_, cast, String, desc, asc
 from sqlalchemy.sql.expression import text
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.exc import MultipleResultsFound
@@ -37,6 +35,9 @@ __author__ = 'Clemens Rudert'
 __create_date__ = '29.07.2015'
 
 log = logging.getLogger('pyramid_georest')
+
+DIRECTION_ASC = ['ASC', 'asc', 'ascending']
+DIRECTION_DESC = ['DESC', 'desc', 'descending']
 
 
 class Clause(object):
@@ -586,7 +587,8 @@ class Service(object):
         else:
             return value
 
-    def read(self, session, request, rest_filter=None, offset=None, limit=None):
+    def read(self, session, request, rest_filter=None, offset=None, limit=None, order_by=None,
+             direction=None):
         """
         The method which is used by the api to read a bunch of records from the database.
 
@@ -600,17 +602,27 @@ class Service(object):
                 present too.
             limit (int or None): The limit which is used for paging reason. It is only applied of offest is
                 present too.
+            order_by (unicode or None): The column name which the sort is assigned to. It is only used if
+                direction is present too.
+            direction (unicode or None): The direction which is used for sorting. It is only used if order_by
+                is present too.
 
         Returns:
              list of sqlalchemy.ext.declarative.DeclarativeMeta: A list of database records found for the
                 request.
         """
         query = session.query(self.orm_model)
+        if rest_filter is not None:
+            query = rest_filter.filter(query)
+        if isinstance(order_by, unicode) and isinstance(direction, unicode):
+            column = self.model_description.column_classes.get(order_by)
+            if direction in DIRECTION_ASC:
+                query = query.order_by(asc(column))
+            elif direction in DIRECTION_DESC:
+                query = query.order_by(desc(column))
         if isinstance(offset, int) and isinstance(limit, int):
             query = query.offset(offset)
             query = query.limit(limit)
-        if rest_filter is not None:
-            query = rest_filter.filter(query)
         results = query.all()
         return results
 
@@ -926,6 +938,8 @@ class Api(object):
             rest_filter = Filter(service.model_description, **request.json_body.get('filter'))
         offset = request.params.get('offset')
         limit = request.params.get('limit')
+        order_by = request.params.get('order_by')
+        direction = request.params.get('direction')
         if offset and limit:
             try:
                 offset = int(offset)
@@ -941,9 +955,35 @@ class Api(object):
                 log.error(e)
                 log.error(hint_txt)
                 raise HTTPBadRequest(hint_txt)
-            results = service.read(session, request, rest_filter, offset=offset, limit=limit)
         else:
-            results = service.read(session, request, rest_filter)
+            offset = None
+            limit = None
+
+        if order_by and direction:
+            if not isinstance(order_by, unicode):
+                hint_txt = 'Value for order_by has to be string.'
+                log.error(hint_txt)
+                raise HTTPBadRequest(hint_txt)
+            if not isinstance(direction, unicode):
+                hint_txt = 'Value for direction has to be string.'
+                log.error(hint_txt)
+                raise HTTPBadRequest(hint_txt)
+            if direction not in DIRECTION_ASC + DIRECTION_DESC:
+                raise HTTPBadRequest(
+                    'The parameter direction has to be one of the values: {0}'.format(
+                        DIRECTION_ASC + DIRECTION_DESC
+                    )
+                )
+            if not service.model_description.is_valid_column(order_by):
+                raise HTTPBadRequest('The parameter order_by has to be one of the models columns. The passed '
+                                     'column name was {}'.format(order_by)
+                                     )
+        else:
+            order_by = None
+            direction = None
+
+        results = service.read(session, request, rest_filter, offset=offset, limit=limit,
+                               order_by=order_by, direction=direction)
         return service.renderer_proxy.render(request, results, service.model_description)
 
     def count(self, request):

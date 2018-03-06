@@ -327,3 +327,16 @@ class ModelDescription(object):
             'column_count': self.column_count,
             'columns': self.column_descriptions
         }
+
+    def is_valid_column(self, column_name):
+        """
+
+        Args:
+            column_name (unicode): The column name which should be validated.
+        Returns:
+             bool: Whether the column name was valid for this model or not.
+        """
+        if self.column_descriptions.get(column_name):
+            return True
+        else:
+            return False
