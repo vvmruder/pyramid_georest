@@ -1,6 +1,11 @@
 Pyramid REST Changelog
 ======================
 
+## 3.1.0-rc4
+
+* fix paging which was called in wrong order for LIMIT and OFFSET
+* implement sorting of one column via URL params _order_by_ and _direction_
+
 ## 3.1.0-rc3
 
 * fix filtering for non ascii charsets when LIKE is used
