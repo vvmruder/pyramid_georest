@@ -36,7 +36,7 @@ class Connection:
         """
         self.url = url
         if 'cx_oracle' in self.url:
-            self.engine = create_engine(self.url, echo=True, pool_size=1, coerce_to_unicode=True)
+            self.engine = create_engine(self.url, pool_size=1, coerce_to_unicode=True)
         else:
-            self.engine = create_engine(self.url, echo=True, pool_size=1)
+            self.engine = create_engine(self.url, pool_size=1)
         self.session = scoped_session(sessionmaker(bind=self.engine, extension=ZopeTransactionExtension()))
