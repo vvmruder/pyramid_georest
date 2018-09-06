@@ -1,6 +1,10 @@
 Pyramid REST Changelog
 ======================
 
+## 3.1.0-rc5
+
+* fix extensive logging on connection
+
 ## 3.1.0-rc4
 
 * fix paging which was called in wrong order for LIMIT and OFFSET
