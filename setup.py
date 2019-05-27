@@ -37,7 +37,7 @@ requires = [
     'SQLAlchemy',
     'shapely',
     'dicttoxml',
-    'geoalchemy2',
+    'GeoAlchemy2',
     'transaction',
     'waitress',
     'pyramid_debugtoolbar',
