@@ -22,7 +22,13 @@ DEVELOPMENT ?= FALSE
 PKG = pyramid_georest
 
 # Build dependencies
-BUILD_DEPS += 
+BUILD_DEPS +=
+
+SPHINXOPTS =
+SPHINXBUILD = $(VENV_BIN)sphinx-build$(PYTHON_BIN_POSTFIX)
+SPHINXPROJ = pyramid_georest
+SOURCEDIR = doc/source
+BUILDDIR = doc/build
 
 requirements.timestamp: requirements.txt
 	pip install '$(PIP_VERSION)' '$(SETUPTOOL_VERSION)'
@@ -41,6 +47,14 @@ requirements.timestamp: requirements.txt
 # **************
 # Common targets
 # **************
+
+$(SPHINXBUILD): .venv/requirements.timestamp
+	$(VENV_BIN)pip$(PYTHON_BIN_POSTFIX) install "Sphinx<1.6" sphinx_rtd_theme
+
+.PHONY: doc
+doc: $(SPHINXBUILD)
+	$(VENV_BIN)python setup.py develop
+	$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 .PHONY: clean
 clean:
@@ -75,4 +89,4 @@ tox: $(PIP_REQUIREMENTS) tox.ini $(SRC_PY) $(CONFIG_FILE)
 check: git-attributes lint tox
 
 .PHONY: build
-build: $(BUILD_DEPS)
+build: $(BUILD_DEPS) $(PIP_REQUIREMENTS)
