@@ -1,7 +1,7 @@
 .. _usage:
 
-Usage in a standard pyramid web app
-===================================
+Usage
+=====
 
 The pyramid framework for web apps provides an easy way for including
 standalone packages in its eco system. To learn more about that, please refer to the
@@ -13,7 +13,8 @@ main method ):
 Configure the services which you want to be served via this api. Look
 at the following example to see how:
 
-```python
+.. code-block:: python
+
    from pyramid_georest.lib.rest import Api, Service
    from application.model import TestModel
    def main(global_config, **settings):
@@ -29,7 +30,7 @@ at the following example to see how:
       test_api.add_service(test_service)
       config.scan()
       return config.make_wsgi_app()
-```
+
 
 Calling the config.include method with the package name will do some
 initializing stuff (Note that the optional

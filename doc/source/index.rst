@@ -3,21 +3,18 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to pyramid_georest's documentation!
-===========================================
-
 .. toctree::
-   :maxdepth: 2
    :caption: Contents:
+   :hidden:
 
+   usage
+   url_patterns
+   filter
+   main_classes
+   special_classes
 
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+pyramid_georest documentation
+=============================
 
 This little package gives shortcuts to create a restful api to database sources. It provides a url pattern to
 serve the sources.
@@ -43,7 +40,7 @@ Main concept
 ------------
 
 The main goal of this library is to reduce the consumption of memory ,
-url spaces and cpu usage. In big applications with a lot of services
+url spaces and cpu usage. In big applications with a lot of services and therefor many incoming requests
 this is a really big problem. In this context we have some central points
 to take care of.
 
@@ -59,6 +56,13 @@ only one set of restful urls per api. So every service added to an api
 will fit in this set and will be identified by a match pattern. If you are interested more in detail, please
 have a closer look in :ref:`url_patterns`
 
+**To explain it in a more schematic way:**
+
+pyramid_georest defines a API object per unique database connection string and holds them in a dictionary by
+name as identifier. The *registration* is done on startup. So you will get an error on application start if
+there is a name interference between several registered API's.
+Each API holds arbitrary number of Service classes which represents the entry points for the CRUD interface.
+
 Often you have some bigger applications and it is necessary to do some
 more dedicated and more structured organization of api's.
 Especially if you are using the possibility of pyramid plugins which
@@ -69,7 +73,8 @@ in big applications which have different scopes to use the rest api.
 Of cause it is possible to have several levels of includes. All
 combined route_prefixes will be taken into account.
 
-**One dedicated API for a specific plugin**
+One dedicated API for a specific plugin
+.......................................
 
 If you have some plugin which you like to include in your pyramid
 application (cause this is the most generic way you can extend pyramid)
@@ -111,3 +116,20 @@ Looking at the code above you will get an api which is running under
 the prefix '/my_plugin/' and with the name 'api'.
 So you will find each service bound to this api under /my_plugin/api/...
 
+Some words about pyramid's plugin system
+........................................
+
+Obviously this system is really flexible. And that's why it is completely possible there might be a situation
+where the approach of registering API's might fail. You only need do think of a main application which
+includes several plugins using pyramid_georest which them self include plugins which are using
+pyramid_georest.
+
+I'am interested in such use cases and I will try to do my best to solve bugs on that. But sometimes the more
+generic approach also might be a reorganisation of the code in such projects (own experience).
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
