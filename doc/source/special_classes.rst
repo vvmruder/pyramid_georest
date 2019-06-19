@@ -9,6 +9,7 @@ pyramid_georest API via subclassing.
 The filter system
 -----------------
 
+
 .. _modules-pyramid_georest-lib-rest-filter:
 
 *Filter*
@@ -32,6 +33,7 @@ The filter system
 
     .. automethod:: pyramid_georest.lib.rest.FilterBlock.__init__
 
+
 .. _modules-pyramid_georest-lib-rest-clause:
 
 *Clause*
@@ -46,6 +48,7 @@ The filter system
 The render system
 -----------------
 
+
 .. _modules-pyramid_georest-lib-renderer-json:
 
 *RestfulJson*
@@ -54,8 +57,10 @@ The render system
 .. autoclass:: pyramid_georest.lib.renderer.RestfulJson
     :members:
     :inherited-members:
+    :exclude-members: add_adapter
 
     .. automethod:: pyramid_georest.lib.renderer.RestfulJson.__init__
+
 
 .. _modules-pyramid_georest-lib-renderer-geojson:
 
@@ -65,20 +70,42 @@ The render system
 .. autoclass:: pyramid_georest.lib.renderer.RestfulGeoJson
     :members:
     :inherited-members:
+    :exclude-members: add_adapter
 
     .. automethod:: pyramid_georest.lib.renderer.RestfulGeoJson.__init__
 
 The proxy system
 ----------------
 
+
+.. _modules-pyramid_georest-lib-renderer-render_proxy:
+
 *RenderProxy*
 ^^^^^^^^^^^^^
+
+.. autoclass:: pyramid_georest.lib.renderer.RenderProxy
+    :members:
+    :inherited-members:
+
+    .. automethod:: pyramid_georest.lib.renderer.RenderProxy.__init__
+
+
+.. _modules-pyramid_georest-lib-renderer-adapter_proxy:
 
 *AdapterProxy*
 ^^^^^^^^^^^^^^
 
+.. autoclass:: pyramid_georest.lib.renderer.AdapterProxy
+    :members:
+    :inherited-members:
+
+    .. automethod:: pyramid_georest.lib.renderer.AdapterProxy.__init__
+
 The description system
 ----------------------
+
+
+.. _modules-pyramid_georest-lib-description-model_description:
 
 *ModelDescription*
 ^^^^^^^^^^^^^^^^^^
@@ -89,6 +116,9 @@ The description system
 
     .. automethod:: pyramid_georest.lib.description.ModelDescription.__init__
 
+
+.. _modules-pyramid_georest-lib-description-column_description:
+
 *ColumnDescription*
 ^^^^^^^^^^^^^^^^^^^
 
@@ -98,6 +128,9 @@ The description system
 
     .. automethod:: pyramid_georest.lib.description.ColumnDescription.__init__
 
+
+.. _modules-pyramid_georest-lib-description-relation_description:
+
 *RelationDescription*
 ^^^^^^^^^^^^^^^^^^^^^
 
@@ -106,6 +139,9 @@ The description system
     :inherited-members:
 
     .. automethod:: pyramid_georest.lib.description.RelationDescription.__init__
+
+
+.. _modules-pyramid_georest-lib-description-translation:
 
 *translate*
 ^^^^^^^^^^^
