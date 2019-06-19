@@ -56,8 +56,12 @@ doc: $(SPHINXBUILD)
 	$(VENV_BIN)python setup.py develop
 	$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
+.PHONY: clean-doc
+clean-doc:
+	rm -rf $(BUILDDIR)
+
 .PHONY: clean
-clean:
+clean: clean-doc
 	rm -rf build
 	rm -rf dist
 	rm -rf .tox
