@@ -1,0 +1,31 @@
+sudo: required
+
+language: python
+
+matrix:
+  include:
+  - python: "2.7"
+    env: PYTHON_VERSION=python2
+  - python: "3.6"
+    env: PYTHON_VERSION=python3
+
+services:
+- docker
+
+install:
+- sudo service postgresql stop
+- make install
+
+script:
+- make git-attributes
+- make lint
+- make tests-docker-setup-db
+- make tests
+- '[ $TRAVIS_PYTHON_VERSION != "3.6" ] || make build-docker .'
+- make doc
+
+after_success:
+- git clean -x
+
+notifications:
+  email: false
