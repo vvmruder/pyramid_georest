@@ -294,8 +294,8 @@ class ModelDescription(object):
 
     def __init__(self, model, dictionary=None):
         """
-        A class to construct a description of a sqlalchemy model. It offers a method to get this description in a
-        machine readable way. => as_dict
+        A class to construct a description of a sqlalchemy model. It offers a method to get this description
+        in a machine readable way. => as_dict
 
         Args:
             model (sqlalchemy.ext.declarative.DeclarativeMeta): The sqlalchemy model which should be

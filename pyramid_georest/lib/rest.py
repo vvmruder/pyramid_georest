@@ -1,38 +1,18 @@
 # -*- coding: utf-8 -*-
-
-# Copyright (c) 2012 - 2015, GIS-Fachstelle des Amtes für Geoinformation des Kantons Basel-Landschaft
-# All rights reserved.
-#
-# This program is free software and completes the GeoMapFish License for the geoview.bl.ch specific
-# parts of the code. You can redistribute it and/or modify it under the terms of the GNU General
-# Public License as published by the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
-# even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-# General Public License for more details.
-#
-# The above copyright notice and this permission notice shall be included in all copies or substantial
-# portions of the Software.
 from __future__ import print_function
 import logging
 import transaction
 from pyramid.httpexceptions import HTTPNotFound, HTTPBadRequest
 from pyramid.renderers import render_to_response
-from pyramid.request import Request
 from pyramid_georest.lib.description import ModelDescription
 from pyramid_georest.lib.renderer import RenderProxy, AdapterProxy
 from pyramid_georest.lib.database import Connection
 from pyramid_georest.routes import create_api_routing, check_route_prefix
 from sqlalchemy import or_, and_, cast, String, desc, asc
 from sqlalchemy.sql.expression import text
-from sqlalchemy.orm import Session
 from sqlalchemy.orm.exc import MultipleResultsFound
 from geoalchemy2 import WKTElement
 from shapely.geometry import asShape
-
-__author__ = 'Clemens Rudert'
-__create_date__ = '29.07.2015'
 
 log = logging.getLogger('pyramid_georest')
 
@@ -114,9 +94,9 @@ class Clause(object):
         elif self.operator == 'IN':
             clause = self.column.in_(str(self.value).split(','))
         elif self.operator == 'NULL':
-            clause = self.column == None
+            clause = self.column == None # pragma: no cover
         elif self.operator == 'NOT_NULL':
-            clause = self.column != None
+            clause = self.column != None # pragma: no cover
         else:
             raise HTTPBadRequest('The operator "{operator}" you passed is not implemented.'.format(
                 operator=self.operator)

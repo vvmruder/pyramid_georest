@@ -78,5 +78,3 @@ selectable direction. This can be done by passing *order_by* and *direction* bot
 
 Simple filters
 --------------
-
-

@@ -1,22 +1,5 @@
 # -*- coding: iso-8859-1 -*-
 
-# Copyright (c) 2012 - 2015, GIS-Fachstelle des Amtes für Geoinformation des Kantons Basel-Landschaft
-# All rights reserved.
-#
-# This program is free software and completes the GeoMapFish License for the geoview.bl.ch specific
-# parts of the code. You can redistribute it and/or modify it under the terms of the GNU General
-# Public License as published by the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
-# even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-# General Public License for more details.
-#
-# The above copyright notice and this permission notice shall be included in all copies or substantial
-# portions of the Software.
-
-__author__ = 'Clemens Rudert'
-
 
 def check_route_prefix(route_prefix):
     if route_prefix is not None and len(route_prefix) > 0:
@@ -27,13 +10,12 @@ def check_route_prefix(route_prefix):
 
 def create_api_routing(config, api):
     """
-    Central method to create the routing per api. This way a independent routing is created which takes even the
-    route prefix into account.
+    Central method to create the routing per api. This way a independent routing is created which takes even
+    the route prefix into account.
 
-    :param config: The pyramid apps config object
-    :type config: pyramid.config.Configurator
-    :param api: The Api which the routing is bound to.
-    :type api: pyramid_georest.lib.rest.Api
+    Args:
+        config (pyramid.config.Configurator): The pyramid apps config object
+        api (pyramid_georest.lib.rest.Api): The Api which the routing is bound to.
     """
 
     # delivers multiple records/filtered

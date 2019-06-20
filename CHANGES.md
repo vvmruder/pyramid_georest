@@ -74,25 +74,25 @@ which are sent to the template
 
 ## 3.0.22
 
-* remove default client side adapter, it is not useful to have it 
+* remove default client side adapter, it is not useful to have it
 predefined
 
 ## 3.0.21
 
-* implement the possibility to add client side adapters via mako 
+* implement the possibility to add client side adapters via mako
 templates
-* remove the central api solution to avoid confusion, there are only 
+* remove the central api solution to avoid confusion, there are only
 stand alone api's from now
 
 ## 3.0.20
 
-* set renderers under a more specific name space to avoid interferences 
+* set renderers under a more specific name space to avoid interferences
 with other plugins
 
 ## 3.0.19
 
-* fix problem where the geometry was not set as valid value in 
-update/create after flush 
+* fix problem where the geometry was not set as valid value in
+update/create after flush
 
 ## 3.0.18
 
@@ -142,12 +142,12 @@ update/create after flush
 
 ## 3.0.7
 
-* bugfix the problem that bad requests weren't catched and iteration 
+* bugfix the problem that bad requests weren't catched and iteration
 over dict was not correctly implemented
 
 ## 3.0.6
 
-* bugfix to make the http methods for stand alone api configurable too 
+* bugfix to make the http methods for stand alone api configurable too
 
 ## 3.0.5
 
@@ -155,7 +155,7 @@ over dict was not correctly implemented
 
 ## 3.0.4
 
-* implement a flag which makes it possible to create global and 
+* implement a flag which makes it possible to create global and
 dedicated api's for more flexibility.
 
 ## 3.0.3
@@ -164,7 +164,7 @@ dedicated api's for more flexibility.
 
 ## 3.0.2
 
-* fix the add_view problem when rest api is included in other 
+* fix the add_view problem when rest api is included in other
 applications.
 
 ## 3.0.1
@@ -190,8 +190,8 @@ Fixed issues:
 
 Fixed issues:
 
-* [#2](https://github.com/vvmruder/pyramid_georest/issues/2): Fixed problem where the relationship properties wasn't 
-loaded correctly .
+* [#2](https://github.com/vvmruder/pyramid_georest/issues/2): Fixed problem where the relationship properties
+wasn't loaded correctly .
 
 ## 2.0.2
 
