@@ -83,6 +83,7 @@ lint: $(PIP_REQUIREMENTS) setup.cfg $(SRC_PY)
 
 .PHONY: test
 test: $(PIP_REQUIREMENTS) $(SRC_PY) $(CONFIG_FILE)
+	$(VENV_BIN)python setup.py develop
 	$(VENV_BIN)py.test -vv --cov-config .coveragerc --cov $(PKG) --cov-report term-missing:skip-covered test/py
 
 .PHONY: tox
