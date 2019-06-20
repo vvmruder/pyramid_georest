@@ -94,9 +94,9 @@ class Clause(object):
         elif self.operator == 'IN':
             clause = self.column.in_(str(self.value).split(','))
         elif self.operator == 'NULL':
-            clause = self.column == None # pragma: no cover
+            clause = self.column == None  # noqa: E711
         elif self.operator == 'NOT_NULL':
-            clause = self.column != None # pragma: no cover
+            clause = self.column != None   # noqa: E711
         else:
             raise HTTPBadRequest('The operator "{operator}" you passed is not implemented.'.format(
                 operator=self.operator)
