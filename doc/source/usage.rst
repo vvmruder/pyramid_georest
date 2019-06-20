@@ -5,12 +5,10 @@ Usage
 
 The pyramid framework for web apps provides an easy way for including
 standalone packages in its eco system. To learn more about that, please refer to the
-[extending guide](http://docs.pylonsproject.org/projects/pyramid//en/latest/narr/extending.html 'extending guide').
+`extending guide <http://docs.pylonsproject.org/projects/pyramid//en/latest/narr/extending.html>`__.
 
 In a nutshell (inside the __init__.py of your pyramids project in the
-main method ):
-
-Configure the services which you want to be served via this api. Look
+main method )configure the services which you want to be served via this api. Look
 at the following example to see how:
 
 .. code-block:: python

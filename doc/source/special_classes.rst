@@ -127,6 +127,7 @@ The description system
     :inherited-members:
 
     .. automethod:: pyramid_georest.lib.description.ColumnDescription.__init__
+    .. autoattribute:: pyramid_georest.lib.description.ColumnDescription
 
 
 .. _modules-pyramid_georest-lib-description-relation_description:

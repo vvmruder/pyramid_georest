@@ -122,6 +122,30 @@ class RelationDescription(object):
 
 
 class ColumnDescription(object):
+    """Simple to use object to hold all useful information about sqlalchemy column.
+
+    This class has several public attributes you can use:
+
+    Attributes:
+        column (sqlalchemy.schema.Column): The Column which should be the description for.
+        is_geometry_column (bool): The switch which gives info if this is a geometric column.
+        srid (int): Default is to 0 (zero). It is only set during init process when this is a geometric
+            column.
+        column_name (str): The name of represented column.
+        header (str): The translated name of column if a dictionary was provided otherwise its simply the
+            column_name. This might be useful if client side needs to show data in some table.
+        type (str): The description of column database type.
+        is_primary_key (bool): Whether this is primary key column or not.
+        has_foreign_keys (bool): Whether this column has foreign keys or not.
+        foreign_key_names (list): The names of the foreign keys. Obviously this is a empty list if
+            has_foreign_keys is false.
+        length (int): Information about the length of database type.
+        precision (int or None): Precision of floating point number if this is a float type.
+        scale (int or None): Scale of number type.
+        nullable (bool): Whether this column has NOTNULL constraint or not.
+        default (int or str or float): The database defined default value to use if this column value is
+            NULL/None.
+    """
 
     def __init__(self, column, name, dictionary=None):
         """
@@ -276,7 +300,7 @@ class ModelDescription(object):
         Args:
             model (sqlalchemy.ext.declarative.DeclarativeMeta): The sqlalchemy model which should be
                 described.
-            dictionary (str): The pass to a dictionary. It has to be in the `pyramid form
+            dictionary (:obj:`str`, optional): The pass to a dictionary. It has to be in the `pyramid form
                 <http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/i18n.html?
                 highlight=translation>`__
         """

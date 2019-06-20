@@ -66,7 +66,9 @@ Each API holds arbitrary number of Service classes which represents the entry po
 Often you have some bigger applications and it is necessary to do some
 more dedicated and more structured organization of api's.
 Especially if you are using the possibility of pyramid plugins which
-you include in the pyramid way ([pyramid include](http://docs.pylonsproject.org/projects/pyramid/en/latest/api/config.html#pyramid.config.Configurator.include 'pyramid include')).
+you include in the pyramid way (`pyramid include
+<http://docs.pylonsproject.org/projects/pyramid/en/latest/api/config.html#
+pyramid.config.Configurator.include>`__).
 This kind of api object creates its own url scope and will respect the
 route_prefix of the including application. This is much more flexible
 in big applications which have different scopes to use the rest api.
