@@ -4,6 +4,7 @@ language: python
 
 matrix:
   include:
+  python:
   - python: "2.7"
     env: PYTHON_VERSION=python2
   - python: "3.6"
@@ -13,7 +14,6 @@ services:
 - docker
 
 install:
-- sudo service postgresql stop
 - make install
 
 script:
@@ -23,9 +23,3 @@ script:
 - make tests
 - '[ $TRAVIS_PYTHON_VERSION != "3.6" ] || make build-docker .'
 - make doc
-
-after_success:
-- git clean -x
-
-notifications:
-  email: false
