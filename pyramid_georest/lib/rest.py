@@ -595,9 +595,9 @@ class Service(object):
                 present too.
             limit (int or None): The limit which is used for paging reason. It is only applied of offest is
                 present too.
-            order_by (unicode or None): The column name which the sort is assigned to. It is only used if
+            order_by (str or None): The column name which the sort is assigned to. It is only used if
                 direction is present too.
-            direction (unicode or None): The direction which is used for sorting. It is only used if order_by
+            direction (str or None): The direction which is used for sorting. It is only used if order_by
                 is present too.
 
         Returns:
@@ -607,7 +607,7 @@ class Service(object):
         query = session.query(self.orm_model)
         if rest_filter is not None:
             query = rest_filter.filter(query)
-        if isinstance(order_by, unicode) and isinstance(direction, unicode):
+        if isinstance(order_by, str) and isinstance(direction, str):
             column = self.model_description.column_classes.get(order_by)
             if direction in DIRECTION_ASC:
                 query = query.order_by(asc(column))
@@ -965,11 +965,11 @@ class Api(object):
             limit = None
 
         if order_by and direction:
-            if not isinstance(order_by, unicode):
+            if not isinstance(order_by, str):
                 hint_txt = 'Value for order_by has to be string.'
                 log.error(hint_txt)
                 raise HTTPBadRequest(hint_txt)
-            if not isinstance(direction, unicode):
+            if not isinstance(direction, str):
                 hint_txt = 'Value for direction has to be string.'
                 log.error(hint_txt)
                 raise HTTPBadRequest(hint_txt)
