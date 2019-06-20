@@ -14,7 +14,7 @@ services:
 - docker
 
 install:
-- make install
+- make build
 
 script:
 - make git-attributes
