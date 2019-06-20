@@ -19,7 +19,5 @@ install:
 script:
 - make git-attributes
 - make lint
-- make tests-docker-setup-db
-- make tests
-- '[ $TRAVIS_PYTHON_VERSION != "3.6" ] || make build-docker .'
+- make test
 - make doc
