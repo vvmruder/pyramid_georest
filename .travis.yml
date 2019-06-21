@@ -21,14 +21,13 @@ script:
 - make lint
 - make test
 - make doc
+- touch doc/build/html/.nojekyll
 
 deploy:
-  provider: script
-  script: sphinx-versioning push doc/source/ gh-pages doc
+  provider: pages
   skip_cleanup: true
   github_token: $GITHUB_TOKEN
   keep_history: true
   on:
-    branch: master
-    repo: vvmruder/pyramid_georest
-    python: '3.6'
+    branch: improve-project
+  local_dir: _build/html/
