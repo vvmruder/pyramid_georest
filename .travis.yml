@@ -23,9 +23,12 @@ script:
 - make doc
 
 deploy:
-  provider: pages
+  provider: script
+  script: sphinx-versioning push doc/source/ gh-pages doc
   skip_cleanup: true
   github_token: $GITHUB_TOKEN
   keep_history: true
   on:
-    branch: improve-project
+    branch: master
+    repo: vvmruder/pyramid_georest
+    python: '3.6'
