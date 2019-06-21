@@ -1,0 +1,1319 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Special classes &mdash; pyramid_georest 3.1.0-rc5 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'./',
+              VERSION:'3.1.0-rc5',
+              LANGUAGE:'en',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Main classes" href="main_classes.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pyramid_georest
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="url_patterns.html">Used URL patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="filter.html">Filtering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="main_classes.html">Main classes</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Special classes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#the-filter-system">The filter system</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#filter"><em>Filter</em></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#filterblock"><em>FilterBlock</em></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#clause"><em>Clause</em></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#the-render-system">The render system</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#restfuljson"><em>RestfulJson</em></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#restfulgeojson"><em>RestfulGeoJson</em></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#the-proxy-system">The proxy system</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#renderproxy"><em>RenderProxy</em></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#adapterproxy"><em>AdapterProxy</em></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#the-description-system">The description system</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#modeldescription"><em>ModelDescription</em></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#columndescription"><em>ColumnDescription</em></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#relationdescription"><em>RelationDescription</em></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#translate"><em>translate</em></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pyramid_georest</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Special classes</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="special-classes">
+<span id="id1"></span><h1>Special classes<a class="headerlink" href="#special-classes" title="Permalink to this headline">¶</a></h1>
+<p>This part of documentation is about special classes which can be used to deeply change the behaviour of the
+pyramid_georest API via subclassing.</p>
+<div class="section" id="the-filter-system">
+<h2>The filter system<a class="headerlink" href="#the-filter-system" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="filter">
+<span id="modules-pyramid-georest-lib-rest-filter"></span><h3><em>Filter</em><a class="headerlink" href="#filter" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pyramid_georest.lib.rest.Filter">
+<em class="property">class </em><code class="descclassname">pyramid_georest.lib.rest.</code><code class="descname">Filter</code><span class="sig-paren">(</span><em>model_description</em>, <em>definition=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Filter" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="pyramid_georest.lib.rest.Filter.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>model_description</em>, <em>definition=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Filter.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Filter.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>The class which represents the filter.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>definition</strong> (<em>dict</em>) &#8211; <p>The values which are assigned to the object. The definition of the Filter.
+It has to be dict like {&#8220;mode&#8221;: &#8220;OR/AND&#8221;, &#8220;clauses&#8221;: []}.
+The clauses are also dict objects with the pattern:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;column_name&quot;</span><span class="p">:</span> <span class="s2">&quot;&lt;name&gt;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;operator&quot;</span><span class="p">:</span> <span class="s2">&quot;&lt;see static method decide_operator for further detail&gt;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;value&quot;</span><span class="p">:</span><span class="o">&lt;</span><span class="n">value</span><span class="o">&gt;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>It is possible to pack a definition of filter inside the clause array.
+This enables complex queries.</p>
+</li>
+<li><strong>model_description</strong> (<a class="reference internal" href="#pyramid_georest.lib.description.ModelDescription" title="pyramid_georest.lib.description.ModelDescription"><em>pyramid_georest.lib.description.ModelDescription</em></a>) &#8211; The description of the model
+which is being filtered.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.rest.Filter.filter">
+<code class="descname">filter</code><span class="sig-paren">(</span><em>query</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Filter.filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Filter.filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>The actual filter execution against the database via the constructed clause from the
+FilterDefinition object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>query</strong> (<em>sqlalchemy.orm.query.Query</em>) &#8211; The query where the filter should be applied to.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The query with the applied filter</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">sqlalchemy.orm.query.Query</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="filterblock">
+<span id="modules-pyramid-georest-lib-rest-filter-block"></span><h3><em>FilterBlock</em><a class="headerlink" href="#filterblock" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pyramid_georest.lib.rest.FilterBlock">
+<em class="property">class </em><code class="descclassname">pyramid_georest.lib.rest.</code><code class="descname">FilterBlock</code><span class="sig-paren">(</span><em>model_description</em>, <em>definition=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#FilterBlock"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.FilterBlock" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="pyramid_georest.lib.rest.FilterBlock.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>model_description</em>, <em>definition=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#FilterBlock.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.FilterBlock.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>The class which represents the filter block.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>definition</strong> (<em>dict</em>) &#8211; <p>The values which are assigned to the object. The definition of the Filter.
+It has to be dict like {&#8220;mode&#8221;: &#8220;OR/AND&#8221;, &#8220;clauses&#8221;: []}.
+The clauses are also dict objects with the pattern:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;column_name&quot;</span><span class="p">:</span> <span class="s2">&quot;&lt;name&gt;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;operator&quot;</span><span class="p">:</span> <span class="s2">&quot;&lt;see static method decide_operator for further detail&gt;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;value&quot;</span><span class="p">:</span><span class="o">&lt;</span><span class="n">value</span><span class="o">&gt;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>It is possible to pack a definition of filter inside the clause array.
+This enables complex queries.</p>
+</li>
+<li><strong>model_description</strong> (<a class="reference internal" href="#pyramid_georest.lib.description.ModelDescription" title="pyramid_georest.lib.description.ModelDescription"><em>pyramid_georest.lib.description.ModelDescription</em></a>) &#8211; The description of the model
+which is being filtered.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.rest.FilterBlock.add_clause">
+<code class="descname">add_clause</code><span class="sig-paren">(</span><em>clause_definition</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#FilterBlock.add_clause"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.FilterBlock.add_clause" title="Permalink to this definition">¶</a></dt>
+<dd><p>The class which represents the clause block.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>clause_definition</strong> (<em>dict</em>) &#8211; The values which are assigned to the object.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.rest.FilterBlock.decide_mode">
+<code class="descname">decide_mode</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#FilterBlock.decide_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.FilterBlock.decide_mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is used to match the mode and construct a clause list in which are each single
+filter clause is combined by logical expression like OR or AND.
+If you need some other behaviour, it is possible to overwrite this method to implement your own
+matching or do some pre/post processing.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
+<dt>The combined clause blocks which wrapped in a</dt>
+<dd>sqlalchemy readable way</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">sqlalchemy.sql.elements.BooleanClauseList</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="clause">
+<span id="modules-pyramid-georest-lib-rest-clause"></span><h3><em>Clause</em><a class="headerlink" href="#clause" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pyramid_georest.lib.rest.Clause">
+<em class="property">class </em><code class="descclassname">pyramid_georest.lib.rest.</code><code class="descname">Clause</code><span class="sig-paren">(</span><em>definition</em>, <em>model_description</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Clause"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Clause" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="pyramid_georest.lib.rest.Clause.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>definition</em>, <em>model_description</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Clause.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Clause.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>The class which represents the clause block.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>definition</strong> (<em>dict</em>) &#8211; The values which are assigned to the object.</li>
+<li><strong>model_description</strong> (<a class="reference internal" href="#pyramid_georest.lib.description.ModelDescription" title="pyramid_georest.lib.description.ModelDescription"><em>pyramid_georest.lib.description.ModelDescription</em></a>) &#8211; The description of the model
+which is being filtered.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">HTTPBadRequest</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.rest.Clause.decide_geometric_operation">
+<code class="descname">decide_geometric_operation</code><span class="sig-paren">(</span><em>srid</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Clause.decide_geometric_operation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Clause.decide_geometric_operation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decides the simple cases of geometric filter operations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>srid</strong> (<em>int</em>) &#8211; The SRID/EPSG number to define the coordinate system of the geometry attribute.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The clause element</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">sqlalchemy.sql.expression._BinaryExpression</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">HTTPBadRequest</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pyramid_georest.lib.rest.Clause.decide_geometric_operator_">
+<em class="property">static </em><code class="descname">decide_geometric_operator_</code><span class="sig-paren">(</span><em>operator</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Clause.decide_geometric_operator_"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Clause.decide_geometric_operator_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maps the passed operator to the correct database method operator
+:param operator: The Operator from api request.
+:type operator: str</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.rest.Clause.decide_multi_geometries">
+<code class="descname">decide_multi_geometries</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Clause.decide_multi_geometries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Clause.decide_multi_geometries" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method decides if the clause will contain geometry collections (in the value or in the
+database or in both).
+If it does it is necessary to &#8220;unpack&#8221; all collections to make them valid for geometric operations
+in database.
+If it does not it uses a normal geometric operation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The clause element</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">sqlalchemy.sql.expression._BinaryExpression</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">HTTPBadRequest</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.rest.Clause.decide_operator">
+<code class="descname">decide_operator</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Clause.decide_operator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Clause.decide_operator" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is used by the filter object to make a simple matching between the passed operators and
+the operators which are useable for filtering against the database.
+There are only some base operators implemented by default. If you like some more specific ones feel
+free to subclass this class and overwrite this method with your special behaviour and matching.
+Note that this method does not only do the matching thing. It constructs the whole binary expression.
+So you can get some influence on this process too.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The clause element</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">sqlalchemy.sql.expression._BinaryExpression</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">HTTPBadRequest</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.rest.Clause.extract_geometry_collection_db">
+<code class="descname">extract_geometry_collection_db</code><span class="sig-paren">(</span><em>db_path</em>, <em>srid</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Clause.extract_geometry_collection_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Clause.extract_geometry_collection_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decides the geometry collections cases of geometric filter operations when the database contains multi
+geometries but the passed geometry does not.
+The multi geometry will be extracted to it&#8217;s sub parts for operation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>srid</strong> (<em>int</em>) &#8211; The SRID/EPSG number to define the coordinate system of the geometry attribute.</li>
+<li><strong>db_path</strong> (<em>str</em>) &#8211; The point separated string of schema_name.table_name.column_name from which we can
+construct a correct SQL statement.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The clause element.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">sqlalchemy.sql.elements.BooleanClauseList</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">HTTPBadRequest</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.rest.Clause.extract_geometry_collection_input">
+<code class="descname">extract_geometry_collection_input</code><span class="sig-paren">(</span><em>db_path</em>, <em>srid</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Clause.extract_geometry_collection_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Clause.extract_geometry_collection_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decides the geometry collections cases of geometric filter operations when the database
+contains multi geometries but the passed geometry does not.
+The multi geometry will be extracted to it&#8217;s sub parts for operation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>srid</strong> (<em>int</em>) &#8211; The SRID/EPSG number to define the coordinate system of the geometry attribute.</li>
+<li><strong>db_path</strong> (<em>str</em>) &#8211; The point separated string of <em>schema_name.table_name.column_name</em> from which we
+can construct a correct SQL statement.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The clause element.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">sqlalchemy.sql.elements.BooleanClauseList</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">HTTPBadRequest</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.rest.Clause.extract_geometry_collection_input_and_db">
+<code class="descname">extract_geometry_collection_input_and_db</code><span class="sig-paren">(</span><em>db_path</em>, <em>srid</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Clause.extract_geometry_collection_input_and_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Clause.extract_geometry_collection_input_and_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decides the geometry collections cases of geometric filter operations when the database
+contains multi geometries but the passed geometry does not.
+The multi geometry will be extracted to it&#8217;s sub parts for operation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>srid</strong> (<em>int</em>) &#8211; The SRID/EPSG number to define the coordinate system of the geometry attribute.</li>
+<li><strong>db_path</strong> (<em>str</em>) &#8211; The point separated string of <em>schema_name.table_name.column_name</em> from which we
+can construct a correct SQL statement.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The clause element.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">sqlalchemy.sql.elements.BooleanClauseList</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">HTTPBadRequest</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="the-render-system">
+<h2>The render system<a class="headerlink" href="#the-render-system" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="restfuljson">
+<span id="modules-pyramid-georest-lib-renderer-json"></span><h3><em>RestfulJson</em><a class="headerlink" href="#restfuljson" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pyramid_georest.lib.renderer.RestfulJson">
+<em class="property">class </em><code class="descclassname">pyramid_georest.lib.renderer.</code><code class="descname">RestfulJson</code><span class="sig-paren">(</span><em>info</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/renderer.html#RestfulJson"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.renderer.RestfulJson" title="Permalink to this definition">¶</a></dt>
+<dd><p>This represents a standard pyramid renderer which can consume a list of database instances and renders
+them to json. It is important to use the Base which is provided by this package. Because this class
+delivers additional methods.</p>
+<dl class="method">
+<dt id="pyramid_georest.lib.renderer.RestfulJson.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>info</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/renderer.html#RestfulJson.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.renderer.RestfulJson.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor: info will be an object having the
+following attributes: name (the renderer name), package
+(the package that was &#8216;current&#8217; at the time the
+renderer was registered), type (the renderer type
+name), registry (the current application registry) and
+settings (the deployment settings dictionary).</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pyramid_georest.lib.renderer.RestfulJson.association_formatter">
+<em class="property">static </em><code class="descname">association_formatter</code><span class="sig-paren">(</span><em>association</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/renderer.html#RestfulJson.association_formatter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.renderer.RestfulJson.association_formatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles special case of association list provided by sqlalchemy.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>association</strong> (<em>sqlalchemy.ext.associationproxy._AssociationList</em>) &#8211; A sqlalchemy association object
+which should be converted</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list containing the association</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list of str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.renderer.RestfulJson.column_values_as_serializable">
+<code class="descname">column_values_as_serializable</code><span class="sig-paren">(</span><em>results</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/renderer.html#RestfulJson.column_values_as_serializable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.renderer.RestfulJson.column_values_as_serializable" title="Permalink to this definition">¶</a></dt>
+<dd><p>The most important method in rendering process. Here the values are transformed to serializable
+representations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>results</strong> (<em>dict</em>) &#8211; The database records wrapped in a dictionary.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list containing all records with serializable values.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list of dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pyramid_georest.lib.renderer.RestfulJson.date_formatter">
+<em class="property">static </em><code class="descname">date_formatter</code><span class="sig-paren">(</span><em>date</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/renderer.html#RestfulJson.date_formatter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.renderer.RestfulJson.date_formatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Formats a date object into a string base iso representation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>date</strong> (<em>datetime.datetime</em>) &#8211; A date object which should be converted</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A string which represents the date object</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pyramid_georest.lib.renderer.RestfulJson.float_formatter">
+<em class="property">static </em><code class="descname">float_formatter</code><span class="sig-paren">(</span><em>number</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/renderer.html#RestfulJson.float_formatter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.renderer.RestfulJson.float_formatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Formats a floating point number to its pythonic correct float representation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>number</strong> (<em>decimal.Decimal</em>) &#8211; A floating point number be converted.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The formatted float.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.renderer.RestfulJson.geometry_formatter">
+<code class="descname">geometry_formatter</code><span class="sig-paren">(</span><em>geometry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/renderer.html#RestfulJson.geometry_formatter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.renderer.RestfulJson.geometry_formatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Formats a geoalchemy 2 WKB element into its WKT string representation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>geometry</strong> (<em>geoalchemy2.WKBElement</em>) &#8211; A geoalchemy wkb element object which should be converted.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A WKT formatted string</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.renderer.RestfulJson.to_str">
+<code class="descname">to_str</code><span class="sig-paren">(</span><em>results</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/renderer.html#RestfulJson.to_str"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.renderer.RestfulJson.to_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>Translates result dictionary into a string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>results</strong> (<em>dict</em>) &#8211; The database records wrapped in a dictionary.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The serialized string containing database records.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="restfulgeojson">
+<span id="modules-pyramid-georest-lib-renderer-geojson"></span><h3><em>RestfulGeoJson</em><a class="headerlink" href="#restfulgeojson" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pyramid_georest.lib.renderer.RestfulGeoJson">
+<em class="property">class </em><code class="descclassname">pyramid_georest.lib.renderer.</code><code class="descname">RestfulGeoJson</code><span class="sig-paren">(</span><em>info</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/renderer.html#RestfulGeoJson"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.renderer.RestfulGeoJson" title="Permalink to this definition">¶</a></dt>
+<dd><p>This represents a standard pyramid renderer which can consume a list of database instances and
+renders them to json. It is important to use the Base which is provided by this package. Because
+this class delivers additional methods.</p>
+<dl class="method">
+<dt id="pyramid_georest.lib.renderer.RestfulGeoJson.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>info</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/renderer.html#RestfulGeoJson.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.renderer.RestfulGeoJson.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor: info will be an object having the
+following attributes: name (the renderer name), package
+(the package that was &#8216;current&#8217; at the time the
+renderer was registered), type (the renderer type
+name), registry (the current application registry) and
+settings (the deployment settings dictionary).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.renderer.RestfulGeoJson.association_formatter">
+<code class="descname">association_formatter</code><span class="sig-paren">(</span><em>association</em><span class="sig-paren">)</span><a class="headerlink" href="#pyramid_georest.lib.renderer.RestfulGeoJson.association_formatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles special case of association list provided by sqlalchemy.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>association</strong> (<em>sqlalchemy.ext.associationproxy._AssociationList</em>) &#8211; A sqlalchemy association object
+which should be converted</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list containing the association</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list of str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.renderer.RestfulGeoJson.column_values_as_serializable">
+<code class="descname">column_values_as_serializable</code><span class="sig-paren">(</span><em>results</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/renderer.html#RestfulGeoJson.column_values_as_serializable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.renderer.RestfulGeoJson.column_values_as_serializable" title="Permalink to this definition">¶</a></dt>
+<dd><p>The most important method in rendering process. Here the values are transformed to serializable
+representations. It especially takes care of producing a valid GeoJSON FeatureCollection.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>results</strong> (<em>dict</em>) &#8211; The database records wrapped in a dictionary.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
+<dt>A dictionary in GeoJSON FeatureCollection style containing all records with serializable</dt>
+<dd>values.</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.renderer.RestfulGeoJson.date_formatter">
+<code class="descname">date_formatter</code><span class="sig-paren">(</span><em>date</em><span class="sig-paren">)</span><a class="headerlink" href="#pyramid_georest.lib.renderer.RestfulGeoJson.date_formatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Formats a date object into a string base iso representation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>date</strong> (<em>datetime.datetime</em>) &#8211; A date object which should be converted</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A string which represents the date object</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.renderer.RestfulGeoJson.float_formatter">
+<code class="descname">float_formatter</code><span class="sig-paren">(</span><em>number</em><span class="sig-paren">)</span><a class="headerlink" href="#pyramid_georest.lib.renderer.RestfulGeoJson.float_formatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Formats a floating point number to its pythonic correct float representation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>number</strong> (<em>decimal.Decimal</em>) &#8211; A floating point number be converted.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The formatted float.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.renderer.RestfulGeoJson.geometry_formatter">
+<code class="descname">geometry_formatter</code><span class="sig-paren">(</span><em>geometry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/renderer.html#RestfulGeoJson.geometry_formatter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.renderer.RestfulGeoJson.geometry_formatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Formats the passed geoalchemy2 geometry WKB element into its valid GeoJSON representation. This is a
+list of coordinate tuples.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>geometry</strong> (<em>geoalchemy2.WKBElement</em>) &#8211; A geoalchemy wkb element object which should be converted.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of coordinates formatted string</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">HTTPServerError</span></code> &#8211; If the geometry type is not supported.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pyramid_georest.lib.renderer.RestfulGeoJson.geometry_type_formatter">
+<em class="property">static </em><code class="descname">geometry_type_formatter</code><span class="sig-paren">(</span><em>geometry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/renderer.html#RestfulGeoJson.geometry_type_formatter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.renderer.RestfulGeoJson.geometry_type_formatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delivers the shapely geometry type description of geoalchemy 2 WKB element.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>geometry</strong> (<em>geoalchemy2.WKBElement</em>) &#8211; A geoalchemy wkb element object which should be converted.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A string representing a shapely valid geometry type.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.renderer.RestfulGeoJson.to_str">
+<code class="descname">to_str</code><span class="sig-paren">(</span><em>results</em><span class="sig-paren">)</span><a class="headerlink" href="#pyramid_georest.lib.renderer.RestfulGeoJson.to_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>Translates result dictionary into a string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>results</strong> (<em>dict</em>) &#8211; The database records wrapped in a dictionary.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The serialized string containing database records.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="the-proxy-system">
+<h2>The proxy system<a class="headerlink" href="#the-proxy-system" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="renderproxy">
+<span id="modules-pyramid-georest-lib-renderer-render-proxy"></span><h3><em>RenderProxy</em><a class="headerlink" href="#renderproxy" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pyramid_georest.lib.renderer.RenderProxy">
+<em class="property">class </em><code class="descclassname">pyramid_georest.lib.renderer.</code><code class="descname">RenderProxy</code><a class="reference internal" href="_modules/pyramid_georest/lib/renderer.html#RenderProxy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.renderer.RenderProxy" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="pyramid_georest.lib.renderer.RenderProxy.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/renderer.html#RenderProxy.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.renderer.RenderProxy.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>A proxy which matches a renderer to a format which is passed in the url. It implements some basic
+renderers but is fully extend able. You can add renderers via the add renderer method.
+Please note that all renderers which are added to the proxy need to be added to the pyramid config
+before. Otherwise a error will be thrown on startup of the application.
+Please note in advance that the renderer system of pyramid works in a global way. It is your
+responsibility to ensure each renderer added is unique by its name. Please keep this in mind when
+some thing is not generating the output you want. Than it probably happens that you accidentally
+over wrote some renderer in another part of the application.</p>
+<p>For further information see the <a class="reference external" href="http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/renderers.html#adding-and-changing-renderers">pyramid renderer documetation</a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.renderer.RenderProxy.add_renderer">
+<code class="descname">add_renderer</code><span class="sig-paren">(</span><em>delivery_format</em>, <em>renderer_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/renderer.html#RenderProxy.add_renderer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.renderer.RenderProxy.add_renderer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a matching to the render proxy&#8217;s matching dict. It is possible to overwrite an existing one.
+If you do, a notice (warning) is printed to your server logs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>delivery_format</strong> (<em>str</em>) &#8211; The format string to which the renderer should be bound to
+(e.g. &#8220;json&#8221;, &#8220;xml&#8221;, ...)</li>
+<li><strong>renderer_name</strong> (<em>str</em>) &#8211; The name of the renderer which was used to assign it to the pyramid
+applications configuration.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">ConfigurationError</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.renderer.RenderProxy.render">
+<code class="descname">render</code><span class="sig-paren">(</span><em>request</em>, <em>result</em>, <em>model_description</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/renderer.html#RenderProxy.render"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.renderer.RenderProxy.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute the rendering process by matching the requested format to the mapped renderer. If no
+renderer could be found a error is raised.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>request</strong> (<em>pyramid.request.Request</em>) &#8211; The request which comes all the way through the application
+from the client</li>
+<li><strong>result</strong> (<em>list of sqlalchemy.ext.declarative.DeclarativeMeta</em>) &#8211; A list of database records found for
+the request.</li>
+<li><strong>model_description</strong> (<a class="reference internal" href="#pyramid_georest.lib.description.ModelDescription" title="pyramid_georest.lib.description.ModelDescription"><em>pyramid_georest.lib.description.ModelDescription</em></a>) &#8211; The description object of
+the data set which will be rendered.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">An pyramid response object.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">pyramid.response.Response</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">HTTPNotFound</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="adapterproxy">
+<span id="modules-pyramid-georest-lib-renderer-adapter-proxy"></span><h3><em>AdapterProxy</em><a class="headerlink" href="#adapterproxy" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pyramid_georest.lib.renderer.AdapterProxy">
+<em class="property">class </em><code class="descclassname">pyramid_georest.lib.renderer.</code><code class="descname">AdapterProxy</code><a class="reference internal" href="_modules/pyramid_georest/lib/renderer.html#AdapterProxy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.renderer.AdapterProxy" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="pyramid_georest.lib.renderer.AdapterProxy.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/renderer.html#AdapterProxy.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.renderer.AdapterProxy.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>A proxy which matches a client side adapter script to a adapter name which is passed in the url as
+format parameter. It implements some basic adapters but is fully extend able. You can add renderers
+via the &#8220;add_adapters&#8221; method.</p>
+<p>This enables you to provide every client side base implementation you like which is bound to a
+restful resource.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.renderer.AdapterProxy.add_adapter">
+<code class="descname">add_adapter</code><span class="sig-paren">(</span><em>delivery_format</em>, <em>adapter_renderer_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/renderer.html#AdapterProxy.add_adapter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.renderer.AdapterProxy.add_adapter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a matching to the render proxy&#8217;s matching dict. It is possible to overwrite an existing one.
+If you do, a notice (warning) is printed to your server logs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>delivery_format</strong> (<em>str</em>) &#8211; The format string to which the renderer should be bound to
+(e.g. &#8220;json&#8221;, &#8220;xml&#8221;, ...)</li>
+<li><strong>adapter_renderer_path</strong> (<em>str</em>) &#8211; The name of the renderer which was used to assign it to the
+pyramid applications configuration.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">ConfigurationError</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pyramid_georest.lib.renderer.AdapterProxy.extend_return_params">
+<em class="property">static </em><code class="descname">extend_return_params</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/renderer.html#AdapterProxy.extend_return_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.renderer.AdapterProxy.extend_return_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method enables the developer to extend the parameter which are send to the template.</p>
+<p>params (dict): The dictionary which holds the params.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The extended dictionary</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.renderer.AdapterProxy.render">
+<code class="descname">render</code><span class="sig-paren">(</span><em>request</em>, <em>model_description</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/renderer.html#AdapterProxy.render"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.renderer.AdapterProxy.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute the rendering process by matching the requested format to the mapped renderer. If no renderer
+could be found a error is raised.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>request</strong> (<em>pyramid.request.Request</em>) &#8211; The request which comes all the way through the application
+from the client</li>
+<li><strong>model_description</strong> (<a class="reference internal" href="#pyramid_georest.lib.description.ModelDescription" title="pyramid_georest.lib.description.ModelDescription"><em>pyramid_georest.lib.description.ModelDescription</em></a>) &#8211; The description object of
+the data set which will be rendered.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">An pyramid response object</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">pyramid.response.Response</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">HTTPNotFound</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="the-description-system">
+<h2>The description system<a class="headerlink" href="#the-description-system" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="modeldescription">
+<span id="modules-pyramid-georest-lib-description-model-description"></span><h3><em>ModelDescription</em><a class="headerlink" href="#modeldescription" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pyramid_georest.lib.description.ModelDescription">
+<em class="property">class </em><code class="descclassname">pyramid_georest.lib.description.</code><code class="descname">ModelDescription</code><span class="sig-paren">(</span><em>model</em>, <em>dictionary=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/description.html#ModelDescription"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.description.ModelDescription" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="pyramid_georest.lib.description.ModelDescription.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>model</em>, <em>dictionary=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/description.html#ModelDescription.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.description.ModelDescription.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class to construct a description of a sqlalchemy model. It offers a method to get this description
+in a machine readable way. =&gt; as_dict</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>model</strong> (<em>sqlalchemy.ext.declarative.DeclarativeMeta</em>) &#8211; The sqlalchemy model which should be
+described.</li>
+<li><strong>dictionary</strong> (<code class="xref py py-obj docutils literal"><span class="pre">str</span></code>, optional) &#8211; The pass to a dictionary. It has to be in the <a class="reference external" href="http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/i18n.html?highlight=translation">pyramid form</a></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.description.ModelDescription.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/description.html#ModelDescription.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.description.ModelDescription.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delivers the objects content as an dict.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An python dict with the description of the mapped database table.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.description.ModelDescription.is_valid_column">
+<code class="descname">is_valid_column</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/description.html#ModelDescription.is_valid_column"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.description.ModelDescription.is_valid_column" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>column_name</strong> (<em>unicode</em>) &#8211; The column name which should be validated.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Whether the column name was valid for this model or not.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="columndescription">
+<span id="modules-pyramid-georest-lib-description-column-description"></span><h3><em>ColumnDescription</em><a class="headerlink" href="#columndescription" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pyramid_georest.lib.description.ColumnDescription">
+<em class="property">class </em><code class="descclassname">pyramid_georest.lib.description.</code><code class="descname">ColumnDescription</code><span class="sig-paren">(</span><em>column</em>, <em>name</em>, <em>dictionary=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/description.html#ColumnDescription"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.description.ColumnDescription" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simple to use object to hold all useful information about sqlalchemy column.</p>
+<p>This class has several public attributes you can use:</p>
+<dl class="attribute">
+<dt id="ColumnDescription.column">
+<code class="descname">column</code><a class="headerlink" href="#ColumnDescription.column" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>sqlalchemy.schema.Column</em> &#8211; The Column which should be the description for.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ColumnDescription.is_geometry_column">
+<code class="descname">is_geometry_column</code><a class="headerlink" href="#ColumnDescription.is_geometry_column" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>bool</em> &#8211; The switch which gives info if this is a geometric column.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ColumnDescription.srid">
+<code class="descname">srid</code><a class="headerlink" href="#ColumnDescription.srid" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; Default is to 0 (zero). It is only set during init process when this is a geometric
+column.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ColumnDescription.column_name">
+<code class="descname">column_name</code><a class="headerlink" href="#ColumnDescription.column_name" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; The name of represented column.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ColumnDescription.header">
+<code class="descname">header</code><a class="headerlink" href="#ColumnDescription.header" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; The translated name of column if a dictionary was provided otherwise its simply the
+column_name. This might be useful if client side needs to show data in some table.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ColumnDescription.type">
+<code class="descname">type</code><a class="headerlink" href="#ColumnDescription.type" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; The description of column database type.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ColumnDescription.is_primary_key">
+<code class="descname">is_primary_key</code><a class="headerlink" href="#ColumnDescription.is_primary_key" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>bool</em> &#8211; Whether this is primary key column or not.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ColumnDescription.has_foreign_keys">
+<code class="descname">has_foreign_keys</code><a class="headerlink" href="#ColumnDescription.has_foreign_keys" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>bool</em> &#8211; Whether this column has foreign keys or not.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ColumnDescription.foreign_key_names">
+<code class="descname">foreign_key_names</code><a class="headerlink" href="#ColumnDescription.foreign_key_names" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list</em> &#8211; The names of the foreign keys. Obviously this is a empty list if
+has_foreign_keys is false.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ColumnDescription.length">
+<code class="descname">length</code><a class="headerlink" href="#ColumnDescription.length" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; Information about the length of database type.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ColumnDescription.precision">
+<code class="descname">precision</code><a class="headerlink" href="#ColumnDescription.precision" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int or None</em> &#8211; Precision of floating point number if this is a float type.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ColumnDescription.scale">
+<code class="descname">scale</code><a class="headerlink" href="#ColumnDescription.scale" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int or None</em> &#8211; Scale of number type.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ColumnDescription.nullable">
+<code class="descname">nullable</code><a class="headerlink" href="#ColumnDescription.nullable" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>bool</em> &#8211; Whether this column has NOTNULL constraint or not.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ColumnDescription.default">
+<code class="descname">default</code><a class="headerlink" href="#ColumnDescription.default" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int or str or float</em> &#8211; The database defined default value to use if this column value is
+NULL/None.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.description.ColumnDescription.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>column</em>, <em>name</em>, <em>dictionary=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/description.html#ColumnDescription.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.description.ColumnDescription.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class to construct a description of a column. It offers a method to get this description in a
+machine readable way. =&gt; as_dict</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>column</strong> (<em>sqlalchemy.schema.Column</em>) &#8211; The Column which should be the description for.</li>
+<li><strong>name</strong> (<em>str</em>) &#8211; The column name</li>
+<li><strong>dictionary</strong> (<em>str</em><em> or </em><em>None</em>) &#8211; The pass to a dictionary. It has to be in the <a class="reference external" href="http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/i18n.html?highlight=translation">pyramid form</a></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyramid_georest.lib.ColumnDescription.description.ColumnDescription">
+<code class="descclassname">description.</code><code class="descname">ColumnDescription</code><em class="property"> = &lt;class 'pyramid_georest.lib.description.ColumnDescription'&gt;</em><a class="headerlink" href="#pyramid_georest.lib.ColumnDescription.description.ColumnDescription" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.description.ColumnDescription.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/description.html#ColumnDescription.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.description.ColumnDescription.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delivers the objects content as an dict.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An dictionary representing a description of the column in a application readable way.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="relationdescription">
+<span id="modules-pyramid-georest-lib-description-relation-description"></span><h3><em>RelationDescription</em><a class="headerlink" href="#relationdescription" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pyramid_georest.lib.description.RelationDescription">
+<em class="property">class </em><code class="descclassname">pyramid_georest.lib.description.</code><code class="descname">RelationDescription</code><span class="sig-paren">(</span><em>relationship</em>, <em>name</em>, <em>dictionary=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/description.html#RelationDescription"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.description.RelationDescription" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="pyramid_georest.lib.description.RelationDescription.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>relationship</em>, <em>name</em>, <em>dictionary=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/description.html#RelationDescription.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.description.RelationDescription.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class to construct a description of a relationship property. It offers a method to get this
+description in a machine readable way. =&gt; as_dict</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>relationship</strong> (<em>sqlalchemy.orm.properties.RelationshipProperty</em>) &#8211; The object which should be
+described</li>
+<li><strong>name</strong> (<em>str</em>) &#8211; The name of the element which should be described</li>
+<li><strong>dictionary</strong> (<em>str</em><em> or </em><em>None</em>) &#8211; The pass to a dictionary. It has to be in the <a class="reference external" href="http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/i18n.html?highlight=translation">pyramid form</a></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.description.RelationDescription.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/description.html#RelationDescription.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.description.RelationDescription.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delivers the objects content as an dict.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An dictionary representing a description of the relationship in a application readable way</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="translate">
+<span id="modules-pyramid-georest-lib-description-translation"></span><h3><em>translate</em><a class="headerlink" href="#translate" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="pyramid_georest.lib.description.translate">
+<code class="descclassname">pyramid_georest.lib.description.</code><code class="descname">translate</code><span class="sig-paren">(</span><em>string_to_translate</em>, <em>dictionary</em>, <em>lang='de'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/description.html#translate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.description.translate" title="Permalink to this definition">¶</a></dt>
+<dd><p>A method which is able to translate a string with a given dictionary path on the file system. It acts in
+pyramid way. See: <a class="reference external" href="http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/i18n.html?highlight=translation">pyramid i18 documentation</a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>string_to_translate</strong> (<em>str</em>) &#8211; The string which should be translated.</li>
+<li><strong>dictionary</strong> (<em>str</em>) &#8211; The dictionary which is used for translation.</li>
+<li><strong>lang</strong> (<em>str</em>) &#8211; The language to which the string should be translated.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The translated string</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">str</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="main_classes.html" class="btn btn-neutral float-left" title="Main classes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014 - 2019, Clemens Rudert
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

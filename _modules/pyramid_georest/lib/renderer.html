@@ -1,0 +1,827 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pyramid_georest.lib.renderer &mdash; pyramid_georest 3.1.0-rc5 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'../../../',
+              VERSION:'3.1.0-rc5',
+              LANGUAGE:'en',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> pyramid_georest
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../url_patterns.html">Used URL patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../filter.html">Filtering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../main_classes.html">Main classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../special_classes.html">Special classes</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyramid_georest</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pyramid_georest.lib.renderer</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyramid_georest.lib.renderer</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="c1"># Copyright (c) 2012 - 2015, GIS-Fachstelle des Amtes für Geoinformation des Kantons Basel-Landschaft</span>
+<span class="c1"># All rights reserved.</span>
+<span class="c1">#</span>
+<span class="c1"># This program is free software and completes the GeoMapFish License for the geoview.bl.ch specific</span>
+<span class="c1"># parts of the code. You can redistribute it and/or modify it under the terms of the GNU General</span>
+<span class="c1"># Public License as published by the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1"># This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without</span>
+<span class="c1"># even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU</span>
+<span class="c1"># General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># The above copyright notice and this permission notice shall be included in all copies or substantial</span>
+<span class="c1"># portions of the Software.</span>
+<span class="kn">import</span> <span class="nn">decimal</span>
+<span class="kn">import</span> <span class="nn">simplejson</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">dicttoxml</span>
+<span class="kn">from</span> <span class="nn">geoalchemy2</span> <span class="k">import</span> <span class="n">WKBElement</span>
+<span class="kn">from</span> <span class="nn">geoalchemy2.shape</span> <span class="k">import</span> <span class="n">to_shape</span>
+<span class="kn">from</span> <span class="nn">pyramid.httpexceptions</span> <span class="k">import</span> <span class="n">HTTPNotFound</span><span class="p">,</span> <span class="n">HTTPServerError</span>
+<span class="kn">from</span> <span class="nn">pyramid.renderers</span> <span class="k">import</span> <span class="n">JSON</span><span class="p">,</span> <span class="n">render_to_response</span>
+
+<span class="kn">from</span> <span class="nn">sqlalchemy.ext.associationproxy</span> <span class="k">import</span> <span class="n">_AssociationList</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Clemens Rudert&#39;</span>
+<span class="n">__create_date__</span> <span class="o">=</span> <span class="s1">&#39;29.07.2015&#39;</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pyramid_georest&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">get_mapping_from_request</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;mapping&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="RenderProxy"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.renderer.RenderProxy">[docs]</a><span class="k">class</span> <span class="nc">RenderProxy</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+<div class="viewcode-block" id="RenderProxy.__init__"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.renderer.RenderProxy.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A proxy which matches a renderer to a format which is passed in the url. It implements some basic</span>
+<span class="sd">        renderers but is fully extend able. You can add renderers via the add renderer method.</span>
+<span class="sd">        Please note that all renderers which are added to the proxy need to be added to the pyramid config</span>
+<span class="sd">        before. Otherwise a error will be thrown on startup of the application.</span>
+<span class="sd">        Please note in advance that the renderer system of pyramid works in a global way. It is your</span>
+<span class="sd">        responsibility to ensure each renderer added is unique by its name. Please keep this in mind when</span>
+<span class="sd">        some thing is not generating the output you want. Than it probably happens that you accidentally</span>
+<span class="sd">        over wrote some renderer in another part of the application.</span>
+
+<span class="sd">        For further information see the `pyramid renderer documetation</span>
+<span class="sd">        &lt;http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/renderers.html</span>
+<span class="sd">        #adding-and-changing-renderers&gt;`__</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_format_to_renderer</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;json&#39;</span><span class="p">:</span> <span class="s1">&#39;geo_restful_json&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;xml&#39;</span><span class="p">:</span> <span class="s1">&#39;geo_restful_xml&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;geojson&#39;</span><span class="p">:</span> <span class="s1">&#39;geo_restful_geo_json&#39;</span>
+        <span class="p">}</span></div>
+
+<div class="viewcode-block" id="RenderProxy.render"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.renderer.RenderProxy.render">[docs]</a>    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">model_description</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Execute the rendering process by matching the requested format to the mapped renderer. If no</span>
+<span class="sd">        renderer could be found a error is raised.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (pyramid.request.Request): The request which comes all the way through the application</span>
+<span class="sd">                from the client</span>
+<span class="sd">            result (list of sqlalchemy.ext.declarative.DeclarativeMeta): A list of database records found for</span>
+<span class="sd">                the request.</span>
+<span class="sd">            model_description (pyramid_georest.lib.description.ModelDescription): The description object of</span>
+<span class="sd">                the data set which will be rendered.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pyramid.response.Response: An pyramid response object.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            HTTPNotFound</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">response_format</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">matchdict</span><span class="p">[</span><span class="s1">&#39;format&#39;</span><span class="p">]</span>
+        <span class="n">renderer_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_to_renderer</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">response_format</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">renderer_name</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">render_to_response</span><span class="p">(</span>
+                <span class="n">renderer_name</span><span class="p">,</span>
+                <span class="p">{</span>
+                    <span class="s1">&#39;features&#39;</span><span class="p">:</span> <span class="n">result</span><span class="p">,</span>
+                    <span class="s1">&#39;model_description&#39;</span><span class="p">:</span> <span class="n">model_description</span>
+                <span class="p">},</span>
+                <span class="n">request</span><span class="o">=</span><span class="n">request</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="s1">&#39;The Format &quot;</span><span class="si">{format}</span><span class="s1">&quot; is not defined for this service. Sorry...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="nb">format</span><span class="o">=</span><span class="n">response_format</span>
+            <span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">HTTPNotFound</span><span class="p">(</span>
+                <span class="n">detail</span><span class="o">=</span><span class="n">text</span>
+            <span class="p">)</span></div>
+
+<div class="viewcode-block" id="RenderProxy.add_renderer"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.renderer.RenderProxy.add_renderer">[docs]</a>    <span class="k">def</span> <span class="nf">add_renderer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delivery_format</span><span class="p">,</span> <span class="n">renderer_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a matching to the render proxy&#39;s matching dict. It is possible to overwrite an existing one.</span>
+<span class="sd">        If you do, a notice (warning) is printed to your server logs.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            delivery_format (str): The format string to which the renderer should be bound to</span>
+<span class="sd">                (e.g. &quot;json&quot;, &quot;xml&quot;, ...)</span>
+<span class="sd">            renderer_name (str): The name of the renderer which was used to assign it to the pyramid</span>
+<span class="sd">                applications configuration.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ConfigurationError</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_to_renderer</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">delivery_format</span><span class="p">):</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;You overwrite the renderer for the &quot;</span><span class="si">{format_name}</span><span class="s1">&quot; format&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">format_name</span><span class="o">=</span><span class="n">delivery_format</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_format_to_renderer</span><span class="p">[</span><span class="n">delivery_format</span><span class="p">]</span> <span class="o">=</span> <span class="n">renderer_name</span></div></div>
+
+
+<div class="viewcode-block" id="AdapterProxy"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.renderer.AdapterProxy">[docs]</a><span class="k">class</span> <span class="nc">AdapterProxy</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+<div class="viewcode-block" id="AdapterProxy.__init__"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.renderer.AdapterProxy.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A proxy which matches a client side adapter script to a adapter name which is passed in the url as</span>
+<span class="sd">        format parameter. It implements some basic adapters but is fully extend able. You can add renderers</span>
+<span class="sd">        via the &quot;add_adapters&quot; method.</span>
+
+<span class="sd">        This enables you to provide every client side base implementation you like which is bound to a</span>
+<span class="sd">        restful resource.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_format_to_adapter</span> <span class="o">=</span> <span class="p">{}</span></div>
+
+<div class="viewcode-block" id="AdapterProxy.render"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.renderer.AdapterProxy.render">[docs]</a>    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">model_description</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Execute the rendering process by matching the requested format to the mapped renderer. If no renderer</span>
+<span class="sd">        could be found a error is raised.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (pyramid.request.Request): The request which comes all the way through the application</span>
+<span class="sd">                from the client</span>
+<span class="sd">            model_description (pyramid_georest.lib.description.ModelDescription): The description object of</span>
+<span class="sd">                the data set which will be rendered.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            pyramid.response.Response: An pyramid response object</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            HTTPNotFound</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">adapter_format</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">matchdict</span><span class="p">[</span><span class="s1">&#39;format&#39;</span><span class="p">]</span>
+        <span class="n">adapter_renderer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_to_adapter</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">adapter_format</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">adapter_renderer</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extend_return_params</span><span class="p">({})</span>
+            <span class="n">params</span><span class="p">[</span><span class="s1">&#39;model_description&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">model_description</span>
+            <span class="k">return</span> <span class="n">render_to_response</span><span class="p">(</span>
+                <span class="n">adapter_renderer</span><span class="p">,</span>
+                <span class="n">params</span><span class="p">,</span>
+                <span class="n">request</span><span class="o">=</span><span class="n">request</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="s1">&#39;The Format &quot;</span><span class="si">{format}</span><span class="s1">&quot; is not defined for this service. Sorry...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="nb">format</span><span class="o">=</span><span class="n">adapter_renderer</span>
+            <span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">HTTPNotFound</span><span class="p">(</span>
+                <span class="n">detail</span><span class="o">=</span><span class="n">text</span>
+            <span class="p">)</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="AdapterProxy.extend_return_params"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.renderer.AdapterProxy.extend_return_params">[docs]</a>    <span class="k">def</span> <span class="nf">extend_return_params</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method enables the developer to extend the parameter which are send to the template.</span>
+
+<span class="sd">        params (dict): The dictionary which holds the params.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: The extended dictionary</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">params</span></div>
+
+<div class="viewcode-block" id="AdapterProxy.add_adapter"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.renderer.AdapterProxy.add_adapter">[docs]</a>    <span class="k">def</span> <span class="nf">add_adapter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delivery_format</span><span class="p">,</span> <span class="n">adapter_renderer_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a matching to the render proxy&#39;s matching dict. It is possible to overwrite an existing one.</span>
+<span class="sd">        If you do, a notice (warning) is printed to your server logs.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            delivery_format (str): The format string to which the renderer should be bound to</span>
+<span class="sd">                (e.g. &quot;json&quot;, &quot;xml&quot;, ...)</span>
+<span class="sd">            adapter_renderer_path (str): The name of the renderer which was used to assign it to the</span>
+<span class="sd">                pyramid applications configuration.</span>
+<span class="sd">        Raises:</span>
+<span class="sd">            ConfigurationError</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_to_adapter</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">delivery_format</span><span class="p">):</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s1">&#39;You overwrite the renderer for the &quot;</span><span class="si">{format_name}</span><span class="s1">&quot; format&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">format_name</span><span class="o">=</span><span class="n">delivery_format</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_format_to_adapter</span><span class="p">[</span><span class="n">delivery_format</span><span class="p">]</span> <span class="o">=</span> <span class="n">adapter_renderer_path</span></div></div>
+
+
+<div class="viewcode-block" id="RestfulJson"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.renderer.RestfulJson">[docs]</a><span class="k">class</span> <span class="nc">RestfulJson</span><span class="p">(</span><span class="n">JSON</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This represents a standard pyramid renderer which can consume a list of database instances and renders</span>
+<span class="sd">    them to json. It is important to use the Base which is provided by this package. Because this class</span>
+<span class="sd">    delivers additional methods.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="RestfulJson.__init__"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.renderer.RestfulJson.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Constructor: info will be an object having the</span>
+<span class="sd">        following attributes: name (the renderer name), package</span>
+<span class="sd">        (the package that was &#39;current&#39; at the time the</span>
+<span class="sd">        renderer was registered), type (the renderer type</span>
+<span class="sd">        name), registry (the current application registry) and</span>
+<span class="sd">        settings (the deployment settings dictionary). &quot;&quot;&quot;</span></div>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Call the renderer implementation with the value</span>
+<span class="sd">        and the system value passed in as arguments and return</span>
+<span class="sd">        the result (a string or unicode object).  The value is</span>
+<span class="sd">        the return value of a view.  The system value is a</span>
+<span class="sd">        dictionary containing available system values</span>
+<span class="sd">        (e.g. view, context, and request).</span>
+<span class="sd">        :param results:</span>
+<span class="sd">        :param system:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">request</span> <span class="o">=</span> <span class="n">system</span><span class="p">[</span><span class="s1">&#39;request&#39;</span><span class="p">]</span>
+        <span class="c1"># here the results will be serialized!!!!</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_str</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+
+        <span class="n">callback</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;callback&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ct</span> <span class="o">=</span> <span class="s1">&#39;application/json&#39;</span>
+            <span class="n">body</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ct</span> <span class="o">=</span> <span class="s1">&#39;application/javascript&#39;</span>
+            <span class="n">body</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">(</span><span class="si">%s</span><span class="s1">);&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">response</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">content_type</span> <span class="o">==</span> <span class="n">response</span><span class="o">.</span><span class="n">default_content_type</span><span class="p">:</span>
+            <span class="n">response</span><span class="o">.</span><span class="n">content_type</span> <span class="o">=</span> <span class="n">ct</span>
+        <span class="k">return</span> <span class="n">body</span>
+
+<div class="viewcode-block" id="RestfulJson.to_str"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.renderer.RestfulJson.to_str">[docs]</a>    <span class="k">def</span> <span class="nf">to_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Translates result dictionary into a string.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            results (dict): The database records wrapped in a dictionary.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: The serialized string containing database records.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">simplejson</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column_values_as_serializable</span><span class="p">(</span><span class="n">results</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="RestfulJson.column_values_as_serializable"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.renderer.RestfulJson.column_values_as_serializable">[docs]</a>    <span class="k">def</span> <span class="nf">column_values_as_serializable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The most important method in rendering process. Here the values are transformed to serializable</span>
+<span class="sd">        representations.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            results (dict): The database records wrapped in a dictionary.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list of dict: A list containing all records with serializable values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">serializable_results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">model_description</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;model_description&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;features&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+            <span class="n">result_dict</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">column_description</span> <span class="o">=</span> <span class="n">model_description</span><span class="o">.</span><span class="n">column_descriptions</span>
+            <span class="k">for</span> <span class="n">column_name</span> <span class="ow">in</span> <span class="n">column_description</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">column_name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">time</span><span class="p">)):</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_formatter</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">_AssociationList</span><span class="p">):</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">association_formatter</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">WKBElement</span><span class="p">):</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry_formatter</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">decimal</span><span class="o">.</span><span class="n">Decimal</span><span class="p">):</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">float_formatter</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="n">result_dict</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="n">serializable_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result_dict</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">serializable_results</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="RestfulJson.date_formatter"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.renderer.RestfulJson.date_formatter">[docs]</a>    <span class="k">def</span> <span class="nf">date_formatter</span><span class="p">(</span><span class="n">date</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Formats a date object into a string base iso representation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            date (datetime.datetime): A date object which should be converted</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: A string which represents the date object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="RestfulJson.association_formatter"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.renderer.RestfulJson.association_formatter">[docs]</a>    <span class="k">def</span> <span class="nf">association_formatter</span><span class="p">(</span><span class="n">association</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handles special case of association list provided by sqlalchemy.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            association (sqlalchemy.ext.associationproxy._AssociationList): A sqlalchemy association object</span>
+<span class="sd">                which should be converted</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list of str: A list containing the association</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">association</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RestfulJson.geometry_formatter"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.renderer.RestfulJson.geometry_formatter">[docs]</a>    <span class="k">def</span> <span class="nf">geometry_formatter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geometry</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Formats a geoalchemy 2 WKB element into its WKT string representation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            geometry (geoalchemy2.WKBElement): A geoalchemy wkb element object which should be converted.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: A WKT formatted string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">to_shape</span><span class="p">(</span><span class="n">geometry</span><span class="p">)</span><span class="o">.</span><span class="n">wkt</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="RestfulJson.float_formatter"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.renderer.RestfulJson.float_formatter">[docs]</a>    <span class="k">def</span> <span class="nf">float_formatter</span><span class="p">(</span><span class="n">number</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Formats a floating point number to its pythonic correct float representation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            number (decimal.Decimal): A floating point number be converted.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: The formatted float.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">number</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="RestfulGeoJson"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.renderer.RestfulGeoJson">[docs]</a><span class="k">class</span> <span class="nc">RestfulGeoJson</span><span class="p">(</span><span class="n">RestfulJson</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This represents a standard pyramid renderer which can consume a list of database instances and</span>
+<span class="sd">        renders them to json. It is important to use the Base which is provided by this package. Because</span>
+<span class="sd">        this class delivers additional methods.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="RestfulGeoJson.__init__"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.renderer.RestfulGeoJson.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Constructor: info will be an object having the</span>
+<span class="sd">        following attributes: name (the renderer name), package</span>
+<span class="sd">        (the package that was &#39;current&#39; at the time the</span>
+<span class="sd">        renderer was registered), type (the renderer type</span>
+<span class="sd">        name), registry (the current application registry) and</span>
+<span class="sd">        settings (the deployment settings dictionary). &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">RestfulGeoJson</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">info</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RestfulGeoJson.column_values_as_serializable"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.renderer.RestfulGeoJson.column_values_as_serializable">[docs]</a>    <span class="k">def</span> <span class="nf">column_values_as_serializable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The most important method in rendering process. Here the values are transformed to serializable</span>
+<span class="sd">        representations. It especially takes care of producing a valid GeoJSON FeatureCollection.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            results (dict): The database records wrapped in a dictionary.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: A dictionary in GeoJSON FeatureCollection style containing all records with serializable</span>
+<span class="sd">                values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">serializable_results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">model_description</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;model_description&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;features&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+            <span class="n">geometry</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">properties</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">result_dict</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;Feature&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="n">geometry</span><span class="p">,</span>
+                <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="n">properties</span>
+            <span class="p">}</span>
+            <span class="k">for</span> <span class="n">column_name</span> <span class="ow">in</span> <span class="n">model_description</span><span class="o">.</span><span class="n">column_descriptions</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">column_name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">time</span><span class="p">)):</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_formatter</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">_AssociationList</span><span class="p">):</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">association_formatter</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">WKBElement</span><span class="p">):</span>
+                    <span class="n">result_dict</span><span class="p">[</span><span class="s1">&#39;geometry&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry_formatter</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                    <span class="k">continue</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">decimal</span><span class="o">.</span><span class="n">Decimal</span><span class="p">):</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">float_formatter</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="n">properties</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="n">serializable_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result_dict</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;FeatureCollection&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;features&quot;</span><span class="p">:</span> <span class="n">serializable_results</span>
+        <span class="p">}</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="RestfulGeoJson.geometry_type_formatter"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.renderer.RestfulGeoJson.geometry_type_formatter">[docs]</a>    <span class="k">def</span> <span class="nf">geometry_type_formatter</span><span class="p">(</span><span class="n">geometry</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delivers the shapely geometry type description of geoalchemy 2 WKB element.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            geometry (geoalchemy2.WKBElement): A geoalchemy wkb element object which should be converted.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            str: A string representing a shapely valid geometry type.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">to_shape</span><span class="p">(</span><span class="n">geometry</span><span class="p">)</span><span class="o">.</span><span class="n">geom_type</span></div>
+
+<div class="viewcode-block" id="RestfulGeoJson.geometry_formatter"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.renderer.RestfulGeoJson.geometry_formatter">[docs]</a>    <span class="k">def</span> <span class="nf">geometry_formatter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geometry</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Formats the passed geoalchemy2 geometry WKB element into its valid GeoJSON representation. This is a</span>
+<span class="sd">        list of coordinate tuples.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            geometry (geoalchemy2.WKBElement): A geoalchemy wkb element object which should be converted.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list: A list of coordinates formatted string</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            HTTPServerError: If the geometry type is not supported.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">shapely_object</span> <span class="o">=</span> <span class="n">to_shape</span><span class="p">(</span><span class="n">geometry</span><span class="p">)</span>
+        <span class="n">geom_type</span> <span class="o">=</span> <span class="n">shapely_object</span><span class="o">.</span><span class="n">geom_type</span>
+        <span class="k">if</span> <span class="n">geom_type</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;POINT&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">geom_type</span><span class="p">,</span>
+                <span class="s2">&quot;coordinates&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">shapely_object</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="p">}</span>
+        <span class="k">elif</span> <span class="n">geom_type</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;LINESTRING&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">geom_type</span><span class="p">,</span>
+                <span class="s2">&quot;coordinates&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">shapely_object</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
+            <span class="p">}</span>
+        <span class="k">elif</span> <span class="n">geom_type</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;POLYGON&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">geom_type</span><span class="p">,</span>
+                <span class="s2">&quot;coordinates&quot;</span><span class="p">:</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">shapely_object</span><span class="o">.</span><span class="n">exterior</span><span class="o">.</span><span class="n">coords</span><span class="p">)]</span>
+            <span class="p">}</span>
+        <span class="k">elif</span> <span class="n">geom_type</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;MULTIPOINT&#39;</span><span class="p">:</span>
+            <span class="n">coordinates</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">shapely_object</span><span class="o">.</span><span class="n">geoms</span><span class="p">:</span>
+                <span class="n">coordinates</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">list</span><span class="p">(</span><span class="n">point</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">])])</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">geom_type</span><span class="p">,</span>
+                <span class="s2">&quot;coordinates&quot;</span><span class="p">:</span> <span class="n">coordinates</span>
+            <span class="p">}</span>
+        <span class="k">elif</span> <span class="n">geom_type</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;MULTILINESTRING&#39;</span><span class="p">:</span>
+            <span class="n">coordinates</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">shapely_object</span><span class="o">.</span><span class="n">geoms</span><span class="p">:</span>
+                <span class="n">coordinates</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">list</span><span class="p">(</span><span class="n">point</span><span class="o">.</span><span class="n">coords</span><span class="p">)])</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">geom_type</span><span class="p">,</span>
+                <span class="s2">&quot;coordinates&quot;</span><span class="p">:</span> <span class="n">coordinates</span>
+            <span class="p">}</span>
+        <span class="k">elif</span> <span class="n">geom_type</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;MULTIPOLYGON&#39;</span><span class="p">:</span>
+            <span class="n">coordinates</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">polygon</span> <span class="ow">in</span> <span class="n">shapely_object</span><span class="o">.</span><span class="n">geoms</span><span class="p">:</span>
+                <span class="n">coordinates</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">list</span><span class="p">(</span><span class="n">polygon</span><span class="o">.</span><span class="n">exterior</span><span class="o">.</span><span class="n">coords</span><span class="p">)])</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">geom_type</span><span class="p">,</span>
+                <span class="s2">&quot;coordinates&quot;</span><span class="p">:</span> <span class="n">coordinates</span>
+            <span class="p">}</span>
+        <span class="k">elif</span> <span class="n">geom_type</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;GEOMETRYCOLLECTION&#39;</span><span class="p">:</span>
+            <span class="n">members</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">inner_geometry</span> <span class="ow">in</span> <span class="n">shapely_object</span><span class="o">.</span><span class="n">geoms</span><span class="p">:</span>
+                <span class="n">members</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry_formatter</span><span class="p">(</span><span class="n">WKBElement</span><span class="p">(</span><span class="n">inner_geometry</span><span class="o">.</span><span class="n">wkb</span><span class="p">)))</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">geom_type</span><span class="p">,</span>
+                <span class="s2">&quot;members&quot;</span><span class="p">:</span> <span class="n">members</span>
+            <span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HTTPServerError</span><span class="p">(</span>
+                <span class="s1">&#39;You try to access a Dataset with a &quot;</span><span class="si">{type}</span><span class="s1">&quot; geometry type. This is not supported in the &#39;</span>
+                <span class="s1">&#39;moment. Sorry...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">geom_type</span><span class="p">)</span>
+            <span class="p">)</span></div></div>
+
+
+<span class="k">class</span> <span class="nc">RestfulXML</span><span class="p">(</span><span class="n">RestfulJson</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This represents an standard pyramid renderer which can consume a list of database instances and renders</span>
+<span class="sd">    them to xml. It is important to use the Base which is provided by this package. Because this class</span>
+<span class="sd">    delivers additional methods.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Constructor: info will be an object having the</span>
+<span class="sd">        following attributes: name (the renderer name), package</span>
+<span class="sd">        (the package that was &#39;current&#39; at the time the</span>
+<span class="sd">        renderer was registered), type (the renderer type</span>
+<span class="sd">        name), registry (the current application registry) and</span>
+<span class="sd">        settings (the deployment settings dictionary). &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">RestfulXML</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Call the renderer implementation with the value</span>
+<span class="sd">        and the system value passed in as arguments and return</span>
+<span class="sd">        the result (a string or unicode object).  The value is</span>
+<span class="sd">        the return value of a view.  The system value is a</span>
+<span class="sd">        dictionary containing available system values</span>
+<span class="sd">        (e.g. view, context, and request). &quot;&quot;&quot;</span>
+
+        <span class="n">request</span> <span class="o">=</span> <span class="n">system</span><span class="p">[</span><span class="s1">&#39;request&#39;</span><span class="p">]</span>
+
+        <span class="c1"># here the results will be serialized!!!!</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_str</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+
+        <span class="n">callback</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;callback&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ct</span> <span class="o">=</span> <span class="s1">&#39;text/xml&#39;</span>
+            <span class="n">body</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ct</span> <span class="o">=</span> <span class="s1">&#39;text/xml&#39;</span>
+            <span class="n">body</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">(</span><span class="si">%s</span><span class="s1">);&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">response</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">content_type</span> <span class="o">==</span> <span class="n">response</span><span class="o">.</span><span class="n">default_content_type</span><span class="p">:</span>
+            <span class="n">response</span><span class="o">.</span><span class="n">content_type</span> <span class="o">=</span> <span class="n">ct</span>
+        <span class="k">return</span> <span class="n">body</span>
+
+    <span class="k">def</span> <span class="nf">to_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">dicttoxml</span><span class="o">.</span><span class="n">dicttoxml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column_values_as_serializable</span><span class="p">(</span><span class="n">results</span><span class="p">),</span> <span class="n">attr_type</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">RestfulModelJSON</span><span class="p">(</span><span class="n">JSON</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This represents an standard pyramid renderer which can consume a list of database instances and renders</span>
+<span class="sd">    them to xml. It is important to use the Base which is provided by this package. Because this class</span>
+<span class="sd">    delivers additional methods.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Constructor: info will be an object having the</span>
+<span class="sd">        following attributes: name (the renderer name), package</span>
+<span class="sd">        (the package that was &#39;current&#39; at the time the</span>
+<span class="sd">        renderer was registered), type (the renderer type</span>
+<span class="sd">        name), registry (the current application registry) and</span>
+<span class="sd">        settings (the deployment settings dictionary). &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_description</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Call the renderer implementation with the value</span>
+<span class="sd">        and the system value passed in as arguments and return</span>
+<span class="sd">        the result (a string or unicode object).  The value is</span>
+<span class="sd">        the return value of a view.  The system value is a</span>
+<span class="sd">        dictionary containing available system values</span>
+<span class="sd">        (e.g. view, context, and request). &quot;&quot;&quot;</span>
+
+        <span class="n">request</span> <span class="o">=</span> <span class="n">system</span><span class="p">[</span><span class="s1">&#39;request&#39;</span><span class="p">]</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">simplejson</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">model_description</span><span class="o">.</span><span class="n">as_dict</span><span class="p">())</span>
+        <span class="c1"># print val</span>
+        <span class="n">callback</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;callback&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ct</span> <span class="o">=</span> <span class="s1">&#39;application/json&#39;</span>
+            <span class="n">body</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ct</span> <span class="o">=</span> <span class="s1">&#39;application/javascript&#39;</span>
+            <span class="n">body</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">(</span><span class="si">%s</span><span class="s1">);&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">response</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">content_type</span> <span class="o">==</span> <span class="n">response</span><span class="o">.</span><span class="n">default_content_type</span><span class="p">:</span>
+            <span class="n">response</span><span class="o">.</span><span class="n">content_type</span> <span class="o">=</span> <span class="n">ct</span>
+        <span class="k">return</span> <span class="n">body</span>
+
+
+<span class="k">class</span> <span class="nc">RestfulModelXML</span><span class="p">(</span><span class="n">JSON</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This represents an standard pyramid renderer which can consume a list of database instances and renders</span>
+<span class="sd">    them to xml. It is important to use the Base which is provided by this package. Because this class</span>
+<span class="sd">    delivers additional methods.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Constructor: info will be an object having the</span>
+<span class="sd">        following attributes: name (the renderer name), package</span>
+<span class="sd">        (the package that was &#39;current&#39; at the time the</span>
+<span class="sd">        renderer was registered), type (the renderer type</span>
+<span class="sd">        name), registry (the current application registry) and</span>
+<span class="sd">        settings (the deployment settings dictionary). &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_description</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Call the renderer implementation with the value</span>
+<span class="sd">        and the system value passed in as arguments and return</span>
+<span class="sd">        the result (a string or unicode object).  The value is</span>
+<span class="sd">        the return value of a view.  The system value is a</span>
+<span class="sd">        dictionary containing available system values</span>
+<span class="sd">        (e.g. view, context, and request). &quot;&quot;&quot;</span>
+
+        <span class="n">request</span> <span class="o">=</span> <span class="n">system</span><span class="p">[</span><span class="s1">&#39;request&#39;</span><span class="p">]</span>
+        <span class="n">dicttoxml</span><span class="o">.</span><span class="n">set_debug</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">dicttoxml</span><span class="o">.</span><span class="n">dicttoxml</span><span class="p">(</span><span class="n">model_description</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span> <span class="n">attr_type</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># print val</span>
+        <span class="n">callback</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;callback&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ct</span> <span class="o">=</span> <span class="s1">&#39;text/xml&#39;</span>
+            <span class="n">body</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ct</span> <span class="o">=</span> <span class="s1">&#39;text/xml&#39;</span>
+            <span class="n">body</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">(</span><span class="si">%s</span><span class="s1">);&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">response</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">content_type</span> <span class="o">==</span> <span class="n">response</span><span class="o">.</span><span class="n">default_content_type</span><span class="p">:</span>
+            <span class="n">response</span><span class="o">.</span><span class="n">content_type</span> <span class="o">=</span> <span class="n">ct</span>
+        <span class="k">return</span> <span class="n">body</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014 - 2019, Clemens Rudert
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

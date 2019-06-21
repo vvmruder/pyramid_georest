@@ -1,6 +1,0 @@
-[run]
-source = pyramid_georest
-omit =
-    **/pyramid_georest/test*
-    **/pyramid_georest/__init__.py
-    **/pyramid_georest/routes.py

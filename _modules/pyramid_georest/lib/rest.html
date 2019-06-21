@@ -1,0 +1,1383 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pyramid_georest.lib.rest &mdash; pyramid_georest 3.1.0-rc5 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'../../../',
+              VERSION:'3.1.0-rc5',
+              LANGUAGE:'en',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> pyramid_georest
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../url_patterns.html">Used URL patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../filter.html">Filtering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../main_classes.html">Main classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../special_classes.html">Special classes</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyramid_georest</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pyramid_georest.lib.rest</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyramid_georest.lib.rest</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">transaction</span>
+<span class="kn">from</span> <span class="nn">pyramid.httpexceptions</span> <span class="k">import</span> <span class="n">HTTPNotFound</span><span class="p">,</span> <span class="n">HTTPBadRequest</span>
+<span class="kn">from</span> <span class="nn">pyramid.renderers</span> <span class="k">import</span> <span class="n">render_to_response</span>
+<span class="kn">from</span> <span class="nn">pyramid_georest.lib.description</span> <span class="k">import</span> <span class="n">ModelDescription</span>
+<span class="kn">from</span> <span class="nn">pyramid_georest.lib.renderer</span> <span class="k">import</span> <span class="n">RenderProxy</span><span class="p">,</span> <span class="n">AdapterProxy</span>
+<span class="kn">from</span> <span class="nn">pyramid_georest.lib.database</span> <span class="k">import</span> <span class="n">Connection</span>
+<span class="kn">from</span> <span class="nn">pyramid_georest.routes</span> <span class="k">import</span> <span class="n">create_api_routing</span><span class="p">,</span> <span class="n">check_route_prefix</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="k">import</span> <span class="n">or_</span><span class="p">,</span> <span class="n">and_</span><span class="p">,</span> <span class="n">cast</span><span class="p">,</span> <span class="n">String</span><span class="p">,</span> <span class="n">desc</span><span class="p">,</span> <span class="n">asc</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.sql.expression</span> <span class="k">import</span> <span class="n">text</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm.exc</span> <span class="k">import</span> <span class="n">MultipleResultsFound</span>
+<span class="kn">from</span> <span class="nn">geoalchemy2</span> <span class="k">import</span> <span class="n">WKTElement</span>
+<span class="kn">from</span> <span class="nn">shapely.geometry</span> <span class="k">import</span> <span class="n">asShape</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pyramid_georest&#39;</span><span class="p">)</span>
+
+<span class="n">DIRECTION_ASC</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ASC&#39;</span><span class="p">,</span> <span class="s1">&#39;asc&#39;</span><span class="p">,</span> <span class="s1">&#39;ascending&#39;</span><span class="p">]</span>
+<span class="n">DIRECTION_DESC</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;DESC&#39;</span><span class="p">,</span> <span class="s1">&#39;desc&#39;</span><span class="p">,</span> <span class="s1">&#39;descending&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="Clause"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.rest.Clause">[docs]</a><span class="k">class</span> <span class="nc">Clause</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Clause.__init__"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.rest.Clause.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">definition</span><span class="p">,</span> <span class="n">model_description</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The class which represents the clause block.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            definition (dict): The values which are assigned to the object.</span>
+<span class="sd">            model_description (pyramid_georest.lib.description.ModelDescription): The description of the model</span>
+<span class="sd">                which is being filtered.</span>
+<span class="sd">        Raises:</span>
+<span class="sd">            HTTPBadRequest</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_description</span> <span class="o">=</span> <span class="n">model_description</span>
+
+        <span class="k">if</span> <span class="n">definition</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;column_name&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">column_name</span> <span class="o">=</span> <span class="n">definition</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;column_name&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">column</span> <span class="o">=</span> <span class="n">model_description</span><span class="o">.</span><span class="n">column_classes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column_name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">column_description</span> <span class="o">=</span> <span class="n">model_description</span><span class="o">.</span><span class="n">column_descriptions</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column_name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HTTPBadRequest</span><span class="p">(</span>
+                <span class="s1">&#39;Passed clause block does not contain the column_name. Definition was: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">definition</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">definition</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;operator&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">operator</span> <span class="o">=</span> <span class="n">definition</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;operator&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HTTPBadRequest</span><span class="p">(</span>
+                <span class="s1">&#39;Passed clause block does not contain the operator. Definition was: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">definition</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">definition</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_description</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;is_geometry_column&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clause_construct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decide_multi_geometries</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clause_construct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decide_operator</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Clause.decide_operator"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.rest.Clause.decide_operator">[docs]</a>    <span class="k">def</span> <span class="nf">decide_operator</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method is used by the filter object to make a simple matching between the passed operators and</span>
+<span class="sd">        the operators which are useable for filtering against the database.</span>
+<span class="sd">        There are only some base operators implemented by default. If you like some more specific ones feel</span>
+<span class="sd">        free to subclass this class and overwrite this method with your special behaviour and matching.</span>
+<span class="sd">        Note that this method does not only do the matching thing. It constructs the whole binary expression.</span>
+<span class="sd">        So you can get some influence on this process too.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            sqlalchemy.sql.expression._BinaryExpression: The clause element</span>
+<span class="sd">        Raises:</span>
+<span class="sd">            HTTPBadRequest</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">operator</span> <span class="o">==</span> <span class="s1">&#39;=&#39;</span><span class="p">:</span>
+            <span class="n">clause</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">operator</span> <span class="o">==</span> <span class="s1">&#39;==&#39;</span><span class="p">:</span>
+            <span class="n">clause</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">operator</span> <span class="o">==</span> <span class="s1">&#39;&lt;&gt;&#39;</span><span class="p">:</span>
+            <span class="n">clause</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">operator</span> <span class="o">==</span> <span class="s1">&#39;!=&#39;</span><span class="p">:</span>
+            <span class="n">clause</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">operator</span> <span class="o">==</span> <span class="s1">&#39;&lt;&#39;</span><span class="p">:</span>
+            <span class="n">clause</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">operator</span> <span class="o">==</span> <span class="s1">&#39;&lt;=&#39;</span><span class="p">:</span>
+            <span class="n">clause</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">operator</span> <span class="o">==</span> <span class="s1">&#39;&gt;&#39;</span><span class="p">:</span>
+            <span class="n">clause</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">operator</span> <span class="o">==</span> <span class="s1">&#39;&gt;=&#39;</span><span class="p">:</span>
+            <span class="n">clause</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">operator</span> <span class="o">==</span> <span class="s1">&#39;LIKE&#39;</span><span class="p">:</span>
+            <span class="n">clause</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="p">,</span> <span class="n">String</span><span class="p">())</span><span class="o">.</span><span class="n">like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">operator</span> <span class="o">==</span> <span class="s1">&#39;IN&#39;</span><span class="p">:</span>
+            <span class="n">clause</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">in_</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">operator</span> <span class="o">==</span> <span class="s1">&#39;NULL&#39;</span><span class="p">:</span>
+            <span class="n">clause</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span> <span class="o">==</span> <span class="kc">None</span>  <span class="c1"># noqa: E711</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">operator</span> <span class="o">==</span> <span class="s1">&#39;NOT_NULL&#39;</span><span class="p">:</span>
+            <span class="n">clause</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span> <span class="o">!=</span> <span class="kc">None</span>   <span class="c1"># noqa: E711</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HTTPBadRequest</span><span class="p">(</span><span class="s1">&#39;The operator &quot;</span><span class="si">{operator}</span><span class="s1">&quot; you passed is not implemented.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">operator</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">operator</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">clause</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Clause.decide_geometric_operator_"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.rest.Clause.decide_geometric_operator_">[docs]</a>    <span class="k">def</span> <span class="nf">decide_geometric_operator_</span><span class="p">(</span><span class="n">operator</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Maps the passed operator to the correct database method operator</span>
+<span class="sd">        Args:</span>
+<span class="sd">            operator (str): The Operator from api request.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">operator</span> <span class="o">==</span> <span class="s1">&#39;INTERSECTS&#39;</span><span class="p">:</span>
+            <span class="n">operator</span> <span class="o">=</span> <span class="s1">&#39;ST_Intersects&#39;</span>
+        <span class="k">elif</span> <span class="n">operator</span> <span class="o">==</span> <span class="s1">&#39;TOUCHES&#39;</span><span class="p">:</span>
+            <span class="n">operator</span> <span class="o">=</span> <span class="s1">&#39;ST_Touches&#39;</span>
+        <span class="k">elif</span> <span class="n">operator</span> <span class="o">==</span> <span class="s1">&#39;COVERED_BY&#39;</span><span class="p">:</span>
+            <span class="n">operator</span> <span class="o">=</span> <span class="s1">&#39;ST_CoveredBy&#39;</span>
+        <span class="k">elif</span> <span class="n">operator</span> <span class="o">==</span> <span class="s1">&#39;WITHIN&#39;</span><span class="p">:</span>
+            <span class="n">operator</span> <span class="o">=</span> <span class="s1">&#39;ST_DFullyWithin&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HTTPBadRequest</span><span class="p">(</span><span class="s1">&#39;The operator &quot;</span><span class="si">{operator}</span><span class="s1">&quot; you passed is not implemented.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">operator</span><span class="o">=</span><span class="n">operator</span>
+            <span class="p">))</span>
+        <span class="k">return</span> <span class="n">operator</span></div>
+
+<div class="viewcode-block" id="Clause.decide_multi_geometries"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.rest.Clause.decide_multi_geometries">[docs]</a>    <span class="k">def</span> <span class="nf">decide_multi_geometries</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method decides if the clause will contain geometry collections (in the value or in the</span>
+<span class="sd">        database or in both).</span>
+<span class="sd">        If it does it is necessary to &quot;unpack&quot; all collections to make them valid for geometric operations</span>
+<span class="sd">        in database.</span>
+<span class="sd">        If it does not it uses a normal geometric operation.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            sqlalchemy.sql.expression._BinaryExpression: The clause element</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            HTTPBadRequest</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">geometry_type</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column_description</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="n">db_path_list</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model_description</span><span class="o">.</span><span class="n">schema_name</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model_description</span><span class="o">.</span><span class="n">table_name</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">column_description</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;column_name&#39;</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">db_path</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">db_path_list</span><span class="p">)</span>
+        <span class="n">srid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_description</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;srid&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">geometry_type</span> <span class="o">==</span> <span class="s1">&#39;GEOMETRYCOLLECTION&#39;</span> <span class="ow">and</span> <span class="s1">&#39;GEOMETRYCOLLECTION&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+            <span class="n">clause_construct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_geometry_collection_db</span><span class="p">(</span><span class="n">db_path</span><span class="p">,</span> <span class="n">srid</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="s1">&#39;GEOMETRYCOLLECTION&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="ow">and</span> <span class="n">geometry_type</span> <span class="o">!=</span> <span class="s1">&#39;GEOMETRYCOLLECTION&#39;</span><span class="p">:</span>
+            <span class="n">clause_construct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_geometry_collection_input</span><span class="p">(</span><span class="n">db_path</span><span class="p">,</span> <span class="n">srid</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="s1">&#39;GEOMETRYCOLLECTION&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="ow">and</span> <span class="n">geometry_type</span> <span class="o">==</span> <span class="s1">&#39;GEOMETRYCOLLECTION&#39;</span><span class="p">:</span>
+            <span class="n">clause_construct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_geometry_collection_input_and_db</span><span class="p">(</span><span class="n">db_path</span><span class="p">,</span> <span class="n">srid</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">geometry_type</span> <span class="o">!=</span> <span class="s1">&#39;GEOMETRYCOLLECTION&#39;</span> <span class="ow">and</span> <span class="s1">&#39;GEOMETRYCOLLECTION&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+            <span class="n">clause_construct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decide_geometric_operation</span><span class="p">(</span><span class="n">srid</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">hint_text</span> <span class="o">=</span> <span class="s2">&quot;You found some bad geometric circumstance. Sorry for that. We can&#39;t handle your &quot;</span> \
+                        <span class="s2">&quot;request uses the operation </span><span class="si">{operation}</span><span class="s2"> on a geometric column with the type &quot;</span> \
+                        <span class="s2">&quot;</span><span class="si">{geometry_type}</span><span class="s2"> and your passed geometry was of the value </span><span class="si">{value}</span><span class="s2">. This is not &quot;</span> \
+                        <span class="s2">&quot;supported in the moment.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="n">operation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">operator</span><span class="p">,</span>
+                            <span class="n">geometry_type</span><span class="o">=</span><span class="n">geometry_type</span><span class="p">,</span>
+                            <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+                        <span class="p">)</span>
+            <span class="k">raise</span> <span class="n">HTTPBadRequest</span><span class="p">(</span><span class="n">hint_text</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">clause_construct</span></div>
+
+<div class="viewcode-block" id="Clause.decide_geometric_operation"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.rest.Clause.decide_geometric_operation">[docs]</a>    <span class="k">def</span> <span class="nf">decide_geometric_operation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">srid</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Decides the simple cases of geometric filter operations.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            srid (int): The SRID/EPSG number to define the coordinate system of the geometry attribute.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            sqlalchemy.sql.expression._BinaryExpression: The clause element</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            HTTPBadRequest</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">operator</span> <span class="o">==</span> <span class="s1">&#39;INTERSECTS&#39;</span><span class="p">:</span>
+            <span class="n">clause</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">ST_Intersects</span><span class="p">(</span><span class="n">WKTElement</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">srid</span><span class="o">=</span><span class="n">srid</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">operator</span> <span class="o">==</span> <span class="s1">&#39;TOUCHES&#39;</span><span class="p">:</span>
+            <span class="n">clause</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">ST_Touches</span><span class="p">(</span><span class="n">WKTElement</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">srid</span><span class="o">=</span><span class="n">srid</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">operator</span> <span class="o">==</span> <span class="s1">&#39;COVERED_BY&#39;</span><span class="p">:</span>
+            <span class="n">clause</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">ST_CoveredBy</span><span class="p">(</span><span class="n">WKTElement</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">srid</span><span class="o">=</span><span class="n">srid</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">operator</span> <span class="o">==</span> <span class="s1">&#39;WITHIN&#39;</span><span class="p">:</span>
+            <span class="n">clause</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">ST_DFullyWithin</span><span class="p">(</span><span class="n">WKTElement</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">srid</span><span class="o">=</span><span class="n">srid</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HTTPBadRequest</span><span class="p">(</span><span class="s1">&#39;The operator &quot;</span><span class="si">{operator}</span><span class="s1">&quot; you passed is not implemented.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">operator</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">operator</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">clause</span></div>
+
+<div class="viewcode-block" id="Clause.extract_geometry_collection_db"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.rest.Clause.extract_geometry_collection_db">[docs]</a>    <span class="k">def</span> <span class="nf">extract_geometry_collection_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_path</span><span class="p">,</span> <span class="n">srid</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Decides the geometry collections cases of geometric filter operations when the database contains multi</span>
+<span class="sd">        geometries but the passed geometry does not.</span>
+<span class="sd">        The multi geometry will be extracted to it&#39;s sub parts for operation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            srid (int): The SRID/EPSG number to define the coordinate system of the geometry attribute.</span>
+<span class="sd">            db_path (str): The point separated string of schema_name.table_name.column_name from which we can</span>
+<span class="sd">                construct a correct SQL statement.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            sqlalchemy.sql.elements.BooleanClauseList: The clause element.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            HTTPBadRequest</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">operator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decide_geometric_operator_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">operator</span><span class="p">)</span>
+        <span class="n">sql_text_point</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">(ST_CollectionExtract(</span><span class="si">{1}</span><span class="s1">, 1), ST_GeomFromText(</span><span class="se">\&#39;</span><span class="si">{2}</span><span class="se">\&#39;</span><span class="s1">, </span><span class="si">{3}</span><span class="s1">))&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">operator</span><span class="p">,</span>
+            <span class="n">db_path</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+            <span class="n">srid</span>
+        <span class="p">)</span>
+        <span class="n">sql_text_line</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">(ST_CollectionExtract(</span><span class="si">{1}</span><span class="s1">, 2), ST_GeomFromText(</span><span class="se">\&#39;</span><span class="si">{2}</span><span class="se">\&#39;</span><span class="s1">, </span><span class="si">{3}</span><span class="s1">))&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">operator</span><span class="p">,</span>
+            <span class="n">db_path</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+            <span class="n">srid</span>
+        <span class="p">)</span>
+        <span class="n">sql_text_polygon</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">(ST_CollectionExtract(</span><span class="si">{1}</span><span class="s1">, 3), ST_GeomFromText(</span><span class="se">\&#39;</span><span class="si">{2}</span><span class="se">\&#39;</span><span class="s1">, </span><span class="si">{3}</span><span class="s1">))&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">operator</span><span class="p">,</span>
+            <span class="n">db_path</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+            <span class="n">srid</span>
+        <span class="p">)</span>
+        <span class="n">clause_blocks</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">text</span><span class="p">(</span><span class="n">sql_text_point</span><span class="p">),</span>
+            <span class="n">text</span><span class="p">(</span><span class="n">sql_text_line</span><span class="p">),</span>
+            <span class="n">text</span><span class="p">(</span><span class="n">sql_text_polygon</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">or_</span><span class="p">(</span><span class="o">*</span><span class="n">clause_blocks</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Clause.extract_geometry_collection_input"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.rest.Clause.extract_geometry_collection_input">[docs]</a>    <span class="k">def</span> <span class="nf">extract_geometry_collection_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_path</span><span class="p">,</span> <span class="n">srid</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Decides the geometry collections cases of geometric filter operations when the database</span>
+<span class="sd">        contains multi geometries but the passed geometry does not.</span>
+<span class="sd">        The multi geometry will be extracted to it&#39;s sub parts for operation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            srid (int): The SRID/EPSG number to define the coordinate system of the geometry attribute.</span>
+<span class="sd">            db_path (str): The point separated string of *schema_name.table_name.column_name* from which we</span>
+<span class="sd">                can construct a correct SQL statement.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            sqlalchemy.sql.elements.BooleanClauseList: The clause element.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            HTTPBadRequest</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">operator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decide_geometric_operator_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">operator</span><span class="p">)</span>
+        <span class="n">sql_text_point</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">(</span><span class="si">{1}</span><span class="s1">, ST_CollectionExtract(ST_GeomFromText(</span><span class="se">\&#39;</span><span class="si">{2}</span><span class="se">\&#39;</span><span class="s1">, </span><span class="si">{3}</span><span class="s1">), 1))&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">operator</span><span class="p">,</span>
+            <span class="n">db_path</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+            <span class="n">srid</span>
+        <span class="p">)</span>
+        <span class="n">sql_text_line</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">(</span><span class="si">{1}</span><span class="s1">, ST_CollectionExtract(ST_GeomFromText(</span><span class="se">\&#39;</span><span class="si">{2}</span><span class="se">\&#39;</span><span class="s1">, </span><span class="si">{3}</span><span class="s1">), 2))&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">operator</span><span class="p">,</span>
+            <span class="n">db_path</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+            <span class="n">srid</span>
+        <span class="p">)</span>
+        <span class="n">sql_text_polygon</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">(</span><span class="si">{1}</span><span class="s1">, ST_CollectionExtract(ST_GeomFromText(</span><span class="se">\&#39;</span><span class="si">{2}</span><span class="se">\&#39;</span><span class="s1">, </span><span class="si">{3}</span><span class="s1">), 3))&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">operator</span><span class="p">,</span>
+            <span class="n">db_path</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+            <span class="n">srid</span>
+        <span class="p">)</span>
+        <span class="n">clause_blocks</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">text</span><span class="p">(</span><span class="n">sql_text_point</span><span class="p">),</span>
+            <span class="n">text</span><span class="p">(</span><span class="n">sql_text_line</span><span class="p">),</span>
+            <span class="n">text</span><span class="p">(</span><span class="n">sql_text_polygon</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">or_</span><span class="p">(</span><span class="o">*</span><span class="n">clause_blocks</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Clause.extract_geometry_collection_input_and_db"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.rest.Clause.extract_geometry_collection_input_and_db">[docs]</a>    <span class="k">def</span> <span class="nf">extract_geometry_collection_input_and_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_path</span><span class="p">,</span> <span class="n">srid</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Decides the geometry collections cases of geometric filter operations when the database</span>
+<span class="sd">        contains multi geometries but the passed geometry does not.</span>
+<span class="sd">        The multi geometry will be extracted to it&#39;s sub parts for operation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            srid (int): The SRID/EPSG number to define the coordinate system of the geometry attribute.</span>
+<span class="sd">            db_path (str): The point separated string of *schema_name.table_name.column_name* from which we</span>
+<span class="sd">                can construct a correct SQL statement.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            sqlalchemy.sql.elements.BooleanClauseList: The clause element.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            HTTPBadRequest</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">operator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decide_geometric_operator_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">operator</span><span class="p">)</span>
+        <span class="n">sql_text_point</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">(ST_CollectionExtract(</span><span class="si">{1}</span><span class="s1">, 1), ST_CollectionExtract(&#39;</span> \
+                         <span class="s1">&#39;ST_GeomFromText(</span><span class="se">\&#39;</span><span class="si">{2}</span><span class="se">\&#39;</span><span class="s1">, </span><span class="si">{3}</span><span class="s1">), 1))&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">operator</span><span class="p">,</span> <span class="n">db_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">srid</span><span class="p">)</span>
+        <span class="n">sql_text_line</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">(ST_CollectionExtract(</span><span class="si">{1}</span><span class="s1">, 2), ST_CollectionExtract(&#39;</span> \
+                        <span class="s1">&#39;ST_GeomFromText(</span><span class="se">\&#39;</span><span class="si">{2}</span><span class="se">\&#39;</span><span class="s1">, </span><span class="si">{3}</span><span class="s1">), 2))&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">operator</span><span class="p">,</span> <span class="n">db_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">srid</span><span class="p">)</span>
+        <span class="n">sql_text_polygon</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">(ST_CollectionExtract(</span><span class="si">{1}</span><span class="s1">, 3), ST_CollectionExtract(&#39;</span> \
+                           <span class="s1">&#39;ST_GeomFromText(</span><span class="se">\&#39;</span><span class="si">{2}</span><span class="se">\&#39;</span><span class="s1">, </span><span class="si">{3}</span><span class="s1">), 3))&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">operator</span><span class="p">,</span> <span class="n">db_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">srid</span><span class="p">)</span>
+        <span class="n">clause_blocks</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">text</span><span class="p">(</span><span class="n">sql_text_point</span><span class="p">),</span>
+            <span class="n">text</span><span class="p">(</span><span class="n">sql_text_line</span><span class="p">),</span>
+            <span class="n">text</span><span class="p">(</span><span class="n">sql_text_polygon</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">or_</span><span class="p">(</span><span class="o">*</span><span class="n">clause_blocks</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="FilterBlock"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.rest.FilterBlock">[docs]</a><span class="k">class</span> <span class="nc">FilterBlock</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+<div class="viewcode-block" id="FilterBlock.__init__"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.rest.FilterBlock.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_description</span><span class="p">,</span> <span class="n">definition</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The class which represents the filter block.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            definition (dict): The values which are assigned to the object. The definition of the Filter.</span>
+<span class="sd">                It has to be dict like {&quot;mode&quot;: &quot;OR/AND&quot;, &quot;clauses&quot;: []}.</span>
+<span class="sd">                The clauses are also dict objects with the pattern:</span>
+
+<span class="sd">                .. code-block:: python</span>
+
+<span class="sd">                    {</span>
+<span class="sd">                        &quot;column_name&quot;: &quot;&lt;name&gt;&quot;,</span>
+<span class="sd">                        &quot;operator&quot;: &quot;&lt;see static method decide_operator for further detail&gt;&quot;,</span>
+<span class="sd">                        &quot;value&quot;:&lt;value&gt;</span>
+<span class="sd">                    }</span>
+
+<span class="sd">                It is possible to pack a definition of filter inside the clause array.</span>
+<span class="sd">                This enables complex queries.</span>
+<span class="sd">            model_description (pyramid_georest.lib.description.ModelDescription): The description of the model</span>
+<span class="sd">                which is being filtered.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">definition</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">definition</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_description</span> <span class="o">=</span> <span class="n">model_description</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;AND&#39;</span>
+
+        <span class="k">if</span> <span class="n">definition</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;mode&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">definition</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;mode&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Initialize empty filter block with mode AND&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">clauses</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">definition</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;clauses&#39;</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">clause_definition</span> <span class="ow">in</span> <span class="n">definition</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;clauses&#39;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_clause</span><span class="p">(</span><span class="n">clause_definition</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Initialize filter block with empty clauses&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">clause</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decide_mode</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="FilterBlock.add_clause"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.rest.FilterBlock.add_clause">[docs]</a>    <span class="k">def</span> <span class="nf">add_clause</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clause_definition</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The class which represents the clause block.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            clause_definition (dict): The values which are assigned to the object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">clause_definition</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;mode&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clauses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">FilterBlock</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_description</span><span class="p">,</span> <span class="n">clause_definition</span><span class="p">)</span><span class="o">.</span><span class="n">clause</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clauses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Clause</span><span class="p">(</span><span class="n">clause_definition</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_description</span><span class="p">)</span><span class="o">.</span><span class="n">clause_construct</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FilterBlock.decide_mode"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.rest.FilterBlock.decide_mode">[docs]</a>    <span class="k">def</span> <span class="nf">decide_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method is used to match the mode and construct a clause list in which are each single</span>
+<span class="sd">        filter clause is combined by logical expression like OR or AND.</span>
+<span class="sd">        If you need some other behaviour, it is possible to overwrite this method to implement your own</span>
+<span class="sd">        matching or do some pre/post processing.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            sqlalchemy.sql.elements.BooleanClauseList: The combined clause blocks which wrapped in a</span>
+<span class="sd">                sqlalchemy readable way</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clauses</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">clause</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clauses</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clauses</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">clause</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;OR&#39;</span><span class="p">:</span>
+                <span class="n">clause</span> <span class="o">=</span> <span class="n">or_</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">clauses</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;AND&#39;</span><span class="p">:</span>
+                <span class="n">clause</span> <span class="o">=</span> <span class="n">and_</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">clauses</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">HTTPBadRequest</span><span class="p">(</span>
+                    <span class="s1">&#39;The mode &quot;</span><span class="si">{mode}</span><span class="s1">&quot; you passed is not implemented.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">)</span>
+                <span class="p">)</span>
+        <span class="k">return</span> <span class="n">clause</span></div></div>
+
+
+<div class="viewcode-block" id="Filter"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.rest.Filter">[docs]</a><span class="k">class</span> <span class="nc">Filter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Filter.__init__"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.rest.Filter.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_description</span><span class="p">,</span> <span class="n">definition</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The class which represents the filter.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            definition (dict): The values which are assigned to the object. The definition of the Filter.</span>
+<span class="sd">                It has to be dict like {&quot;mode&quot;: &quot;OR/AND&quot;, &quot;clauses&quot;: []}.</span>
+<span class="sd">                The clauses are also dict objects with the pattern:</span>
+
+<span class="sd">                .. code-block:: python</span>
+
+<span class="sd">                    {</span>
+<span class="sd">                        &quot;column_name&quot;: &quot;&lt;name&gt;&quot;,</span>
+<span class="sd">                        &quot;operator&quot;: &quot;&lt;see static method decide_operator for further detail&gt;&quot;,</span>
+<span class="sd">                        &quot;value&quot;:&lt;value&gt;</span>
+<span class="sd">                    }</span>
+
+<span class="sd">                It is possible to pack a definition of filter inside the clause array.</span>
+<span class="sd">                This enables complex queries.</span>
+<span class="sd">            model_description (pyramid_georest.lib.description.ModelDescription): The description of the model</span>
+<span class="sd">                which is being filtered.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">definition</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">definition</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">definition</span> <span class="o">=</span> <span class="n">FilterBlock</span><span class="p">(</span><span class="n">model_description</span><span class="p">,</span> <span class="n">definition</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: The string representation of the object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">filter_text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">definition</span><span class="o">.</span><span class="n">clause</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;Filter: </span><span class="si">{filter_text}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filter_text</span><span class="o">=</span><span class="n">filter_text</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Filter.filter"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.rest.Filter.filter">[docs]</a>    <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The actual filter execution against the database via the constructed clause from the</span>
+<span class="sd">        FilterDefinition object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            query (sqlalchemy.orm.query.Query): The query where the filter should be applied to.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            sqlalchemy.orm.query.Query: The query with the applied filter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># print self.definition.clause</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">definition</span><span class="o">.</span><span class="n">clause</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">definition</span><span class="o">.</span><span class="n">clause</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">query</span></div></div>
+
+
+<div class="viewcode-block" id="Service"><a class="viewcode-back" href="../../../main_classes.html#pyramid_georest.lib.rest.Service">[docs]</a><span class="k">class</span> <span class="nc">Service</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Service.__init__"><a class="viewcode-back" href="../../../main_classes.html#pyramid_georest.lib.rest.Service.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">renderer_proxy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">adapter_proxy</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A object which represents an restful service. It offers all the necessary methods and is able to</span>
+<span class="sd">        consume a renderer proxy. This way we assure a plug able system to use custom renderers.</span>
+<span class="sd">        If some custom behaviour is wanted at all, you can achieve this by subclassing this class and</span>
+<span class="sd">        adding some post or pre processing to the desired method.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            model (sqlalchemy.ext.declarative.DeclarativeMeta): The model for which the service will be</span>
+<span class="sd">                created for.</span>
+<span class="sd">            renderer_proxy (RenderProxy or None): A renderer proxy may be passed to achieve custom rendering.</span>
+<span class="sd">            adapter_proxy (AdapterProxy or None): An adapter which provides special client side library</span>
+<span class="sd">                handling. It is a AdapterProxy per default.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">orm_model</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_description</span> <span class="o">=</span> <span class="n">ModelDescription</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">orm_model</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">primary_key_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_description</span><span class="o">.</span><span class="n">primary_key_column_names</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_from_definition</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model_description</span><span class="o">.</span><span class="n">schema_name</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model_description</span><span class="o">.</span><span class="n">table_name</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">renderer_proxy</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">renderer_proxy</span> <span class="o">=</span> <span class="n">RenderProxy</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">renderer_proxy</span> <span class="o">=</span> <span class="n">renderer_proxy</span>
+
+        <span class="k">if</span> <span class="n">adapter_proxy</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">adapter_proxy</span> <span class="o">=</span> <span class="n">AdapterProxy</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">adapter_proxy</span> <span class="o">=</span> <span class="n">adapter_proxy</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Service.name_from_definition"><a class="viewcode-back" href="../../../main_classes.html#pyramid_georest.lib.rest.Service.name_from_definition">[docs]</a>    <span class="k">def</span> <span class="nf">name_from_definition</span><span class="p">(</span><span class="n">schema_name</span><span class="p">,</span> <span class="n">table_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Little helper method to get a comma separated string of schema and table name.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            schema_name (str): The schema name</span>
+<span class="sd">            table_name (str): The table name</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            str: schema name and table name concatenated in one string separated by comma.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">,</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">schema_name</span><span class="p">,</span>
+            <span class="n">table_name</span>
+        <span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">record_by_primary_keys_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">primary_keys</span><span class="p">):</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">orm_model</span><span class="p">)</span>
+        <span class="n">model_description</span> <span class="o">=</span> <span class="n">ModelDescription</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">orm_model</span><span class="p">)</span>
+        <span class="n">model_primary_keys</span> <span class="o">=</span> <span class="n">model_description</span><span class="o">.</span><span class="n">primary_key_columns</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">primary_keys</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">model_primary_keys</span><span class="p">):</span>
+            <span class="n">hint_text</span> <span class="o">=</span> <span class="s2">&quot;The number of passed primary keys mismatch the model given. Can&#39;t complete the &quot;</span> \
+                        <span class="s2">&quot;request. Sorry...&quot;</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">hint_text</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">HTTPBadRequest</span><span class="p">(</span>
+                <span class="n">detail</span><span class="o">=</span><span class="n">hint_text</span>
+            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">requested_primary_key</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">primary_keys</span><span class="p">):</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">model_primary_keys</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">requested_primary_key</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">one</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">result</span>
+        <span class="k">except</span> <span class="n">MultipleResultsFound</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">hint_text</span> <span class="o">=</span> <span class="s2">&quot;Strange thing happened... Found more than one record for the primary key(s) &quot;</span> \
+                        <span class="s2">&quot;you passed.&quot;</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{text}</span><span class="s1">, Original error was: </span><span class="si">{error}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">hint_text</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="n">e</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="n">HTTPBadRequest</span><span class="p">(</span>
+                <span class="n">detail</span><span class="o">=</span><span class="n">hint_text</span>
+            <span class="p">)</span>
+
+<div class="viewcode-block" id="Service.handle_json_"><a class="viewcode-back" href="../../../main_classes.html#pyramid_georest.lib.rest.Service.handle_json_">[docs]</a>    <span class="k">def</span> <span class="nf">handle_json_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">orm_object</span><span class="p">,</span> <span class="n">feature</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method to assign values from passed json feature to the corresponding model object. It takes care of</span>
+<span class="sd">        correctly handle geometry values.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            orm_object (sqlalchemy.ext.declarative.DeclarativeMeta): The orm model object which the values</span>
+<span class="sd">                should be assigned to.</span>
+<span class="sd">            feature (dict): The feature which contains the values to be assigned to model instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># At this moment there is no check for valid json data this leads to normal</span>
+        <span class="c1"># behaving process, but no data will be written at all because the keys are not matching.</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">feature</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">feature</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">orm_object</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry_treatment_</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Service.handle_geojson_"><a class="viewcode-back" href="../../../main_classes.html#pyramid_georest.lib.rest.Service.handle_geojson_">[docs]</a>    <span class="k">def</span> <span class="nf">handle_geojson_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">orm_object</span><span class="p">,</span> <span class="n">feature</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method to assign values from passed geojson feature to the corresponding model object. It takes care</span>
+<span class="sd">        of correctly handle geometry values.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            orm_object (sqlalchemy.ext.declarative.DeclarativeMeta): The orm model object which the values</span>
+<span class="sd">                should be assigned to.</span>
+<span class="sd">            feature (dict): The feature which contains the values to be assigned to model instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">properties</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;properties&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">properties</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">properties</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">orm_object</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="n">geometry</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;geometry&#39;</span><span class="p">)</span>
+        <span class="c1"># GeoJson supports only one geometry attribute per feature, so we use the first geometry</span>
+        <span class="c1"># column from model description... Not the best way but as long we have only one geometry</span>
+        <span class="c1"># attribute per table it will work</span>
+        <span class="n">geometry_column_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_description</span><span class="o">.</span><span class="n">geometry_column_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">concrete_wkt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry_treatment_</span><span class="p">(</span><span class="n">geometry_column_name</span><span class="p">,</span> <span class="n">asShape</span><span class="p">(</span><span class="n">geometry</span><span class="p">)</span><span class="o">.</span><span class="n">wkt</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">orm_object</span><span class="p">,</span> <span class="n">geometry_column_name</span><span class="p">,</span> <span class="n">concrete_wkt</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">geometry_treatment_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_description</span><span class="o">.</span><span class="n">geometry_column_names</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">WKTElement</span><span class="p">(</span>
+                <span class="n">value</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model_description</span><span class="o">.</span><span class="n">column_descriptions</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;srid&#39;</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">value</span>
+
+<div class="viewcode-block" id="Service.read"><a class="viewcode-back" href="../../../main_classes.html#pyramid_georest.lib.rest.Service.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">rest_filter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">order_by</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">direction</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The method which is used by the api to read a bunch of records from the database.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            session (sqlalchemy.orm.Session): The session which is uesed to emit the query.</span>
+<span class="sd">            request (pyramid.request.Request): The request which comes all the way through the application</span>
+<span class="sd">                from the client</span>
+<span class="sd">            rest_filter (pyramid_georest.lib.rest.Filter or None): The Filter which might be applied to the</span>
+<span class="sd">                query in addition.</span>
+<span class="sd">            offset (int or None): The offset which is used for paging reasons. It is only applied if limit is</span>
+<span class="sd">                present too.</span>
+<span class="sd">            limit (int or None): The limit which is used for paging reason. It is only applied of offest is</span>
+<span class="sd">                present too.</span>
+<span class="sd">            order_by (str or None): The column name which the sort is assigned to. It is only used if</span>
+<span class="sd">                direction is present too.</span>
+<span class="sd">            direction (str or None): The direction which is used for sorting. It is only used if order_by</span>
+<span class="sd">                is present too.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">             list of sqlalchemy.ext.declarative.DeclarativeMeta: A list of database records found for the</span>
+<span class="sd">                request.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">orm_model</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">rest_filter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="n">rest_filter</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">order_by</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">direction</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">column</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_description</span><span class="o">.</span><span class="n">column_classes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">order_by</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">direction</span> <span class="ow">in</span> <span class="n">DIRECTION_ASC</span><span class="p">:</span>
+                <span class="n">query</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">asc</span><span class="p">(</span><span class="n">column</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">direction</span> <span class="ow">in</span> <span class="n">DIRECTION_DESC</span><span class="p">:</span>
+                <span class="n">query</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">desc</span><span class="p">(</span><span class="n">column</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">limit</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">offset</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">limit</span><span class="p">(</span><span class="n">limit</span><span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">results</span></div>
+
+<div class="viewcode-block" id="Service.count"><a class="viewcode-back" href="../../../main_classes.html#pyramid_georest.lib.rest.Service.count">[docs]</a>    <span class="k">def</span> <span class="nf">count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">rest_filter</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The method which is used by the api to count the number of records in the database.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            session (sqlalchemy.orm.Session): The session which is uesed to emit the query.</span>
+<span class="sd">            request (pyramid.request.Request): The request which comes all the way through the application</span>
+<span class="sd">                from the client</span>
+<span class="sd">            rest_filter (pyramid_georest.lib.rest.Filter or None): The Filter which might be applied to the</span>
+<span class="sd">                query in addition.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">             int: The count of records found in the database.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">orm_model</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">rest_filter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="n">rest_filter</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">count</span></div>
+
+<div class="viewcode-block" id="Service.show"><a class="viewcode-back" href="../../../main_classes.html#pyramid_georest.lib.rest.Service.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">primary_keys</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The method which is used by the api to read exact one record from the database.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            session (sqlalchemy.orm.Session): The sqlalchemy session object</span>
+<span class="sd">            request (pyramid.request.Request): The request which comes all the way through the application</span>
+<span class="sd">            from the client</span>
+<span class="sd">            primary_keys (list of str): The primary keys which are used to filter the exact element.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">             list of sqlalchemy.ext.declarative.DeclarativeMeta: A list of database records found for the</span>
+<span class="sd">                request.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">record_by_primary_keys_</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">primary_keys</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">result</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Service.create"><a class="viewcode-back" href="../../../main_classes.html#pyramid_georest.lib.rest.Service.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">feature</span><span class="p">,</span> <span class="n">passed_format</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The method which is used by the api to create exact one record in the database.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (pyramid.request.Request): The request which comes all the way through the application</span>
+<span class="sd">            from the client</span>
+<span class="sd">            session (sqlalchemy.orm.Session): The sqlalchemy session object</span>
+<span class="sd">            feature (dict): The feature which should be created in database.</span>
+<span class="sd">            passed_format (str): The format which the feature is constructed of.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list of sqlalchemy.ext.declarative.DeclarativeMeta: A list of database records found for the</span>
+<span class="sd">                request.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">orm_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">orm_model</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">passed_format</span> <span class="o">==</span> <span class="s1">&#39;json&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">handle_json_</span><span class="p">(</span><span class="n">orm_object</span><span class="p">,</span> <span class="n">feature</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">passed_format</span> <span class="o">==</span> <span class="s1">&#39;geojson&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">handle_geojson_</span><span class="p">(</span><span class="n">orm_object</span><span class="p">,</span> <span class="n">feature</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">hint_text</span> <span class="o">=</span> <span class="s1">&#39;The Format &quot;</span><span class="si">{format}</span><span class="s1">&quot; is not defined for this service. Sorry...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="nb">format</span><span class="o">=</span><span class="n">passed_format</span>
+            <span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">hint_text</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">HTTPNotFound</span><span class="p">(</span>
+                <span class="n">detail</span><span class="o">=</span><span class="n">hint_text</span>
+            <span class="p">)</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">orm_object</span><span class="p">)</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">orm_object</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Service.update"><a class="viewcode-back" href="../../../main_classes.html#pyramid_georest.lib.rest.Service.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">primary_keys</span><span class="p">,</span> <span class="n">feature</span><span class="p">,</span> <span class="n">passed_format</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The method which is used by the api to update exact one record in the database.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            session (sqlalchemy.orm.Session): The sqlalchemy session object</span>
+<span class="sd">            request (pyramid.request.Request): The request which comes all the way through the application</span>
+<span class="sd">            from the client</span>
+<span class="sd">            primary_keys (list of str): The primary keys which are used to filter the exact element.</span>
+<span class="sd">            feature (dict): The feature which should be updated in database.</span>
+<span class="sd">            passed_format (str): The format which the feature is constructed of.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list of sqlalchemy.ext.declarative.DeclarativeMeta: A list of database records found for the</span>
+<span class="sd">                request.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">orm_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">record_by_primary_keys_</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">primary_keys</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">passed_format</span> <span class="o">==</span> <span class="s1">&#39;json&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">handle_json_</span><span class="p">(</span><span class="n">orm_object</span><span class="p">,</span> <span class="n">feature</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">passed_format</span> <span class="o">==</span> <span class="s1">&#39;geojson&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">handle_geojson_</span><span class="p">(</span><span class="n">orm_object</span><span class="p">,</span> <span class="n">feature</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">hint_text</span> <span class="o">=</span> <span class="s1">&#39;The Format &quot;</span><span class="si">{format}</span><span class="s1">&quot; is not defined for this service. Sorry...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="nb">format</span><span class="o">=</span><span class="n">passed_format</span>
+            <span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">hint_text</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">HTTPNotFound</span><span class="p">(</span>
+                <span class="n">detail</span><span class="o">=</span><span class="n">hint_text</span>
+            <span class="p">)</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">orm_object</span><span class="p">)</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">orm_object</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Service.delete"><a class="viewcode-back" href="../../../main_classes.html#pyramid_georest.lib.rest.Service.delete">[docs]</a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">primary_keys</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The method which is used by the api to delete exact one record in the database.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            session (sqlalchemy.orm.Session): The sqlalchemy session object</span>
+<span class="sd">            request (pyramid.request.Request): The request which comes all the way through the application</span>
+<span class="sd">            from the client</span>
+<span class="sd">            primary_keys (list of str): The primary keys which are used to filter the exact element.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">             list of sqlalchemy.ext.declarative.DeclarativeMeta: A list of database records found for the</span>
+<span class="sd">                request.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">record_by_primary_keys_</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">primary_keys</span><span class="p">)</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">result</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Service.model"><a class="viewcode-back" href="../../../main_classes.html#pyramid_georest.lib.rest.Service.model">[docs]</a>    <span class="k">def</span> <span class="nf">model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The method which is used by the api to deliver a machine readable and serializable description of</span>
+<span class="sd">        the underlying database table/model.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (pyramid.request.Request): The request which comes all the way through the application</span>
+<span class="sd">                    from the client</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            pyramid_georest.lib.description.ModelDescription: The model description of this service.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_description</span></div>
+
+<div class="viewcode-block" id="Service.adapter"><a class="viewcode-back" href="../../../main_classes.html#pyramid_georest.lib.rest.Service.adapter">[docs]</a>    <span class="k">def</span> <span class="nf">adapter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The method which is used by the api to deliver a client side usable adapter to handle the REST API.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (pyramid.request.Request): The request which comes all the way through the application</span>
+<span class="sd">                from the client</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            pyramid_georest.lib.description.ModelDescription: The model description of this service.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_description</span></div></div>
+
+
+<div class="viewcode-block" id="Api"><a class="viewcode-back" href="../../../main_classes.html#pyramid_georest.lib.rest.Api">[docs]</a><span class="k">class</span> <span class="nc">Api</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Api.__init__"><a class="viewcode-back" href="../../../main_classes.html#pyramid_georest.lib.rest.Api.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">read_method</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">read_filter_method</span><span class="o">=</span><span class="s1">&#39;POST&#39;</span><span class="p">,</span> <span class="n">create_method</span><span class="o">=</span><span class="s1">&#39;POST&#39;</span><span class="p">,</span>
+                 <span class="n">update_method</span><span class="o">=</span><span class="s1">&#39;PUT&#39;</span><span class="p">,</span> <span class="n">delete_method</span><span class="o">=</span><span class="s1">&#39;DELETE&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A Object which holds the connection to the database and arbitrary numbers of services. It works</span>
+<span class="sd">        like a proxy for the request. It decides which service will be finally called by reading</span>
+<span class="sd">        the requested url parts and calls the appropriate service method.</span>
+
+<span class="sd">        In addition you can implement api wide behaviour like authorization be subclassing this class</span>
+<span class="sd">        and adding some pre or post processing to the particular methods.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            url (str): The connection string which is used to let the api connect with the desired database.</span>
+<span class="sd">            It must have the form as described here:</span>
+<span class="sd">                http://docs.sqlalchemy.org/en/latest/core/engines.html</span>
+<span class="sd">            config (pyramid.config.Configurator): The config of the hosting pyramid application.</span>
+<span class="sd">            name (str): The name which is used internally as an identifier of the api, to make it selectable</span>
+<span class="sd">                between other api&#39;s. This name must be unique all over the application. If not an error will</span>
+<span class="sd">                be thrown on application start up.</span>
+<span class="sd">            read_method (str): The HTTP method which is used to match the routing to the API.</span>
+<span class="sd">            read_filter_method (str): The HTTP method which is used to match the routing to the API.</span>
+<span class="sd">            create_method (str): The HTTP method which is used to match the routing to the API.</span>
+<span class="sd">            update_method (str): The HTTP method which is used to match the routing to the API.</span>
+<span class="sd">            delete_method (str): The HTTP method which is used to match the routing to the API.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            LookupError</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">read_method</span> <span class="o">=</span> <span class="n">read_method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">read_filter_method</span> <span class="o">=</span> <span class="n">read_filter_method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_method</span> <span class="o">=</span> <span class="n">create_method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_method</span> <span class="o">=</span> <span class="n">update_method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">delete_method</span> <span class="o">=</span> <span class="n">delete_method</span>
+
+        <span class="n">connection_already_exists</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">connections</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">pyramid_georest_database_connections</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">connections</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">key</span><span class="p">:</span>
+                <span class="n">connection_already_exists</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">connection</span> <span class="o">=</span> <span class="n">connections</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">connection_already_exists</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">connection</span> <span class="o">=</span> <span class="n">Connection</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">pyramid_georest_database_connections</span><span class="p">[</span><span class="n">url</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">services</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">check_route_prefix</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">route_prefix</span><span class="p">)</span> <span class="o">+</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pure_name</span> <span class="o">=</span> <span class="n">name</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">pyramid_georest_apis</span><span class="p">:</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">pyramid_georest_apis</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span>
+            <span class="n">create_api_routing</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;The Api-Object you created seems to already exist in the registry. It has to &quot;</span>
+                <span class="s2">&quot;be unique at all. Couldn&#39;t be added. Sorry...&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">LookupError</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Api.add_service"><a class="viewcode-back" href="../../../main_classes.html#pyramid_georest.lib.rest.Api.add_service">[docs]</a>    <span class="k">def</span> <span class="nf">add_service</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add&#39;s a service to the api.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            service (Service): The service which should be added to the api.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            LookupError</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">service</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">service</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;The Service </span><span class="si">{name}</span><span class="s2"> was defined for this API already. Use the defined one.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">name</span><span class="o">=</span><span class="n">service</span><span class="o">.</span><span class="n">name</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">LookupError</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Api.provide_session"><a class="viewcode-back" href="../../../main_classes.html#pyramid_georest.lib.rest.Api.provide_session">[docs]</a>    <span class="k">def</span> <span class="nf">provide_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method provides a usable SQLAlchemy session instance. It is ensured, that this session is doomed</span>
+<span class="sd">        independent from the behavior of the request (it installs a finished listener to the request)</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (pyramid.request.Request): The request of the pyramid web framework</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Session: a usable instance of a SQLAlchemy Session</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">session_instance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">session</span><span class="p">()</span>
+        <span class="n">inner_scoped_session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">session</span>
+
+        <span class="k">def</span> <span class="nf">cleanup</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">exception</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">transaction</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">transaction</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+            <span class="n">inner_scoped_session</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+
+        <span class="n">request</span><span class="o">.</span><span class="n">add_finished_callback</span><span class="p">(</span><span class="n">cleanup</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">session_instance</span></div>
+
+<div class="viewcode-block" id="Api.find_service_by_definition"><a class="viewcode-back" href="../../../main_classes.html#pyramid_georest.lib.rest.Api.find_service_by_definition">[docs]</a>    <span class="k">def</span> <span class="nf">find_service_by_definition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schema_name</span><span class="p">,</span> <span class="n">table_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Little helper method to obtain a service from the api&#39;s service list by it&#39;s unique schema+table name</span>
+<span class="sd">        combination.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            schema_name (str): The database schema name the service is configured for.</span>
+<span class="sd">            table_name (str): The database table name the service is configured for.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Service or None: The found service.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Service</span><span class="o">.</span><span class="n">name_from_definition</span><span class="p">(</span><span class="n">schema_name</span><span class="p">,</span> <span class="n">table_name</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Api.find_service_by_request"><a class="viewcode-back" href="../../../main_classes.html#pyramid_georest.lib.rest.Api.find_service_by_request">[docs]</a>    <span class="k">def</span> <span class="nf">find_service_by_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Little helper method to scrabble the requested service directly from the url which was requested.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (pyramid.request.Request): The request which comes all the way through the application</span>
+<span class="sd">                from the client</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Service: The found service.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            HTTPNotFound</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">schema_name</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">matchdict</span><span class="p">[</span><span class="s1">&#39;schema_name&#39;</span><span class="p">]</span>
+        <span class="n">table_name</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">matchdict</span><span class="p">[</span><span class="s1">&#39;table_name&#39;</span><span class="p">]</span>
+        <span class="n">service</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_service_by_definition</span><span class="p">(</span><span class="n">schema_name</span><span class="p">,</span> <span class="n">table_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">service</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">hint_text</span> <span class="o">=</span> <span class="s1">&#39;Service with schema </span><span class="si">{schema_name}</span><span class="s1"> and table </span><span class="si">{table_name}</span><span class="s1"> could not be found.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">schema_name</span><span class="o">=</span><span class="n">schema_name</span><span class="p">,</span>
+                <span class="n">table_name</span><span class="o">=</span><span class="n">table_name</span>
+            <span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">hint_text</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">HTTPNotFound</span><span class="p">(</span>
+                <span class="n">detail</span><span class="o">=</span><span class="n">hint_text</span>
+            <span class="p">)</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">pyramid_georest_requested_service</span> <span class="o">=</span> <span class="n">service</span>
+        <span class="k">return</span> <span class="n">service</span></div>
+
+<div class="viewcode-block" id="Api.read"><a class="viewcode-back" href="../../../main_classes.html#pyramid_georest.lib.rest.Api.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The api wide method to receive the read request and passing it to the correct service. At this</span>
+<span class="sd">        point it is possible to implement some post or pre processing by overwriting this method.</span>
+<span class="sd">        The most common use case for this will be the implementation of an authorisation mechanism which has</span>
+<span class="sd">        influence on the whole api. To have influence on special services please see the service class</span>
+<span class="sd">        implementations read method.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (pyramid.request.Request): The request which comes all the way through the application</span>
+<span class="sd">                from the client.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pyramid.response.Response: An pyramid response object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">service</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_service_by_request</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">pyramid_georest_requested_api</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="n">session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">provide_session</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+        <span class="n">rest_filter</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="n">request</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">pyramid_georest_requested_api</span><span class="o">.</span><span class="n">read_filter_method</span><span class="p">:</span>
+            <span class="n">rest_filter</span> <span class="o">=</span> <span class="n">Filter</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">model_description</span><span class="p">,</span> <span class="o">**</span><span class="n">request</span><span class="o">.</span><span class="n">json_body</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;filter&#39;</span><span class="p">))</span>
+        <span class="n">offset</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;offset&#39;</span><span class="p">)</span>
+        <span class="n">limit</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;limit&#39;</span><span class="p">)</span>
+        <span class="n">order_by</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;order_by&#39;</span><span class="p">)</span>
+        <span class="n">direction</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;direction&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">offset</span> <span class="ow">and</span> <span class="n">limit</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">offset</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">hint_txt</span> <span class="o">=</span> <span class="s1">&#39;Value for offset has to be integer or a string which can be parsed as integer.&#39;</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">hint_txt</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">HTTPBadRequest</span><span class="p">(</span><span class="n">hint_txt</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">limit</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">limit</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">hint_txt</span> <span class="o">=</span> <span class="s1">&#39;Value for limit has to be integer or a string which can be parsed as integer.&#39;</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">hint_txt</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">HTTPBadRequest</span><span class="p">(</span><span class="n">hint_txt</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">offset</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">limit</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">order_by</span> <span class="ow">and</span> <span class="n">direction</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">order_by</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">hint_txt</span> <span class="o">=</span> <span class="s1">&#39;Value for order_by has to be string.&#39;</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">hint_txt</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">HTTPBadRequest</span><span class="p">(</span><span class="n">hint_txt</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">direction</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">hint_txt</span> <span class="o">=</span> <span class="s1">&#39;Value for direction has to be string.&#39;</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">hint_txt</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">HTTPBadRequest</span><span class="p">(</span><span class="n">hint_txt</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">direction</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">DIRECTION_ASC</span> <span class="o">+</span> <span class="n">DIRECTION_DESC</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">HTTPBadRequest</span><span class="p">(</span>
+                    <span class="s1">&#39;The parameter direction has to be one of the values: </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">DIRECTION_ASC</span> <span class="o">+</span> <span class="n">DIRECTION_DESC</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">service</span><span class="o">.</span><span class="n">model_description</span><span class="o">.</span><span class="n">is_valid_column</span><span class="p">(</span><span class="n">order_by</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">HTTPBadRequest</span><span class="p">(</span><span class="s1">&#39;The parameter order_by has to be one of the models columns. The passed &#39;</span>
+                                     <span class="s1">&#39;column name was </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">order_by</span><span class="p">)</span>
+                                     <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">order_by</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">direction</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">rest_filter</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="n">offset</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">,</span>
+                               <span class="n">order_by</span><span class="o">=</span><span class="n">order_by</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="n">direction</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">service</span><span class="o">.</span><span class="n">renderer_proxy</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">results</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">model_description</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Api.count"><a class="viewcode-back" href="../../../main_classes.html#pyramid_georest.lib.rest.Api.count">[docs]</a>    <span class="k">def</span> <span class="nf">count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The api wide method to receive the count request and passing it to the correct service. At this</span>
+<span class="sd">        point it is possible to implement some post or pre processing by overwriting this method.</span>
+<span class="sd">        The most common use case for this will be the implementation of an authorisation mechanism which has</span>
+<span class="sd">        influence on the whole api. To have influence on special services please see the service class</span>
+<span class="sd">        implementations read method.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (pyramid.request.Request): The request which comes all the way through the application</span>
+<span class="sd">                from the client.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pyramid.response.Response: An pyramid response object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">service</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_service_by_request</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">pyramid_georest_requested_api</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="n">session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">provide_session</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+        <span class="n">rest_filter</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="n">request</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">pyramid_georest_requested_api</span><span class="o">.</span><span class="n">read_filter_method</span><span class="p">:</span>
+            <span class="n">rest_filter</span> <span class="o">=</span> <span class="n">Filter</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">model_description</span><span class="p">,</span> <span class="o">**</span><span class="n">request</span><span class="o">.</span><span class="n">json_body</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;filter&#39;</span><span class="p">))</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">rest_filter</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">count</span></div>
+
+<div class="viewcode-block" id="Api.show"><a class="viewcode-back" href="../../../main_classes.html#pyramid_georest.lib.rest.Api.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The api wide method to receive the show request and passing it to the correct service. At this</span>
+<span class="sd">        point it is possible to implement some post or pre processing by overwriting this method.</span>
+<span class="sd">        The most common use case for this will be the implementation of an authorisation mechanism</span>
+<span class="sd">        which has influence on the whole api. To have influence on special services please see the service</span>
+<span class="sd">        class implementations show method.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (pyramid.request.Request): The request which comes all the way through the application</span>
+<span class="sd">                from the client.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pyramid.response.Response: An pyramid response object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">service</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_service_by_request</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">pyramid_georest_requested_api</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="n">session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">provide_session</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+        <span class="n">primary_keys</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">matchdict</span><span class="p">[</span><span class="s1">&#39;primary_keys&#39;</span><span class="p">]</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">primary_keys</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">service</span><span class="o">.</span><span class="n">renderer_proxy</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">results</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">model_description</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Api.create"><a class="viewcode-back" href="../../../main_classes.html#pyramid_georest.lib.rest.Api.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The api wide method to receive the create request and passing it to the correct service.</span>
+<span class="sd">        At this point it is possible to implement some post or pre processing by overwriting this method.</span>
+<span class="sd">        The most common use case for this will be the implementation of an authorisation mechanism which</span>
+<span class="sd">        has influence on the whole api. To have influence on special services please see the service class</span>
+<span class="sd">        implementations create method.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (pyramid.request.Request): The request which comes all the way through the application</span>
+<span class="sd">                from the client.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pyramid.response.Response: An pyramid response object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">service</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_service_by_request</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">pyramid_georest_requested_api</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="n">session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">provide_session</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+        <span class="n">passed_format</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">matchdict</span><span class="p">[</span><span class="s1">&#39;format&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">json_body</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;feature&#39;</span><span class="p">):</span>
+            <span class="n">feature</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">json_body</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;feature&#39;</span><span class="p">)</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">feature</span><span class="p">,</span> <span class="n">passed_format</span><span class="p">)</span>
+            <span class="n">request</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status_int</span> <span class="o">=</span> <span class="mi">201</span>
+            <span class="k">return</span> <span class="n">service</span><span class="o">.</span><span class="n">renderer_proxy</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">results</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">model_description</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HTTPBadRequest</span><span class="p">(</span><span class="s1">&#39;No features where found in request...&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Api.delete"><a class="viewcode-back" href="../../../main_classes.html#pyramid_georest.lib.rest.Api.delete">[docs]</a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The api wide method to receive the delete request and passing it to the correct service.</span>
+<span class="sd">        At this point it is possible to implement some post or pre processing by overwriting this method.</span>
+<span class="sd">        The most common use case for this will be the implementation of an authorisation mechanism which has</span>
+<span class="sd">        influence on the whole api. To have influence on special services please see the service class</span>
+<span class="sd">        implementations delete method.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (pyramid.request.Request): The request which comes all the way through the application</span>
+<span class="sd">                from the client.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pyramid.response.Response: An pyramid response object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">service</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_service_by_request</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">pyramid_georest_requested_api</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="n">session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">provide_session</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+        <span class="n">primary_keys</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">matchdict</span><span class="p">[</span><span class="s1">&#39;primary_keys&#39;</span><span class="p">]</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">primary_keys</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">service</span><span class="o">.</span><span class="n">renderer_proxy</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">results</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">model_description</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Api.update"><a class="viewcode-back" href="../../../main_classes.html#pyramid_georest.lib.rest.Api.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The api wide method to receive the update request and passing it to the correct service.</span>
+<span class="sd">        At this point it is possible to implement some post or pre processing by overwriting this method.</span>
+<span class="sd">        The most common use case for this will be the implementation of an authorisation mechanism which has</span>
+<span class="sd">        influence on the whole api. To have influence on special services please see the service class</span>
+<span class="sd">        implementations update method.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (pyramid.request.Request): The request which comes all the way through the application</span>
+<span class="sd">                from the client.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pyramid.response.Response: An pyramid response object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">service</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_service_by_request</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">pyramid_georest_requested_api</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="n">session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">provide_session</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+        <span class="n">primary_keys</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">matchdict</span><span class="p">[</span><span class="s1">&#39;primary_keys&#39;</span><span class="p">]</span>
+        <span class="n">passed_format</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">matchdict</span><span class="p">[</span><span class="s1">&#39;format&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">json_body</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;feature&#39;</span><span class="p">):</span>
+            <span class="n">feature</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">json_body</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;feature&#39;</span><span class="p">)</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">primary_keys</span><span class="p">,</span> <span class="n">feature</span><span class="p">,</span> <span class="n">passed_format</span><span class="p">)</span>
+            <span class="n">request</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status_int</span> <span class="o">=</span> <span class="mi">202</span>
+            <span class="k">return</span> <span class="n">service</span><span class="o">.</span><span class="n">renderer_proxy</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">results</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">model_description</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HTTPBadRequest</span><span class="p">(</span><span class="s1">&#39;No features where found in request...&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Api.model"><a class="viewcode-back" href="../../../main_classes.html#pyramid_georest.lib.rest.Api.model">[docs]</a>    <span class="k">def</span> <span class="nf">model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The api wide method to receive the model request and passing it to the correct service.</span>
+<span class="sd">        At this point it is possible to implement some post or pre processing by overwriting this method.</span>
+<span class="sd">        The most common use case for this will be the implementation of an authorisation mechanism which</span>
+<span class="sd">        has influence on the whole api. To have influence on special services please see the service class</span>
+<span class="sd">        implementations model method.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (pyramid.request.Request): The request which comes all the way through the application</span>
+<span class="sd">                from the client.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pyramid.response.Response: An pyramid response object</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            HTTPNotFound</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">service</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_service_by_request</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">pyramid_georest_requested_api</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="n">response_format</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">matchdict</span><span class="p">[</span><span class="s1">&#39;format&#39;</span><span class="p">]</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">response_format</span> <span class="o">==</span> <span class="s1">&#39;json&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">render_to_response</span><span class="p">(</span>
+                <span class="s1">&#39;geo_restful_model_json&#39;</span><span class="p">,</span>
+                <span class="n">model</span><span class="p">,</span>
+                <span class="n">request</span><span class="o">=</span><span class="n">request</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">response_format</span> <span class="o">==</span> <span class="s1">&#39;xml&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">render_to_response</span><span class="p">(</span>
+                <span class="s1">&#39;geo_restful_model_xml&#39;</span><span class="p">,</span>
+                <span class="n">model</span><span class="p">,</span>
+                <span class="n">request</span><span class="o">=</span><span class="n">request</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">hint_text</span> <span class="o">=</span> <span class="s1">&#39;The Format &quot;</span><span class="si">{format}</span><span class="s1">&quot; is not defined for this service. Sorry...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="nb">format</span><span class="o">=</span><span class="n">response_format</span>
+            <span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">hint_text</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">HTTPNotFound</span><span class="p">(</span>
+                <span class="n">detail</span><span class="o">=</span><span class="n">hint_text</span>
+            <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Api.adapter"><a class="viewcode-back" href="../../../main_classes.html#pyramid_georest.lib.rest.Api.adapter">[docs]</a>    <span class="k">def</span> <span class="nf">adapter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The api wide method to receive the adapter request and passing it to the correct service.</span>
+<span class="sd">        At this point it is possible to implement some post or pre processing by overwriting this method.</span>
+<span class="sd">        The most common use case for this will be the implementation of an authorisation mechanism which</span>
+<span class="sd">        has influence on the whole api. To have influence on special services please see the service class</span>
+<span class="sd">        implementations adapter method.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (pyramid.request.Request): The request which comes all the way through the application</span>
+<span class="sd">                from the client.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pyramid.response.Response: An pyramid response object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">service</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_service_by_request</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">pyramid_georest_requested_api</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">service</span><span class="o">.</span><span class="n">adapter_proxy</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014 - 2019, Clemens Rudert
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

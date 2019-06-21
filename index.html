@@ -1,0 +1,320 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pyramid_georest documentation &mdash; pyramid_georest 3.1.0-rc5 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'./',
+              VERSION:'3.1.0-rc5',
+              LANGUAGE:'en',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Usage" href="usage.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="#" class="icon icon-home"> pyramid_georest
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="url_patterns.html">Used URL patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="filter.html">Filtering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="main_classes.html">Main classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="special_classes.html">Special classes</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">pyramid_georest</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#">Docs</a> &raquo;</li>
+        
+      <li>pyramid_georest documentation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="toctree-wrapper compound">
+</div>
+<div class="section" id="pyramid-georest-documentation">
+<h1>pyramid_georest documentation<a class="headerlink" href="#pyramid-georest-documentation" title="Permalink to this headline">¶</a></h1>
+<p>This little package gives shortcuts to create a restful api to database sources. It provides a url pattern to
+serve the sources.
+It is meant to be used in a pyramid web framework eco system. It uses pyramid and sqlalchemy logic as well.
+Its goal is to extend the database usage in pyramid frameworks. This way, it will be possible to serve data
+sources from different databases from a single pyramid application.</p>
+<p>I used a simple class system to make this api as adaptable as possible.</p>
+<p>Main features:</p>
+<ul class="simple">
+<li>read (json, geojson, xml) + filtering via json parameters - also for geographic attributes + paging</li>
+<li>read one / show (json, geojson, xml)</li>
+<li>create one</li>
+<li>update one</li>
+<li>delete one</li>
+<li>data model description (json, geojson, xml) =&gt; This provides a description to implement client side forms
+bound to the underlying data.</li>
+</ul>
+<p>Special thing of this api: It can serve geometric extension objects too (It&#8217;s only limited by geoalchemy2).</p>
+<div class="section" id="main-concept">
+<h2>Main concept<a class="headerlink" href="#main-concept" title="Permalink to this headline">¶</a></h2>
+<p>The main goal of this library is to reduce the consumption of memory ,
+url spaces and cpu usage. In big applications with a lot of services and therefor many incoming requests
+this is a really big problem. In this context we have some central points
+to take care of.</p>
+<ol class="arabic simple">
+<li>number of database connections</li>
+<li>number of defined dedicated urls</li>
+<li>adaptability of the several parts which a API consist of</li>
+</ol>
+<p>Therefor this api ships with a mechanism which takes care of reusing
+database connections as long as their definition is exactly the same
+(we use the connections string for this as a key).
+To reduce the number of constructed urls on server startup we create
+only one set of restful urls per api. So every service added to an api
+will fit in this set and will be identified by a match pattern. If you are interested more in detail, please
+have a closer look in <a class="reference internal" href="url_patterns.html#url-patterns"><span class="std std-ref">Used URL patterns</span></a></p>
+<p><strong>To explain it in a more schematic way:</strong></p>
+<p>pyramid_georest defines a API object per unique database connection string and holds them in a dictionary by
+name as identifier. The <em>registration</em> is done on startup. So you will get an error on application start if
+there is a name interference between several registered API&#8217;s.
+Each API holds arbitrary number of Service classes which represents the entry points for the CRUD interface.</p>
+<p>Often you have some bigger applications and it is necessary to do some
+more dedicated and more structured organization of api&#8217;s.
+Especially if you are using the possibility of pyramid plugins which
+you include in the pyramid way (<a class="reference external" href="http://docs.pylonsproject.org/projects/pyramid/en/latest/api/config.html#pyramid.config.Configurator.include">pyramid include</a>).
+This kind of api object creates its own url scope and will respect the
+route_prefix of the including application. This is much more flexible
+in big applications which have different scopes to use the rest api.
+Of cause it is possible to have several levels of includes. All
+combined route_prefixes will be taken into account.</p>
+<div class="section" id="one-dedicated-api-for-a-specific-plugin">
+<h3>One dedicated API for a specific plugin<a class="headerlink" href="#one-dedicated-api-for-a-specific-plugin" title="Permalink to this headline">¶</a></h3>
+<p>If you have some plugin which you like to include in your pyramid
+application (cause this is the most generic way you can extend pyramid)
+you probably like to have a restful api dedicated to this plugin in
+matter of url spaces and naming. The code to achieve this might look
+like the following:</p>
+<p>In your main pyramid application:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">global_config</span><span class="p">,</span> <span class="o">**</span><span class="n">settings</span><span class="p">):</span>
+   <span class="sd">&quot;&quot;&quot; This function returns a Pyramid WSGI application.&quot;&quot;&quot;</span>
+   <span class="n">config</span> <span class="o">=</span> <span class="n">Configurator</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="n">settings</span><span class="p">)</span>
+   <span class="n">config</span><span class="o">.</span><span class="n">include</span><span class="p">(</span><span class="s1">&#39;pyramid_georest&#39;</span><span class="p">)</span>
+   <span class="n">config</span><span class="o">.</span><span class="n">include</span><span class="p">(</span><span class="s1">&#39;my_plugin&#39;</span><span class="p">,</span> <span class="n">route_prefix</span><span class="o">=</span><span class="s1">&#39;my_plugin&#39;</span><span class="p">)</span>
+   <span class="n">config</span><span class="o">.</span><span class="n">scan</span><span class="p">()</span>
+   <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">make_wsgi_app</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>In your plugins includeme mehtod:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyramid_georest.lib.rest</span> <span class="kn">import</span> <span class="n">Api</span><span class="p">,</span> <span class="n">Service</span>
+<span class="kn">from</span> <span class="nn">my_plugin.model</span> <span class="kn">import</span> <span class="n">PluginModel</span>
+<span class="k">def</span> <span class="nf">includeme</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+   <span class="n">dedicated_api</span> <span class="o">=</span> <span class="n">Api</span><span class="p">(</span>
+      <span class="s1">&#39;postgresql://postgres:password@localhost:5432/test&#39;</span><span class="p">,</span>
+      <span class="n">config</span><span class="p">,</span>
+      <span class="s1">&#39;api&#39;</span>
+   <span class="p">)</span>
+   <span class="n">dedicated_service</span> <span class="o">=</span> <span class="n">Service</span><span class="p">(</span><span class="n">PluginModel</span><span class="p">)</span>
+   <span class="n">dedicated_api</span><span class="o">.</span><span class="n">add_service</span><span class="p">(</span><span class="n">dedicated_service</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Please note also that the route prefix in the include method is not
+mandatory but useful for the api created by this package.</p>
+<p>Looking at the code above you will get an api which is running under
+the prefix &#8216;/my_plugin/&#8217; and with the name &#8216;api&#8217;.
+So you will find each service bound to this api under /my_plugin/api/...</p>
+</div>
+<div class="section" id="some-words-about-pyramid-s-plugin-system">
+<h3>Some words about pyramid&#8217;s plugin system<a class="headerlink" href="#some-words-about-pyramid-s-plugin-system" title="Permalink to this headline">¶</a></h3>
+<p>Obviously this system is really flexible. And that&#8217;s why it is completely possible there might be a situation
+where the approach of registering API&#8217;s might fail. You only need do think of a main application which
+includes several plugins using pyramid_georest which them self include plugins which are using
+pyramid_georest.</p>
+<p>I&#8217;am interested in such use cases and I will try to do my best to solve bugs on that. But sometimes the more
+generic approach also might be a reorganisation of the code in such projects (own experience).</p>
+</div>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="usage.html" class="btn btn-neutral float-right" title="Usage" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014 - 2019, Clemens Rudert
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

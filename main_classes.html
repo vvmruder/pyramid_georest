@@ -1,0 +1,862 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Main classes &mdash; pyramid_georest 3.1.0-rc5 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'./',
+              VERSION:'3.1.0-rc5',
+              LANGUAGE:'en',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Special classes" href="special_classes.html" />
+    <link rel="prev" title="Filtering" href="filter.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pyramid_georest
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="url_patterns.html">Used URL patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="filter.html">Filtering</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Main classes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#api"><em>Api</em></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#service"><em>Service</em></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="special_classes.html">Special classes</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pyramid_georest</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Main classes</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="main-classes">
+<span id="id1"></span><h1>Main classes<a class="headerlink" href="#main-classes" title="Permalink to this headline">¶</a></h1>
+<p>This part of documentation is about the most often used classes of pyramid_georest. They are used for simple
+creation of a pyramid_georest API.</p>
+<div class="section" id="api">
+<span id="modules-pyramid-georest-lib-rest-api"></span><h2><em>Api</em><a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyramid_georest.lib.rest.Api">
+<em class="property">class </em><code class="descclassname">pyramid_georest.lib.rest.</code><code class="descname">Api</code><span class="sig-paren">(</span><em>url</em>, <em>config</em>, <em>name</em>, <em>read_method='GET'</em>, <em>read_filter_method='POST'</em>, <em>create_method='POST'</em>, <em>update_method='PUT'</em>, <em>delete_method='DELETE'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Api"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Api" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="pyramid_georest.lib.rest.Api.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>url</em>, <em>config</em>, <em>name</em>, <em>read_method='GET'</em>, <em>read_filter_method='POST'</em>, <em>create_method='POST'</em>, <em>update_method='PUT'</em>, <em>delete_method='DELETE'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Api.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Api.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>A Object which holds the connection to the database and arbitrary numbers of services. It works
+like a proxy for the request. It decides which service will be finally called by reading
+the requested url parts and calls the appropriate service method.</p>
+<p>In addition you can implement api wide behaviour like authorization be subclassing this class
+and adding some pre or post processing to the particular methods.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>url</strong> (<em>str</em>) &#8211; The connection string which is used to let the api connect with the desired database.</li>
+<li><strong>must have the form as described here</strong> (<em>It</em>) &#8211; <a class="reference external" href="http://docs.sqlalchemy.org/en/latest/core/engines.html">http://docs.sqlalchemy.org/en/latest/core/engines.html</a></li>
+<li><strong>config</strong> (<em>pyramid.config.Configurator</em>) &#8211; The config of the hosting pyramid application.</li>
+<li><strong>name</strong> (<em>str</em>) &#8211; The name which is used internally as an identifier of the api, to make it selectable
+between other api&#8217;s. This name must be unique all over the application. If not an error will
+be thrown on application start up.</li>
+<li><strong>read_method</strong> (<em>str</em>) &#8211; The HTTP method which is used to match the routing to the API.</li>
+<li><strong>read_filter_method</strong> (<em>str</em>) &#8211; The HTTP method which is used to match the routing to the API.</li>
+<li><strong>create_method</strong> (<em>str</em>) &#8211; The HTTP method which is used to match the routing to the API.</li>
+<li><strong>update_method</strong> (<em>str</em>) &#8211; The HTTP method which is used to match the routing to the API.</li>
+<li><strong>delete_method</strong> (<em>str</em>) &#8211; The HTTP method which is used to match the routing to the API.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">LookupError</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.rest.Api.adapter">
+<code class="descname">adapter</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Api.adapter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Api.adapter" title="Permalink to this definition">¶</a></dt>
+<dd><p>The api wide method to receive the adapter request and passing it to the correct service.
+At this point it is possible to implement some post or pre processing by overwriting this method.
+The most common use case for this will be the implementation of an authorisation mechanism which
+has influence on the whole api. To have influence on special services please see the service class
+implementations adapter method.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request</strong> (<em>pyramid.request.Request</em>) &#8211; The request which comes all the way through the application
+from the client.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An pyramid response object</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">pyramid.response.Response</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.rest.Api.add_service">
+<code class="descname">add_service</code><span class="sig-paren">(</span><em>service</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Api.add_service"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Api.add_service" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add&#8217;s a service to the api.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>service</strong> (<a class="reference internal" href="#pyramid_georest.lib.rest.Service" title="pyramid_georest.lib.rest.Service"><em>Service</em></a>) &#8211; The service which should be added to the api.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">LookupError</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.rest.Api.count">
+<code class="descname">count</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Api.count"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Api.count" title="Permalink to this definition">¶</a></dt>
+<dd><p>The api wide method to receive the count request and passing it to the correct service. At this
+point it is possible to implement some post or pre processing by overwriting this method.
+The most common use case for this will be the implementation of an authorisation mechanism which has
+influence on the whole api. To have influence on special services please see the service class
+implementations read method.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request</strong> (<em>pyramid.request.Request</em>) &#8211; The request which comes all the way through the application
+from the client.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An pyramid response object</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">pyramid.response.Response</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.rest.Api.create">
+<code class="descname">create</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Api.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Api.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>The api wide method to receive the create request and passing it to the correct service.
+At this point it is possible to implement some post or pre processing by overwriting this method.
+The most common use case for this will be the implementation of an authorisation mechanism which
+has influence on the whole api. To have influence on special services please see the service class
+implementations create method.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request</strong> (<em>pyramid.request.Request</em>) &#8211; The request which comes all the way through the application
+from the client.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An pyramid response object</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">pyramid.response.Response</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.rest.Api.delete">
+<code class="descname">delete</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Api.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Api.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>The api wide method to receive the delete request and passing it to the correct service.
+At this point it is possible to implement some post or pre processing by overwriting this method.
+The most common use case for this will be the implementation of an authorisation mechanism which has
+influence on the whole api. To have influence on special services please see the service class
+implementations delete method.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request</strong> (<em>pyramid.request.Request</em>) &#8211; The request which comes all the way through the application
+from the client.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An pyramid response object</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">pyramid.response.Response</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.rest.Api.find_service_by_definition">
+<code class="descname">find_service_by_definition</code><span class="sig-paren">(</span><em>schema_name</em>, <em>table_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Api.find_service_by_definition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Api.find_service_by_definition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Little helper method to obtain a service from the api&#8217;s service list by it&#8217;s unique schema+table name
+combination.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>schema_name</strong> (<em>str</em>) &#8211; The database schema name the service is configured for.</li>
+<li><strong>table_name</strong> (<em>str</em>) &#8211; The database table name the service is configured for.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The found service.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pyramid_georest.lib.rest.Service" title="pyramid_georest.lib.rest.Service">Service</a> or None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.rest.Api.find_service_by_request">
+<code class="descname">find_service_by_request</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Api.find_service_by_request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Api.find_service_by_request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Little helper method to scrabble the requested service directly from the url which was requested.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request</strong> (<em>pyramid.request.Request</em>) &#8211; The request which comes all the way through the application
+from the client</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The found service.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pyramid_georest.lib.rest.Service" title="pyramid_georest.lib.rest.Service">Service</a></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">HTTPNotFound</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.rest.Api.model">
+<code class="descname">model</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Api.model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Api.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>The api wide method to receive the model request and passing it to the correct service.
+At this point it is possible to implement some post or pre processing by overwriting this method.
+The most common use case for this will be the implementation of an authorisation mechanism which
+has influence on the whole api. To have influence on special services please see the service class
+implementations model method.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request</strong> (<em>pyramid.request.Request</em>) &#8211; The request which comes all the way through the application
+from the client.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An pyramid response object</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">pyramid.response.Response</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">HTTPNotFound</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.rest.Api.provide_session">
+<code class="descname">provide_session</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Api.provide_session"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Api.provide_session" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method provides a usable SQLAlchemy session instance. It is ensured, that this session is doomed
+independent from the behavior of the request (it installs a finished listener to the request)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request</strong> (<em>pyramid.request.Request</em>) &#8211; The request of the pyramid web framework</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a usable instance of a SQLAlchemy Session</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Session</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.rest.Api.read">
+<code class="descname">read</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Api.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Api.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>The api wide method to receive the read request and passing it to the correct service. At this
+point it is possible to implement some post or pre processing by overwriting this method.
+The most common use case for this will be the implementation of an authorisation mechanism which has
+influence on the whole api. To have influence on special services please see the service class
+implementations read method.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request</strong> (<em>pyramid.request.Request</em>) &#8211; The request which comes all the way through the application
+from the client.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An pyramid response object</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">pyramid.response.Response</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.rest.Api.show">
+<code class="descname">show</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Api.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Api.show" title="Permalink to this definition">¶</a></dt>
+<dd><p>The api wide method to receive the show request and passing it to the correct service. At this
+point it is possible to implement some post or pre processing by overwriting this method.
+The most common use case for this will be the implementation of an authorisation mechanism
+which has influence on the whole api. To have influence on special services please see the service
+class implementations show method.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request</strong> (<em>pyramid.request.Request</em>) &#8211; The request which comes all the way through the application
+from the client.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An pyramid response object</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">pyramid.response.Response</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.rest.Api.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Api.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Api.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>The api wide method to receive the update request and passing it to the correct service.
+At this point it is possible to implement some post or pre processing by overwriting this method.
+The most common use case for this will be the implementation of an authorisation mechanism which has
+influence on the whole api. To have influence on special services please see the service class
+implementations update method.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request</strong> (<em>pyramid.request.Request</em>) &#8211; The request which comes all the way through the application
+from the client.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An pyramid response object</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">pyramid.response.Response</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="service">
+<span id="modules-pyramid-georest-lib-rest-service"></span><h2><em>Service</em><a class="headerlink" href="#service" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyramid_georest.lib.rest.Service">
+<em class="property">class </em><code class="descclassname">pyramid_georest.lib.rest.</code><code class="descname">Service</code><span class="sig-paren">(</span><em>model</em>, <em>renderer_proxy=None</em>, <em>adapter_proxy=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Service"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Service" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="pyramid_georest.lib.rest.Service.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>model</em>, <em>renderer_proxy=None</em>, <em>adapter_proxy=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Service.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Service.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>A object which represents an restful service. It offers all the necessary methods and is able to
+consume a renderer proxy. This way we assure a plug able system to use custom renderers.
+If some custom behaviour is wanted at all, you can achieve this by subclassing this class and
+adding some post or pre processing to the desired method.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>model</strong> (<em>sqlalchemy.ext.declarative.DeclarativeMeta</em>) &#8211; The model for which the service will be
+created for.</li>
+<li><strong>renderer_proxy</strong> (<a class="reference internal" href="special_classes.html#pyramid_georest.lib.renderer.RenderProxy" title="pyramid_georest.lib.renderer.RenderProxy"><em>RenderProxy</em></a><em> or </em><em>None</em>) &#8211; A renderer proxy may be passed to achieve custom rendering.</li>
+<li><strong>adapter_proxy</strong> (<a class="reference internal" href="special_classes.html#pyramid_georest.lib.renderer.AdapterProxy" title="pyramid_georest.lib.renderer.AdapterProxy"><em>AdapterProxy</em></a><em> or </em><em>None</em>) &#8211; An adapter which provides special client side library
+handling. It is a AdapterProxy per default.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.rest.Service.adapter">
+<code class="descname">adapter</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Service.adapter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Service.adapter" title="Permalink to this definition">¶</a></dt>
+<dd><p>The method which is used by the api to deliver a client side usable adapter to handle the REST API.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request</strong> (<em>pyramid.request.Request</em>) &#8211; The request which comes all the way through the application
+from the client</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The model description of this service.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="special_classes.html#pyramid_georest.lib.description.ModelDescription" title="pyramid_georest.lib.description.ModelDescription">pyramid_georest.lib.description.ModelDescription</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.rest.Service.count">
+<code class="descname">count</code><span class="sig-paren">(</span><em>session</em>, <em>request</em>, <em>rest_filter=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Service.count"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Service.count" title="Permalink to this definition">¶</a></dt>
+<dd><p>The method which is used by the api to count the number of records in the database.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>session</strong> (<em>sqlalchemy.orm.Session</em>) &#8211; The session which is uesed to emit the query.</li>
+<li><strong>request</strong> (<em>pyramid.request.Request</em>) &#8211; The request which comes all the way through the application
+from the client</li>
+<li><strong>rest_filter</strong> (<a class="reference internal" href="special_classes.html#pyramid_georest.lib.rest.Filter" title="pyramid_georest.lib.rest.Filter"><em>pyramid_georest.lib.rest.Filter</em></a><em> or </em><em>None</em>) &#8211; The Filter which might be applied to the
+query in addition.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The count of records found in the database.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.rest.Service.create">
+<code class="descname">create</code><span class="sig-paren">(</span><em>session</em>, <em>request</em>, <em>feature</em>, <em>passed_format</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Service.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Service.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>The method which is used by the api to create exact one record in the database.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>request</strong> (<em>pyramid.request.Request</em>) &#8211; The request which comes all the way through the application</li>
+<li><strong>the client</strong> (<em>from</em>) &#8211; </li>
+<li><strong>session</strong> (<em>sqlalchemy.orm.Session</em>) &#8211; The sqlalchemy session object</li>
+<li><strong>feature</strong> (<em>dict</em>) &#8211; The feature which should be created in database.</li>
+<li><strong>passed_format</strong> (<em>str</em>) &#8211; The format which the feature is constructed of.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>A list of database records found for the</dt>
+<dd><p class="first last">request.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list of sqlalchemy.ext.declarative.DeclarativeMeta</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.rest.Service.delete">
+<code class="descname">delete</code><span class="sig-paren">(</span><em>session</em>, <em>request</em>, <em>primary_keys</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Service.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Service.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>The method which is used by the api to delete exact one record in the database.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>session</strong> (<em>sqlalchemy.orm.Session</em>) &#8211; The sqlalchemy session object</li>
+<li><strong>request</strong> (<em>pyramid.request.Request</em>) &#8211; The request which comes all the way through the application</li>
+<li><strong>the client</strong> (<em>from</em>) &#8211; </li>
+<li><strong>primary_keys</strong> (<em>list of str</em>) &#8211; The primary keys which are used to filter the exact element.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>A list of database records found for the</dt>
+<dd><p class="first last">request.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list of sqlalchemy.ext.declarative.DeclarativeMeta</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.rest.Service.handle_geojson_">
+<code class="descname">handle_geojson_</code><span class="sig-paren">(</span><em>orm_object</em>, <em>feature</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Service.handle_geojson_"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Service.handle_geojson_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to assign values from passed geojson feature to the corresponding model object. It takes care
+of correctly handle geometry values.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>orm_object</strong> (<em>sqlalchemy.ext.declarative.DeclarativeMeta</em>) &#8211; The orm model object which the values
+should be assigned to.</li>
+<li><strong>feature</strong> (<em>dict</em>) &#8211; The feature which contains the values to be assigned to model instance.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.rest.Service.handle_json_">
+<code class="descname">handle_json_</code><span class="sig-paren">(</span><em>orm_object</em>, <em>feature</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Service.handle_json_"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Service.handle_json_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to assign values from passed json feature to the corresponding model object. It takes care of
+correctly handle geometry values.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>orm_object</strong> (<em>sqlalchemy.ext.declarative.DeclarativeMeta</em>) &#8211; The orm model object which the values
+should be assigned to.</li>
+<li><strong>feature</strong> (<em>dict</em>) &#8211; The feature which contains the values to be assigned to model instance.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.rest.Service.model">
+<code class="descname">model</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Service.model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Service.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>The method which is used by the api to deliver a machine readable and serializable description of
+the underlying database table/model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request</strong> (<em>pyramid.request.Request</em>) &#8211; The request which comes all the way through the application
+from the client</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The model description of this service.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="special_classes.html#pyramid_georest.lib.description.ModelDescription" title="pyramid_georest.lib.description.ModelDescription">pyramid_georest.lib.description.ModelDescription</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pyramid_georest.lib.rest.Service.name_from_definition">
+<em class="property">static </em><code class="descname">name_from_definition</code><span class="sig-paren">(</span><em>schema_name</em>, <em>table_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Service.name_from_definition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Service.name_from_definition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Little helper method to get a comma separated string of schema and table name.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>schema_name</strong> (<em>str</em>) &#8211; The schema name</li>
+<li><strong>table_name</strong> (<em>str</em>) &#8211; The table name</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">schema name and table name concatenated in one string separated by comma.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">str</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.rest.Service.read">
+<code class="descname">read</code><span class="sig-paren">(</span><em>session</em>, <em>request</em>, <em>rest_filter=None</em>, <em>offset=None</em>, <em>limit=None</em>, <em>order_by=None</em>, <em>direction=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Service.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Service.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>The method which is used by the api to read a bunch of records from the database.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>session</strong> (<em>sqlalchemy.orm.Session</em>) &#8211; The session which is uesed to emit the query.</li>
+<li><strong>request</strong> (<em>pyramid.request.Request</em>) &#8211; The request which comes all the way through the application
+from the client</li>
+<li><strong>rest_filter</strong> (<a class="reference internal" href="special_classes.html#pyramid_georest.lib.rest.Filter" title="pyramid_georest.lib.rest.Filter"><em>pyramid_georest.lib.rest.Filter</em></a><em> or </em><em>None</em>) &#8211; The Filter which might be applied to the
+query in addition.</li>
+<li><strong>offset</strong> (<em>int</em><em> or </em><em>None</em>) &#8211; The offset which is used for paging reasons. It is only applied if limit is
+present too.</li>
+<li><strong>limit</strong> (<em>int</em><em> or </em><em>None</em>) &#8211; The limit which is used for paging reason. It is only applied of offest is
+present too.</li>
+<li><strong>order_by</strong> (<em>str</em><em> or </em><em>None</em>) &#8211; The column name which the sort is assigned to. It is only used if
+direction is present too.</li>
+<li><strong>direction</strong> (<em>str</em><em> or </em><em>None</em>) &#8211; The direction which is used for sorting. It is only used if order_by
+is present too.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>A list of database records found for the</dt>
+<dd><p class="first last">request.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list of sqlalchemy.ext.declarative.DeclarativeMeta</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.rest.Service.show">
+<code class="descname">show</code><span class="sig-paren">(</span><em>session</em>, <em>request</em>, <em>primary_keys</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Service.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Service.show" title="Permalink to this definition">¶</a></dt>
+<dd><p>The method which is used by the api to read exact one record from the database.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>session</strong> (<em>sqlalchemy.orm.Session</em>) &#8211; The sqlalchemy session object</li>
+<li><strong>request</strong> (<em>pyramid.request.Request</em>) &#8211; The request which comes all the way through the application</li>
+<li><strong>the client</strong> (<em>from</em>) &#8211; </li>
+<li><strong>primary_keys</strong> (<em>list of str</em>) &#8211; The primary keys which are used to filter the exact element.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>A list of database records found for the</dt>
+<dd><p class="first last">request.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list of sqlalchemy.ext.declarative.DeclarativeMeta</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyramid_georest.lib.rest.Service.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>session</em>, <em>request</em>, <em>primary_keys</em>, <em>feature</em>, <em>passed_format</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_georest/lib/rest.html#Service.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_georest.lib.rest.Service.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>The method which is used by the api to update exact one record in the database.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>session</strong> (<em>sqlalchemy.orm.Session</em>) &#8211; The sqlalchemy session object</li>
+<li><strong>request</strong> (<em>pyramid.request.Request</em>) &#8211; The request which comes all the way through the application</li>
+<li><strong>the client</strong> (<em>from</em>) &#8211; </li>
+<li><strong>primary_keys</strong> (<em>list of str</em>) &#8211; The primary keys which are used to filter the exact element.</li>
+<li><strong>feature</strong> (<em>dict</em>) &#8211; The feature which should be updated in database.</li>
+<li><strong>passed_format</strong> (<em>str</em>) &#8211; The format which the feature is constructed of.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>A list of database records found for the</dt>
+<dd><p class="first last">request.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list of sqlalchemy.ext.declarative.DeclarativeMeta</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="special_classes.html" class="btn btn-neutral float-right" title="Special classes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="filter.html" class="btn btn-neutral float-left" title="Filtering" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014 - 2019, Clemens Rudert
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

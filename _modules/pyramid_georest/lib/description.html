@@ -1,0 +1,586 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pyramid_georest.lib.description &mdash; pyramid_georest 3.1.0-rc5 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'../../../',
+              VERSION:'3.1.0-rc5',
+              LANGUAGE:'en',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> pyramid_georest
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../url_patterns.html">Used URL patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../filter.html">Filtering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../main_classes.html">Main classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../special_classes.html">Special classes</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyramid_georest</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pyramid_georest.lib.description</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyramid_georest.lib.description</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="c1"># Copyright (c) 2012 - 2016, GIS-Fachstelle des Amtes für Geoinformation des Kantons Basel-Landschaft</span>
+<span class="c1"># All rights reserved.</span>
+<span class="c1">#</span>
+<span class="c1"># This program is free software and completes the GeoMapFish License for the geoview.bl.ch specific</span>
+<span class="c1"># parts of the code. You can redistribute it and/or modify it under the terms of the GNU General</span>
+<span class="c1"># Public License as published by the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1"># This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without</span>
+<span class="c1"># even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU</span>
+<span class="c1"># General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># The above copyright notice and this permission notice shall be included in all copies or substantial</span>
+<span class="c1"># portions of the Software.</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="k">import</span> <span class="n">ColumnDefault</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="k">import</span> <span class="n">RelationshipProperty</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="k">import</span> <span class="n">class_mapper</span>
+<span class="kn">from</span> <span class="nn">yaml</span> <span class="k">import</span> <span class="n">load</span>
+<span class="kn">from</span> <span class="nn">pyramid.path</span> <span class="k">import</span> <span class="n">AssetResolver</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Clemens Rudert&#39;</span>
+<span class="n">__create_date__</span> <span class="o">=</span> <span class="s1">&#39;21.09.16&#39;</span>
+
+
+<div class="viewcode-block" id="translate"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.description.translate">[docs]</a><span class="k">def</span> <span class="nf">translate</span><span class="p">(</span><span class="n">string_to_translate</span><span class="p">,</span> <span class="n">dictionary</span><span class="p">,</span> <span class="n">lang</span><span class="o">=</span><span class="s1">&#39;de&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A method which is able to translate a string with a given dictionary path on the file system. It acts in</span>
+<span class="sd">    pyramid way. See: `pyramid i18 documentation</span>
+<span class="sd">    &lt;http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/i18n.html?highlight=translation&gt;`__</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        string_to_translate (str): The string which should be translated.</span>
+<span class="sd">        dictionary (str): The dictionary which is used for translation.</span>
+<span class="sd">        lang (str): The language to which the string should be translated.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: The translated string</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">dictionary</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">AssetResolver</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">dictionary</span><span class="p">)</span><span class="o">.</span><span class="n">abspath</span><span class="p">()))</span>
+    <span class="k">if</span> <span class="n">string_to_translate</span> <span class="ow">in</span> <span class="n">dictionary</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">lang</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">dictionary</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">lang</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">string_to_translate</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">string_to_translate</span></div>
+
+
+<div class="viewcode-block" id="RelationDescription"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.description.RelationDescription">[docs]</a><span class="k">class</span> <span class="nc">RelationDescription</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+<div class="viewcode-block" id="RelationDescription.__init__"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.description.RelationDescription.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">relationship</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">dictionary</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A class to construct a description of a relationship property. It offers a method to get this</span>
+<span class="sd">        description in a machine readable way. =&gt; as_dict</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            relationship (sqlalchemy.orm.properties.RelationshipProperty): The object which should be</span>
+<span class="sd">                described</span>
+<span class="sd">            name (str): The name of the element which should be described</span>
+<span class="sd">            dictionary (str or None): The pass to a dictionary. It has to be in the `pyramid form</span>
+<span class="sd">                &lt;http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/i18n.html?</span>
+<span class="sd">                highlight=translation&gt;`__</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">relationship</span> <span class="o">=</span> <span class="n">relationship</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">column_name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">header</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_name</span> <span class="k">if</span> <span class="n">dictionary</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">translate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column_name</span><span class="p">,</span> <span class="n">dictionary</span><span class="p">)</span>
+        <span class="c1"># self.description = ModelDescription(self.relationship.argument)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">relationship</span><span class="o">.</span><span class="n">uselist</span><span class="p">:</span>
+            <span class="c1"># fk_path = [</span>
+            <span class="c1">#     self.description.schema_name,</span>
+            <span class="c1">#     self.description.table_name,</span>
+            <span class="c1">#     &#39;,&#39;.join(self.description.primary_key_column_names)</span>
+            <span class="c1"># ]</span>
+            <span class="c1"># self.foreign_key_names = [</span>
+            <span class="c1">#     &#39;.&#39;.join(fk_path)</span>
+            <span class="c1"># ]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">foreign_key_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">foreign_key_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_geometry_column</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="s1">&#39;String&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_primary_key</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">has_foreign_keys</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">precision</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nullable</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_m_to_n</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connected_foreign_keys</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">foreign_key_column</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">relationship</span><span class="o">.</span><span class="n">_calculated_foreign_keys</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">connected_foreign_keys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">foreign_key_column</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RelationDescription.as_dict"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.description.RelationDescription.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delivers the objects content as an dict.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: An dictionary representing a description of the relationship in a application readable way</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;column_name&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_name</span><span class="p">,</span>
+            <span class="s1">&#39;header&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">,</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span>
+            <span class="s1">&#39;is_primary_key&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_primary_key</span><span class="p">,</span>
+            <span class="s1">&#39;has_foreign_keys&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_foreign_keys</span><span class="p">,</span>
+            <span class="s1">&#39;foreign_key_names&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">foreign_key_names</span><span class="p">,</span>
+            <span class="s1">&#39;length&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">,</span>
+            <span class="s1">&#39;precision&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">precision</span><span class="p">,</span>
+            <span class="s1">&#39;scale&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale</span><span class="p">,</span>
+            <span class="s1">&#39;nullable&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nullable</span><span class="p">,</span>
+            <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="p">,</span>
+            <span class="s1">&#39;is_m_to_n&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_m_to_n</span><span class="p">,</span>
+            <span class="s1">&#39;is_geometry_column&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_geometry_column</span><span class="p">,</span>
+            <span class="s1">&#39;connected_foreign_keys&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">connected_foreign_keys</span>
+        <span class="p">}</span></div></div>
+
+
+<div class="viewcode-block" id="ColumnDescription"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.description.ColumnDescription">[docs]</a><span class="k">class</span> <span class="nc">ColumnDescription</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Simple to use object to hold all useful information about sqlalchemy column.</span>
+
+<span class="sd">    This class has several public attributes you can use:</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        column (sqlalchemy.schema.Column): The Column which should be the description for.</span>
+<span class="sd">        is_geometry_column (bool): The switch which gives info if this is a geometric column.</span>
+<span class="sd">        srid (int): Default is to 0 (zero). It is only set during init process when this is a geometric</span>
+<span class="sd">            column.</span>
+<span class="sd">        column_name (str): The name of represented column.</span>
+<span class="sd">        header (str): The translated name of column if a dictionary was provided otherwise its simply the</span>
+<span class="sd">            column_name. This might be useful if client side needs to show data in some table.</span>
+<span class="sd">        type (str): The description of column database type.</span>
+<span class="sd">        is_primary_key (bool): Whether this is primary key column or not.</span>
+<span class="sd">        has_foreign_keys (bool): Whether this column has foreign keys or not.</span>
+<span class="sd">        foreign_key_names (list): The names of the foreign keys. Obviously this is a empty list if</span>
+<span class="sd">            has_foreign_keys is false.</span>
+<span class="sd">        length (int): Information about the length of database type.</span>
+<span class="sd">        precision (int or None): Precision of floating point number if this is a float type.</span>
+<span class="sd">        scale (int or None): Scale of number type.</span>
+<span class="sd">        nullable (bool): Whether this column has NOTNULL constraint or not.</span>
+<span class="sd">        default (int or str or float): The database defined default value to use if this column value is</span>
+<span class="sd">            NULL/None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ColumnDescription.__init__"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.description.ColumnDescription.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">dictionary</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A class to construct a description of a column. It offers a method to get this description in a</span>
+<span class="sd">        machine readable way. =&gt; as_dict</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            column (sqlalchemy.schema.Column): The Column which should be the description for.</span>
+<span class="sd">            name (str): The column name</span>
+<span class="sd">            dictionary (str or None): The pass to a dictionary. It has to be in the `pyramid form</span>
+<span class="sd">                &lt;http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/i18n.html?</span>
+<span class="sd">                highlight=translation&gt;`__</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">column</span> <span class="o">=</span> <span class="n">column</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_geometry_column</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">srid</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">has_foreign_keys</span><span class="p">,</span> <span class="n">foreign_key_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_column_fk</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s1">&#39;geometry&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">column</span><span class="o">.</span><span class="n">type</span><span class="p">):</span>
+            <span class="n">column_type</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">geometry_type</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_geometry_column</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">srid</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">srid</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">column_type</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">type</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">column_name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">header</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_name</span> <span class="k">if</span> <span class="n">dictionary</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">translate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column_name</span><span class="p">,</span> <span class="n">dictionary</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">column_type</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_primary_key</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">primary_key</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">has_foreign_keys</span> <span class="o">=</span> <span class="n">has_foreign_keys</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">foreign_key_names</span> <span class="o">=</span> <span class="n">foreign_key_names</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_column_length</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">precision</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_column_precision</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_column_scale</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nullable</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">nullable</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_column_default</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_m_to_n</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+    <span class="k">def</span> <span class="nf">_column_fk</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper function, if column has foreign key relation.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str or None: Tuple of first: has foreign key relation or not (true/false) and corresponding a</span>
+<span class="sd">                list of them or None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">foreign_keys</span><span class="p">:</span>
+            <span class="n">is_fk</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">fks</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">foreign_keys</span><span class="p">:</span>
+                <span class="n">fks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">_get_colspec</span><span class="p">()))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">is_fk</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">fks</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">is_fk</span><span class="p">,</span> <span class="n">fks</span>
+
+    <span class="k">def</span> <span class="nf">_column_length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper function, to obtain the lenght of the column which was provided (if type supports).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int or None: Defined length for the passed column, None if so.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="s2">&quot;length&quot;</span><span class="p">):</span>
+            <span class="n">length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">length</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">length</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">length</span>
+
+    <span class="k">def</span> <span class="nf">_column_precision</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper function, to obtain the precision of the column which was provided (if type supports).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int or None: Defined precision for the passed column, None if so.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="s2">&quot;precision&quot;</span><span class="p">):</span>
+            <span class="n">precision</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">precision</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">precision</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">precision</span>
+
+    <span class="k">def</span> <span class="nf">_column_scale</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper function, to obtain the scale of the column which was provided (if type supports).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int or None: Defined scale for the passed column, None if so.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">):</span>
+            <span class="n">scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">scale</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">scale</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">scale</span>
+
+    <span class="k">def</span> <span class="nf">_column_default</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper function, to obtain the default value of the column which was provided (if type supports).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int or str: The value which was set as default for the passed column.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">default</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">default</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">default</span><span class="p">)</span> <span class="ow">is</span> <span class="n">ColumnDefault</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">default</span><span class="o">.</span><span class="n">arg</span><span class="p">,</span> <span class="s1">&#39;__call__&#39;</span><span class="p">):</span>
+                <span class="n">default</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">default</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">default</span><span class="o">.</span><span class="n">arg</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">default</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">default</span>
+
+<div class="viewcode-block" id="ColumnDescription.as_dict"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.description.ColumnDescription.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delivers the objects content as an dict.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: An dictionary representing a description of the column in a application readable way.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;column_name&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_name</span><span class="p">,</span>
+            <span class="s1">&#39;header&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">,</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span>
+            <span class="s1">&#39;is_primary_key&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_primary_key</span><span class="p">,</span>
+            <span class="s1">&#39;has_foreign_keys&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_foreign_keys</span><span class="p">,</span>
+            <span class="s1">&#39;foreign_key_names&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">foreign_key_names</span><span class="p">,</span>
+            <span class="s1">&#39;length&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">,</span>
+            <span class="s1">&#39;precision&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">precision</span><span class="p">,</span>
+            <span class="s1">&#39;scale&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale</span><span class="p">,</span>
+            <span class="s1">&#39;nullable&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nullable</span><span class="p">,</span>
+            <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="p">,</span>
+            <span class="s1">&#39;is_m_to_n&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_m_to_n</span><span class="p">,</span>
+            <span class="s1">&#39;is_geometry_column&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_geometry_column</span><span class="p">,</span>
+            <span class="s1">&#39;srid&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">srid</span>
+        <span class="p">}</span></div></div>
+
+
+<div class="viewcode-block" id="ModelDescription"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.description.ModelDescription">[docs]</a><span class="k">class</span> <span class="nc">ModelDescription</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ModelDescription.__init__"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.description.ModelDescription.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">dictionary</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A class to construct a description of a sqlalchemy model. It offers a method to get this description</span>
+<span class="sd">        in a machine readable way. =&gt; as_dict</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            model (sqlalchemy.ext.declarative.DeclarativeMeta): The sqlalchemy model which should be</span>
+<span class="sd">                described.</span>
+<span class="sd">            dictionary (:obj:`str`, optional): The pass to a dictionary. It has to be in the `pyramid form</span>
+<span class="sd">                &lt;http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/i18n.html?</span>
+<span class="sd">                highlight=translation&gt;`__</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dictionary</span> <span class="o">=</span> <span class="n">dictionary</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">column_descriptions</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">column_classes</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">column_count</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">primary_key_columns</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">primary_key_column_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geometry_columns</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geometry_column_names</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">relationship_descriptions</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">relationship_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">relationship_classes</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">schema_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">__table__</span><span class="o">.</span><span class="n">schema</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">table_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">__table__</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">props</span> <span class="o">=</span> <span class="n">class_mapper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="n">_props</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">props</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">props</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">RelationshipProperty</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="c1"># print name, value.columns</span>
+                    <span class="c1"># raise NotImplementedError</span>
+                    <span class="k">pass</span>
+                <span class="n">description</span> <span class="o">=</span> <span class="n">ColumnDescription</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="p">,</span> <span class="n">dictionary</span><span class="o">=</span><span class="n">dictionary</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">column_descriptions</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">description</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">column_classes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">description</span><span class="o">.</span><span class="n">column</span>
+                <span class="k">if</span> <span class="n">description</span><span class="o">.</span><span class="n">is_geometry_column</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">geometry_columns</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">description</span><span class="o">.</span><span class="n">column</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">geometry_column_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">description</span><span class="o">.</span><span class="n">is_primary_key</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">primary_key_columns</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">description</span><span class="o">.</span><span class="n">column</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">primary_key_column_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">column_count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">description</span> <span class="o">=</span> <span class="n">RelationDescription</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">dictionary</span><span class="o">=</span><span class="n">dictionary</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">relationship_descriptions</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">description</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">relationship_classes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">description</span><span class="o">.</span><span class="n">relationship</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">relationship_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">primary_key_column_names</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">primary_key_column_names</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ModelDescription.as_dict"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.description.ModelDescription.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delivers the objects content as an dict.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: An python dict with the description of the mapped database table.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;primary_key_column_names&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">primary_key_column_names</span><span class="p">,</span>
+            <span class="s1">&#39;primary_key_column_count&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">primary_key_column_names</span><span class="p">),</span>
+            <span class="s1">&#39;geometry_column_names&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry_column_names</span><span class="p">,</span>
+            <span class="s1">&#39;geometry_column_count&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry_column_names</span><span class="p">),</span>
+            <span class="s1">&#39;relationship_count&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">relationship_count</span><span class="p">,</span>
+            <span class="s1">&#39;relationships&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">relationship_descriptions</span><span class="p">,</span>
+            <span class="s1">&#39;column_count&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_count</span><span class="p">,</span>
+            <span class="s1">&#39;columns&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_descriptions</span>
+        <span class="p">}</span></div>
+
+<div class="viewcode-block" id="ModelDescription.is_valid_column"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.description.ModelDescription.is_valid_column">[docs]</a>    <span class="k">def</span> <span class="nf">is_valid_column</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            column_name (unicode): The column name which should be validated.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">             bool: Whether the column name was valid for this model or not.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_descriptions</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">column_name</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014 - 2019, Clemens Rudert
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
