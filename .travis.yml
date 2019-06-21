@@ -30,4 +30,4 @@ deploy:
   keep_history: true
   on:
     branch: improve-project
-  local_dir: _build/html/
+  local_dir: doc/build/html/
