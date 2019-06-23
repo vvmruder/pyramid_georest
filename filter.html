@@ -100,7 +100,10 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Filtering</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#sorting-and-paging">Sorting and paging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#general-filter-structure">General filter structure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#simple-filters">Simple filters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#geometric-filters">Geometric filters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#complex-nested-filters">Complex nested filters</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="main_classes.html">Main classes</a></li>
@@ -176,9 +179,8 @@ out of it into your own application using this API.</p>
 <div class="section" id="prerequisites">
 <h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
 <p>For all example given below we assume your API is configured to be available under the following url path:</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">&lt;application host&gt;/api/test_schema/test_table</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">application</span> <span class="n">host</span><span class="o">&gt;/</span><span class="n">api</span><span class="o">/</span><span class="n">test_schema</span><span class="o">/</span><span class="n">test_table</span>
+</pre></div>
 </div>
 <p>This means you initialized your API with the name <em>api</em> without any route prefix on including. Your database
 table <em>test_table</em> is situated in the database schema <em>test_schema</em>.</p>
@@ -187,21 +189,19 @@ table <em>test_table</em> is situated in the database schema <em>test_schema</em
 <h2>Sorting and paging<a class="headerlink" href="#sorting-and-paging" title="Permalink to this headline">¶</a></h2>
 <p>The API offers a way to implement paging in your application using this API. This is possible by passing the
 <em>offset</em> and <em>limit</em> both as url parameters whether to the read all or the read with filter url endpoint:</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">&lt;application host&gt;/api/test_schema/test_table/read.json?offset=0&amp;limit=10</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>&lt;application host&gt;/api/test_schema/test_table/read.json?offset=0&amp;limit=10
+</pre></div>
 </div>
 <p>Unsurprisingly this will deliver the first 10 matches of the bound resource.</p>
 <p>If you want to used something like paging in your application you can &#8220;swipe&#8221; through the collection of your
 database records with manipulating the described parameters. Let&#8217;s assume you have a table in your
 application which should show only 10 records at a time for performance reason and offers a selector to
 switch between this 10-record-windows via paging. You only need to set parameter like this:</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p>&lt;application host&gt;/api/test_schema/test_table/read.json?offset=0&amp;limit=10 # page 1
+<div class="highlight-default"><div class="highlight"><pre><span></span>&lt;application host&gt;/api/test_schema/test_table/read.json?offset=0&amp;limit=10 # page 1
 &lt;application host&gt;/api/test_schema/test_table/read.json?offset=10&amp;limit=20 # page 2
-&lt;application host&gt;/api/test_schema/test_table/read.json?offset=20&amp;limit=30 # page 3</p>
-<p class="last">...</p>
+&lt;application host&gt;/api/test_schema/test_table/read.json?offset=20&amp;limit=30 # page 3
+...
+</pre></div>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -209,10 +209,9 @@ switch between this 10-record-windows via paging. You only need to set parameter
 </div>
 <p>In addition to the option of windowing/paging you have the ability to sort your data by <strong>one</strong> column in a
 selectable direction. This can be done by passing <em>order_by</em> and <em>direction</em> both as url parameters like this:</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">&lt;application host&gt;/api/test_schema/test_table/read.json?order_by=test_column&amp;direction=asc # ascending
-&lt;application host&gt;/api/test_schema/test_table/read.json?order_by=test_column&amp;direction=desc # descending</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>&lt;application host&gt;/api/test_schema/test_table/read.json?order_by=test_column&amp;direction=asc # ascending
+&lt;application host&gt;/api/test_schema/test_table/read.json?order_by=test_column&amp;direction=desc # descending
+</pre></div>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -229,11 +228,283 @@ selectable direction. This can be done by passing <em>order_by</em> and <em>dire
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last"><strong>Of course sorting and paging is fully combinable.</strong></p>
+<p class="last"><strong>Of course sorting and paging is can be combined.</strong></p>
+</div>
+<p>This mechanism is applied to the normal <em>read entry point</em> and also to the <em>filtered read entry point</em> (see
+<a class="reference internal" href="url_patterns.html#url-patterns"><span class="std std-ref">Used URL patterns</span></a> for details).</p>
+</div>
+<div class="section" id="general-filter-structure">
+<h2>General filter structure<a class="headerlink" href="#general-filter-structure" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Filtering mechanism is done through the <strong>HTTP POST</strong> method. So API expects the filter parameters to be
+passed as <strong>JSON in the body</strong> of the request. The most important reason for this is to prevent
+limitations of URL length which will surely be scratched on complex filters with geometry content.</p>
+</div>
+<p>The filter system tries to keep the logic of SQL in some way and transport it to a web usable language. This
+is JSON. As you can see below the general filter system is a JSON structure which defines a filter by setting
+the <em>mode</em> to be used for combining the elements stored in the array of clauses. The mode is whether <em>AND</em> or
+<em>OR</em>.</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s1">&#39;filter&#39;</span><span class="o">:</span> <span class="p">{</span>
+    <span class="s1">&#39;definition&#39;</span><span class="o">:</span> <span class="p">{</span>
+      <span class="s1">&#39;mode&#39;</span><span class="o">:</span> <span class="s1">&#39;AND&#39;</span><span class="p">,</span>
+      <span class="s1">&#39;clauses&#39;</span><span class="o">:</span> <span class="p">[]</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The clause array can contain a filter definition itself. That&#8217;s how you can implement fairly complex filters.</p>
+<p>A clause is a JSON-Object constructed 3 attributes:</p>
+<ul>
+<li><p class="first"><em>column_name</em> is the desired column name of your database model.</p>
+</li>
+<li><p class="first"><em>operator</em> is the logical operator which is a bit varying on the type of the column you try to filter.
+On generic types like string or number types it provides the following options (please scroll also right
+table is a little big):</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="17%" />
+<col width="24%" />
+<col width="30%" />
+<col width="29%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>operator</strong></th>
+<th class="head"><strong>meaning</strong></th>
+<th class="head"><strong>value</strong></th>
+<th class="head"><strong>notes</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><em>==</em></td>
+<td>equals</td>
+<td>string or number types</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><em>=</em></td>
+<td>equals</td>
+<td>string or number types</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><em>&lt;&gt;</em></td>
+<td>not equals</td>
+<td>string or number types</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><em>!=</em></td>
+<td>not equals</td>
+<td>string or number types</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><em>&lt;</em></td>
+<td>less than</td>
+<td>string or number types</td>
+<td rowspan="4">be aware in case of string
+types the behaviour
+completely depends on the
+underling database and
+encoding</td>
+</tr>
+<tr class="row-odd"><td><em>&lt;=</em></td>
+<td>less than or equals</td>
+<td>string or number types</td>
+</tr>
+<tr class="row-even"><td><em>&gt;</em></td>
+<td>greater than</td>
+<td>string or number types</td>
+</tr>
+<tr class="row-odd"><td><em>&gt;=</em></td>
+<td>greater than or equals</td>
+<td>string or number types</td>
+</tr>
+<tr class="row-even"><td><em>LIKE</em></td>
+<td>SQL LIKE</td>
+<td>string with possible
+wildcards <em>%</em> and <em>_</em> for
+instance &#8216;Ab%&#8217; or &#8216;a__%&#8217;</td>
+<td>this will cast database
+value to string for
+comparison</td>
+</tr>
+<tr class="row-odd"><td><em>IN</em></td>
+<td>SQL IN</td>
+<td>comma separated string like
+&#8216;Bud,Terence&#8217; or &#8216;1,2,3&#8217;</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><em>NULL</em></td>
+<td>SQL IS NULL</td>
+<td><em>null</em> or anything it won&#8217;t
+be interpreted</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><em>NOT NULL</em></td>
+<td>SQL IS NOT NULL</td>
+<td><em>null</em> or anything it won&#8217;t
+be interpreted</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td colspan="4"><strong>Geometric operators</strong></td>
+</tr>
+<tr class="row-odd"><td><em>INTERSECTS</em></td>
+<td>eg. ST_Intersects in
+PostGIS</td>
+<td rowspan="4">any WKT compatible geometry</td>
+<td rowspan="4"><p class="first"><strong>Only PostGIS is
+supported in the moment!</strong></p>
+<p class="last">I would be glad to support
+other DB&#8217;s too. Please
+contact me or file an
+issue.</p>
+</td>
+</tr>
+<tr class="row-even"><td><em>TOUCHES</em></td>
+<td>eg. ST_Touches in
+PostGIS</td>
+</tr>
+<tr class="row-odd"><td><em>COVERED_BY</em></td>
+<td>eg. ST_CoveredBy in
+PostGIS</td>
+</tr>
+<tr class="row-even"><td><em>WITHIN</em></td>
+<td>eg. ST_DFullyWithin in
+PostGIS</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li><p class="first"><em>value</em> is the value which should be used to compare against database</p>
+</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">A word about the geometric filtering. In the moment this API should support every WKT compatible geometry
+type. Even geometry collections =&gt; they are extracted arbitrary deep and the filter is assigned to every
+single element of collection. If you encounter any problem don&#8217;t hesitate to file an issue.</p>
 </div>
 </div>
 <div class="section" id="simple-filters">
 <h2>Simple filters<a class="headerlink" href="#simple-filters" title="Permalink to this headline">¶</a></h2>
+<p>Construction of filter is easy. Below you can see a simple match filter which should return all matches for
+id equals 1 assuming id is a number field.</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s1">&#39;filter&#39;</span><span class="o">:</span> <span class="p">{</span>
+    <span class="s1">&#39;definition&#39;</span><span class="o">:</span> <span class="p">{</span>
+      <span class="s1">&#39;mode&#39;</span><span class="o">:</span> <span class="s1">&#39;AND&#39;</span><span class="p">,</span>
+      <span class="s1">&#39;clauses&#39;</span><span class="o">:</span> <span class="p">[{</span>
+        <span class="s1">&#39;column_name&#39;</span><span class="o">:</span> <span class="s1">&#39;id&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;operator&#39;</span><span class="o">:</span> <span class="s1">&#39;==&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;value&#39;</span><span class="o">:</span> <span class="mi">1</span>
+      <span class="p">}]</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Above the mode AND is used. Obviously this has no effect since we only define one clause. So in this case
+it doesn&#8217;t matter if we pass <em>AND</em> or <em>OR</em>. But mode is mandatory always. So omitting it will throw an
+error.</p>
+</div>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s1">&#39;filter&#39;</span><span class="o">:</span> <span class="p">{</span>
+    <span class="s1">&#39;definition&#39;</span><span class="o">:</span> <span class="p">{</span>
+      <span class="s1">&#39;mode&#39;</span><span class="o">:</span> <span class="s1">&#39;OR&#39;</span><span class="p">,</span>
+      <span class="s1">&#39;clauses&#39;</span><span class="o">:</span> <span class="p">[{</span>
+        <span class="s1">&#39;column_name&#39;</span><span class="o">:</span> <span class="s1">&#39;id&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;operator&#39;</span><span class="o">:</span> <span class="s1">&#39;==&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;value&#39;</span><span class="o">:</span> <span class="mi">1</span>
+      <span class="p">}]</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Regarding to the note above this filter should produce the same result as the <em>AND</em> version.</p>
+</div>
+<div class="section" id="geometric-filters">
+<h2>Geometric filters<a class="headerlink" href="#geometric-filters" title="Permalink to this headline">¶</a></h2>
+<p>Creating a geometric filter is easy as the filters for string or number types. Keep in mind the geometric
+operators which are available in the moment. For details see table above.</p>
+<p>The value has to be a string of valid WKT. Without any spatial reference system. This means the API is not
+transforming any input. Your input of geometry WKT has to be in the same projection like your database
+geometries are.</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s1">&#39;filter&#39;</span><span class="o">:</span> <span class="p">{</span>
+    <span class="s1">&#39;definition&#39;</span><span class="o">:</span> <span class="p">{</span>
+      <span class="s1">&#39;mode&#39;</span><span class="o">:</span> <span class="s1">&#39;AND&#39;</span><span class="p">,</span>
+      <span class="s1">&#39;clauses&#39;</span><span class="o">:</span> <span class="p">[{</span>
+        <span class="s1">&#39;column_name&#39;</span><span class="o">:</span> <span class="s1">&#39;geom&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;operator&#39;</span><span class="o">:</span> <span class="s1">&#39;INTERSECTS&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;value&#39;</span><span class="o">:</span> <span class="s1">&#39;POINT(2615051.0 1264822.5)&#39;</span>
+      <span class="p">}]</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Of cause you can combine string/number filters with geometric filters in any way. In the example below both
+clauses are logically connected the <em>AND</em>.</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s1">&#39;filter&#39;</span><span class="o">:</span> <span class="p">{</span>
+    <span class="s1">&#39;definition&#39;</span><span class="o">:</span> <span class="p">{</span>
+      <span class="s1">&#39;mode&#39;</span><span class="o">:</span> <span class="s1">&#39;AND&#39;</span><span class="p">,</span>
+      <span class="s1">&#39;clauses&#39;</span><span class="o">:</span> <span class="p">[{</span>
+        <span class="s1">&#39;column_name&#39;</span><span class="o">:</span> <span class="s1">&#39;geom&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;operator&#39;</span><span class="o">:</span> <span class="s1">&#39;INTERSECTS&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;value&#39;</span><span class="o">:</span> <span class="s1">&#39;POINT(2615051.0 1264822.5)&#39;</span>
+      <span class="p">},{</span>
+        <span class="s1">&#39;column_name&#39;</span><span class="o">:</span> <span class="s1">&#39;type&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;operator&#39;</span><span class="o">:</span> <span class="s1">&#39;==&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;value&#39;</span><span class="o">:</span> <span class="s1">&#39;building&#39;</span>
+      <span class="p">}]</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="complex-nested-filters">
+<h2>Complex nested filters<a class="headerlink" href="#complex-nested-filters" title="Permalink to this headline">¶</a></h2>
+<p>Sooner or later you will come to the point where simple one mode filters aren&#8217;t enough. Then you can start to
+nest filters to get even more tuned selection.</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;filter&quot;</span><span class="o">:</span> <span class="p">{</span>
+    <span class="s2">&quot;definition&quot;</span><span class="o">:</span> <span class="p">{</span>
+      <span class="s2">&quot;mode&quot;</span><span class="o">:</span> <span class="s2">&quot;AND&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;clauses&quot;</span><span class="o">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+          <span class="s2">&quot;mode&quot;</span><span class="o">:</span> <span class="s2">&quot;OR&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;clauses&quot;</span><span class="o">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+              <span class="s2">&quot;column_name&quot;</span><span class="o">:</span> <span class="s2">&quot;geom&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;operator&quot;</span><span class="o">:</span> <span class="s2">&quot;INTERSECTS&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;value&quot;</span><span class="o">:</span> <span class="s2">&quot;POINT(2615051.0 1264822.5)&quot;</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+              <span class="s2">&quot;column_name&quot;</span><span class="o">:</span> <span class="s2">&quot;geom&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;operator&quot;</span><span class="o">:</span> <span class="s2">&quot;INTERSECTS&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;value&quot;</span><span class="o">:</span> <span class="s2">&quot;POINT(2618963.0 1263219.0)&quot;</span>
+            <span class="p">}</span>
+          <span class="p">]</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+          <span class="s2">&quot;column_name&quot;</span><span class="o">:</span> <span class="s2">&quot;id&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;operator&quot;</span><span class="o">:</span> <span class="s2">&quot;&gt;&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;value&quot;</span><span class="o">:</span> <span class="mi">2800</span>
+        <span class="p">}</span>
+      <span class="p">]</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>It is only necessary to put a object inside clauses which defines a mode again which is then assigned to the
+sub clauses. So here a simple <em>AND</em> connection is done between the clause <em>id is greater than 2800</em> and the
+sub clauses. The sub clauses are connected as <em>OR</em>.</p>
 </div>
 </div>
 

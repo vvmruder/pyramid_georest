@@ -98,7 +98,14 @@
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Used URL patterns</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#general-hint">General hint</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#access-to-multiple-records-reading">Access to multiple records reading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#read-multiple-records">Read multiple records</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#count-records">Count records</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#read-one-record">Read one record</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#create-one-record">Create one record</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#update-one-record">Update one record</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id1">Update one record</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#obtain-model-description">Obtain model description</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="filter.html">Filtering</a></li>
@@ -177,32 +184,185 @@ combined with the route prefix of the included plugin if it was set:</p>
 <li>API with name &#8216;api&#8217; with a route prefix &#8216;my_plugin&#8217; will result in &#8216;my_plugin/api&#8217;</li>
 </ul>
 </div>
-<div class="section" id="access-to-multiple-records-reading">
-<h2>Access to multiple records reading<a class="headerlink" href="#access-to-multiple-records-reading" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>/&lt;api name&gt;/&lt;schema_name&gt;/&lt;table_name&gt;/read/&lt;format&gt;
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils" id="id2">
+<caption><span class="caption-text">Entry points</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Entry point</th>
+<th class="head">HTTP Method (standard)</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>/&lt;api name&gt;/&lt;schema_name&gt;/&lt;table_name&gt;/read/&lt;format&gt;</td>
+<td>GET</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td>/&lt;api name&gt;/&lt;schema_name&gt;/&lt;table_name&gt;/read/&lt;format&gt;</td>
+<td>POST</td>
+<td>Filter is passed as body content.</td>
+</tr>
+<tr class="row-even"><td>/&lt;api name&gt;/&lt;schema_name&gt;/&lt;table_name&gt;/count/&lt;format&gt;</td>
+<td>GET</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td>/&lt;api name&gt;/&lt;schema_name&gt;/&lt;table_name&gt;/count/&lt;format&gt;</td>
+<td>POST</td>
+<td>Filter is passed as body content.</td>
+</tr>
+<tr class="row-even"><td>/&lt;api name&gt;/&lt;schema_name&gt;/&lt;table_name&gt;/read/&lt;format&gt;/&lt;primary_key&gt;</td>
+<td>GET</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td>/&lt;api name&gt;/&lt;schema_name&gt;/&lt;table_name&gt;/create/&lt;format&gt;</td>
+<td>POST</td>
+<td>Feature is passed as body content.</td>
+</tr>
+<tr class="row-even"><td>/&lt;api name&gt;/&lt;schema_name&gt;/&lt;table_name&gt;/update/&lt;format&gt;/&lt;primary_key&gt;</td>
+<td>PUT</td>
+<td>Feature is passed as body content.</td>
+</tr>
+<tr class="row-odd"><td>/&lt;api name&gt;/&lt;schema_name&gt;/&lt;table_name&gt;/delete/&lt;format&gt;/&lt;primary_key&gt;</td>
+<td>DELETE</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td>/&lt;api name&gt;/&lt;schema_name&gt;/&lt;table_name&gt;/model/&lt;format&gt;</td>
+<td>GET</td>
+<td>&#160;</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="read-multiple-records">
+<h2>Read multiple records<a class="headerlink" href="#read-multiple-records" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">/&lt;</span><span class="n">api</span> <span class="n">name</span><span class="o">&gt;/&lt;</span><span class="n">schema_name</span><span class="o">&gt;/&lt;</span><span class="n">table_name</span><span class="o">&gt;/</span><span class="n">read</span><span class="o">/&lt;</span><span class="nb">format</span><span class="o">&gt;</span>
 </pre></div>
 </div>
-<p>This Endpoint accepts input on two different HTTP methods can be overwritten by Api class instantiation:</p>
+<p>This endpoint accepts input on two different HTTP methods (can be overwritten by Api class instantiation):</p>
 <ul class="simple">
-<li>read_method (default is GET). It simply delivers all records of the service.</li>
-<li><dl class="first docutils">
-<dt>read_filter_method (default is POST). It delivers all records the service filtered. The filter must be</dt>
-<dd>submitted as json body content. Learn more about details of filtering here.</dd>
-</dl>
-</li>
+<li>read_method (default is GET). It simply delivers all records of the table.</li>
+<li>read_filter_method (default is POST). It delivers a filtered set of record filtered. The filter must be
+submitted as json body content. Learn more about details of <a class="reference internal" href="filter.html#filter"><span class="std std-ref">Filtering</span></a>.</li>
 </ul>
-<p>Both points accept the following URL parameter groups:</p>
-<p>paging:</p>
+</div>
+<div class="section" id="count-records">
+<h2>Count records<a class="headerlink" href="#count-records" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">/&lt;</span><span class="n">api</span> <span class="n">name</span><span class="o">&gt;/&lt;</span><span class="n">schema_name</span><span class="o">&gt;/&lt;</span><span class="n">table_name</span><span class="o">&gt;/</span><span class="n">count</span>
+</pre></div>
+</div>
+<p>This endpoint accepts input on two different HTTP methods (can be overwritten by Api class instantiation):</p>
 <ul class="simple">
-<li>offset</li>
-<li>limit</li>
+<li>read_method (default is GET). It simply counts all records of table.</li>
+<li>read_filter_method (default is POST). It counts all filtered records of the table. The filter must be
+submitted as json body content. Learn more about details of <a class="reference internal" href="filter.html#filter"><span class="std std-ref">Filtering</span></a>.</li>
 </ul>
-<p>sorting:</p>
-<ul class="simple">
-<li>order_by</li>
-<li>direction</li>
-</ul>
-<p>If only one of the parameter group members is submitted request will throw HTTP exception.</p>
+</div>
+<div class="section" id="read-one-record">
+<h2>Read one record<a class="headerlink" href="#read-one-record" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">/&lt;</span><span class="n">api</span> <span class="n">name</span><span class="o">&gt;/&lt;</span><span class="n">schema_name</span><span class="o">&gt;/&lt;</span><span class="n">table_name</span><span class="o">&gt;/</span><span class="n">read</span><span class="o">/&lt;</span><span class="nb">format</span><span class="o">&gt;/&lt;</span><span class="n">primary_key</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>This endpoint accept input on HTTP GET method (default) and delivers the primary key matching record.</p>
+<p>It is possible to have more then one primary key in a database table. So it is possible with this API too.
+Simply pass all necessary primary keys like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">/&lt;</span><span class="n">api</span> <span class="n">name</span><span class="o">&gt;/&lt;</span><span class="n">schema_name</span><span class="o">&gt;/&lt;</span><span class="n">table_name</span><span class="o">&gt;/</span><span class="n">read</span><span class="o">/&lt;</span><span class="nb">format</span><span class="o">&gt;/&lt;</span><span class="n">primary_key_1</span><span class="o">&gt;/.../&lt;</span><span class="n">primary_key_n</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="create-one-record">
+<h2>Create one record<a class="headerlink" href="#create-one-record" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">/&lt;</span><span class="n">api</span> <span class="n">name</span><span class="o">&gt;/&lt;</span><span class="n">schema_name</span><span class="o">&gt;/&lt;</span><span class="n">table_name</span><span class="o">&gt;/</span><span class="n">create</span><span class="o">/&lt;</span><span class="nb">format</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>This endpoint accepts input on HTTP POST method (default) and creates a record from data passed in body
+of request. The structure has to be plain JSON with WKT string for geometric columns or GeoJSON. It must be
+passed like this:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;feature&quot;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;geom&quot;</span><span class="o">:</span> <span class="s2">&quot;POINT(1.00 2.00)&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>or:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;feature&quot;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="o">:</span> <span class="s2">&quot;Feature&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;geometry&quot;</span><span class="o">:</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="o">:</span> <span class="s2">&quot;Point&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;coordinates&quot;</span><span class="o">:</span> <span class="p">[</span><span class="mf">1.00</span><span class="p">,</span> <span class="mf">2.00</span><span class="p">]</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;properties&quot;</span><span class="o">:</span> <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mi">1</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="update-one-record">
+<h2>Update one record<a class="headerlink" href="#update-one-record" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">/&lt;</span><span class="n">api</span> <span class="n">name</span><span class="o">&gt;/&lt;</span><span class="n">schema_name</span><span class="o">&gt;/&lt;</span><span class="n">table_name</span><span class="o">&gt;/</span><span class="n">update</span><span class="o">/&lt;</span><span class="nb">format</span><span class="o">&gt;/&lt;</span><span class="n">primary_key</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>This endpoint accepts input on HTTP PUT method (default) and updates a record from data passed in body
+of request.</p>
+<p>It is possible to have more then one primary key in a database table. So it is possible with this API too.
+Simply pass all necessary primary keys like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">/&lt;</span><span class="n">api</span> <span class="n">name</span><span class="o">&gt;/&lt;</span><span class="n">schema_name</span><span class="o">&gt;/&lt;</span><span class="n">table_name</span><span class="o">&gt;/</span><span class="n">update</span><span class="o">/&lt;</span><span class="nb">format</span><span class="o">&gt;/&lt;</span><span class="n">primary_key_1</span><span class="o">&gt;/.../&lt;</span><span class="n">primary_key_n</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>The structure has to be plain JSON with WKT string for geometric columns or GeoJSON. It must be
+passed like this:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;feature&quot;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;Bud&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;geom&quot;</span><span class="o">:</span> <span class="s2">&quot;POINT(1.00 2.00)&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>or:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;feature&quot;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="o">:</span> <span class="s2">&quot;Feature&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;geometry&quot;</span><span class="o">:</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="o">:</span> <span class="s2">&quot;Point&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;coordinates&quot;</span><span class="o">:</span> <span class="p">[</span><span class="mf">1.00</span><span class="p">,</span> <span class="mf">2.00</span><span class="p">]</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;properties&quot;</span><span class="o">:</span> <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;Bud&quot;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id1">
+<h2>Update one record<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">/&lt;</span><span class="n">api</span> <span class="n">name</span><span class="o">&gt;/&lt;</span><span class="n">schema_name</span><span class="o">&gt;/&lt;</span><span class="n">table_name</span><span class="o">&gt;/</span><span class="n">delete</span><span class="o">/&lt;</span><span class="nb">format</span><span class="o">&gt;/&lt;</span><span class="n">primary_key</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>This endpoint accepts input on HTTP DELETE method (default) and deletes a record.</p>
+<p>It is possible to have more then one primary key in a database table. So it is possible with this API too.
+Simply pass all necessary primary keys like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">/&lt;</span><span class="n">api</span> <span class="n">name</span><span class="o">&gt;/&lt;</span><span class="n">schema_name</span><span class="o">&gt;/&lt;</span><span class="n">table_name</span><span class="o">&gt;/</span><span class="n">delete</span><span class="o">/&lt;</span><span class="nb">format</span><span class="o">&gt;/&lt;</span><span class="n">primary_key_1</span><span class="o">&gt;/.../&lt;</span><span class="n">primary_key_n</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="obtain-model-description">
+<h2>Obtain model description<a class="headerlink" href="#obtain-model-description" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">/&lt;</span><span class="n">api</span> <span class="n">name</span><span class="o">&gt;/&lt;</span><span class="n">schema_name</span><span class="o">&gt;/&lt;</span><span class="n">table_name</span><span class="o">&gt;/</span><span class="n">model</span><span class="o">/&lt;</span><span class="nb">format</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>This endpoint offers a description of underlying data.</p>
 </div>
 </div>
 
