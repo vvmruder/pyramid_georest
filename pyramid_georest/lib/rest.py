@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
 import logging
-import sys
 
+import six
 import transaction
 from pyramid.httpexceptions import HTTPNotFound, HTTPBadRequest
 from pyramid.renderers import render_to_response
@@ -967,26 +967,14 @@ class Api(object):
             limit = None
 
         if order_by and direction:
-            if sys.version_info.major == 2:
-                if not isinstance(order_by, unicode):
-                    hint_txt = 'Value for order_by has to be string.'
-                    log.error(hint_txt)
-                    raise HTTPBadRequest(hint_txt)
-            elif sys.version_info.major == 3:
-                if not isinstance(order_by, str):
-                    hint_txt = 'Value for order_by has to be string.'
-                    log.error(hint_txt)
-                    raise HTTPBadRequest(hint_txt)
-            if sys.version_info.major == 2:
-                if not isinstance(direction, unicode):
-                    hint_txt = 'Value for direction has to be string.'
-                    log.error(hint_txt)
-                    raise HTTPBadRequest(hint_txt)
-            elif sys.version_info.major == 3:
-                if not isinstance(direction, str):
-                    hint_txt = 'Value for direction has to be string.'
-                    log.error(hint_txt)
-                    raise HTTPBadRequest(hint_txt)
+            if not six.text_type(order_by):
+                hint_txt = 'Value for order_by has to be string.'
+                log.error(hint_txt)
+                raise HTTPBadRequest(hint_txt)
+            if not six.text_type(direction):
+                hint_txt = 'Value for direction has to be string.'
+                log.error(hint_txt)
+                raise HTTPBadRequest(hint_txt)
             if direction not in DIRECTION_ASC + DIRECTION_DESC:
                 raise HTTPBadRequest(
                     'The parameter direction has to be one of the values: {0}'.format(
