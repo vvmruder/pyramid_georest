@@ -1,6 +1,10 @@
 Pyramid REST Changelog
 ======================
 
+## 3.1.1
+
+* python version compatibility
+
 ## 3.1.0
 
 * Add build system
