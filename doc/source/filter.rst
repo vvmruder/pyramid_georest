@@ -75,7 +75,10 @@ selectable direction. This can be done by passing *order_by* and *direction* bot
 
 .. note::
 
-    **Of course sorting and paging is fully combinable.**
+    **Of course sorting and paging is can be combined.**
+
+This mechanism is applied to the normal *read entry point* and also to the *filtered read entry point* (see
+:ref:`url_patterns` for details).
 
 
 General filter structure
