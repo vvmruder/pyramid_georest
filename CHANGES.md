@@ -1,6 +1,12 @@
 Pyramid REST Changelog
 ======================
 
+## 3.1.0
+
+* Add build system
+* Improve documentation
+* Add testing
+
 ## 3.1.0-rc5
 
 * fix extensive logging on connection
