@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
 import logging
+
+import six
 import transaction
 from pyramid.httpexceptions import HTTPNotFound, HTTPBadRequest
 from pyramid.renderers import render_to_response
@@ -965,11 +967,11 @@ class Api(object):
             limit = None
 
         if order_by and direction:
-            if not isinstance(order_by, str):
+            if not six.text_type(order_by):
                 hint_txt = 'Value for order_by has to be string.'
                 log.error(hint_txt)
                 raise HTTPBadRequest(hint_txt)
-            if not isinstance(direction, str):
+            if not six.text_type(direction):
                 hint_txt = 'Value for direction has to be string.'
                 log.error(hint_txt)
                 raise HTTPBadRequest(hint_txt)
