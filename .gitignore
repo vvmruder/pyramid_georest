@@ -64,4 +64,6 @@ docs/_build/
 # PyBuilder
 target/
 
-/venv/
+/.venv/
+/.vscode/
+/.pytest_cache/

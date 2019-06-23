@@ -53,9 +53,11 @@ class RenderProxy(object):
         some thing is not generating the output you want. Than it probably happens that you accidentally
         over wrote some renderer in another part of the application.
 
-        See the following link for further information:
-        http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/renderers.html#adding-and-changing-renderers
+        For further information see the `pyramid renderer documetation
+        <http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/renderers.html
+        #adding-and-changing-renderers>`__
         """
+
         self._format_to_renderer = {
             'json': 'geo_restful_json',
             'xml': 'geo_restful_xml',
@@ -67,16 +69,21 @@ class RenderProxy(object):
         Execute the rendering process by matching the requested format to the mapped renderer. If no
         renderer could be found a error is raised.
 
-        :param request: The request which comes all the way through the application from the client
-        :type request: pyramid.request.Request
-        :param result: A list of database records found for the request.
-        :type result: list of sqlalchemy.ext.declarative.DeclarativeMeta
-        :param model_description: The description object of the data set which will be rendered.
-        :type model_description: pyramid_georest.lib.description.ModelDescription
-        :return: An pyramid response object
-        :rtype: pyramid.response.Response
-        :raises: HTTPNotFound
+        Args:
+            request (pyramid.request.Request): The request which comes all the way through the application
+                from the client
+            result (list of sqlalchemy.ext.declarative.DeclarativeMeta): A list of database records found for
+                the request.
+            model_description (pyramid_georest.lib.description.ModelDescription): The description object of
+                the data set which will be rendered.
+
+        Returns:
+            pyramid.response.Response: An pyramid response object.
+
+        Raises:
+            HTTPNotFound
         """
+
         response_format = request.matchdict['format']
         renderer_name = self._format_to_renderer.get(response_format, False)
         if renderer_name:
@@ -102,14 +109,16 @@ class RenderProxy(object):
         Adds a matching to the render proxy's matching dict. It is possible to overwrite an existing one.
         If you do, a notice (warning) is printed to your server logs.
 
-        :param delivery_format: The format string to which the renderer should be bound to
-            (e.g. "json", "xml", ...)
-        :type delivery_format: str
-        :param renderer_name: The name of the renderer which was used to assign it to the pyramid
-            applications configuration.
-        :type renderer_name: str
-        :raises: ConfigurationError
+        Args:
+            delivery_format (str): The format string to which the renderer should be bound to
+                (e.g. "json", "xml", ...)
+            renderer_name (str): The name of the renderer which was used to assign it to the pyramid
+                applications configuration.
+
+        Raises:
+            ConfigurationError
         """
+
         if self._format_to_renderer.get(delivery_format):
             log.warning('You overwrite the renderer for the "{format_name}" format'.format(
                 format_name=delivery_format)
@@ -128,6 +137,7 @@ class AdapterProxy(object):
         This enables you to provide every client side base implementation you like which is bound to a
         restful resource.
         """
+
         self._format_to_adapter = {}
 
     def render(self, request, model_description):
@@ -135,14 +145,18 @@ class AdapterProxy(object):
         Execute the rendering process by matching the requested format to the mapped renderer. If no renderer
         could be found a error is raised.
 
-        :param request: The request which comes all the way through the application from the client
-        :type request: pyramid.request.Request
-        :param model_description: The description object of the data set which will be rendered.
-        :type model_description: pyramid_georest.lib.description.ModelDescription
-        :return: An pyramid response object
-        :rtype: pyramid.response.Response
-        :raises: HTTPNotFound
+        Args:
+            request (pyramid.request.Request): The request which comes all the way through the application
+                from the client
+            model_description (pyramid_georest.lib.description.ModelDescription): The description object of
+                the data set which will be rendered.
+        Returns:
+            pyramid.response.Response: An pyramid response object
+
+        Raises:
+            HTTPNotFound
         """
+
         adapter_format = request.matchdict['format']
         adapter_renderer = self._format_to_adapter.get(adapter_format, False)
         if adapter_renderer:
@@ -166,11 +180,13 @@ class AdapterProxy(object):
     def extend_return_params(params):
         """
         This method enables the developer to extend the parameter which are send to the template.
-        :param params: The dictionary which holds the params.
-        :type params: dict
-        :return: The extended dictionary
-        :rtype: dict
+
+        params (dict): The dictionary which holds the params.
+
+        Returns:
+            dict: The extended dictionary
         """
+
         return params
 
     def add_adapter(self, delivery_format, adapter_renderer_path):
@@ -178,22 +194,27 @@ class AdapterProxy(object):
         Adds a matching to the render proxy's matching dict. It is possible to overwrite an existing one.
         If you do, a notice (warning) is printed to your server logs.
 
-        :param delivery_format: The format string to which the renderer should be bound to
-            (e.g. "json", "xml", ...)
-        :type delivery_format: str
-        :param adapter_renderer_path: The name of the renderer which was used to assign it to the
-            pyramid applications configuration.
-        :type adapter_renderer_path: str
-        :raises: ConfigurationError
+        Args:
+            delivery_format (str): The format string to which the renderer should be bound to
+                (e.g. "json", "xml", ...)
+            adapter_renderer_path (str): The name of the renderer which was used to assign it to the
+                pyramid applications configuration.
+        Raises:
+            ConfigurationError
         """
+
         if self._format_to_adapter.get(delivery_format):
-            log.warning('You overwrite the renderer for the "{format_name}" format'.format(format_name=delivery_format))
+            log.warning(
+                'You overwrite the renderer for the "{format_name}" format'.format(
+                    format_name=delivery_format
+                )
+            )
         self._format_to_adapter[delivery_format] = adapter_renderer_path
 
 
 class RestfulJson(JSON):
     """
-    This represents an standard pyramid renderer which can consume a list of database instances and renders
+    This represents a standard pyramid renderer which can consume a list of database instances and renders
     them to json. It is important to use the Base which is provided by this package. Because this class
     delivers additional methods.
     """
@@ -235,9 +256,30 @@ class RestfulJson(JSON):
         return body
 
     def to_str(self, results):
+        """
+        Translates result dictionary into a string.
+
+        Args:
+            results (dict): The database records wrapped in a dictionary.
+
+        Returns:
+            str: The serialized string containing database records.
+        """
+
         return simplejson.dumps(self.column_values_as_serializable(results))
 
     def column_values_as_serializable(self, results):
+        """
+        The most important method in rendering process. Here the values are transformed to serializable
+        representations.
+
+        Args:
+            results (dict): The database records wrapped in a dictionary.
+
+        Returns:
+            list of dict: A list containing all records with serializable values.
+        """
+
         serializable_results = []
         model_description = results.get('model_description', False)
         results = results.get('features', False)
@@ -261,50 +303,63 @@ class RestfulJson(JSON):
     @staticmethod
     def date_formatter(date):
         """
+        Formats a date object into a string base iso representation.
 
-        :param date: A date object which should be converted
-        :type date: datetime.datetime
-        :return: A string which represents the date object
-        :rtype: str
+        Args:
+            date (datetime.datetime): A date object which should be converted
+
+        Returns:
+            str: A string which represents the date object
         """
+
         return date.isoformat()
 
     @staticmethod
     def association_formatter(association):
         """
+        Handles special case of association list provided by sqlalchemy.
 
-        :param association: A sqlalchemy association object which should be converted
-        :type association: _AssociationList
-        :return: A list containing the association
-        :rtype: list of str
+        Args:
+            association (sqlalchemy.ext.associationproxy._AssociationList): A sqlalchemy association object
+                which should be converted
+
+        Returns:
+            list of str: A list containing the association
         """
+
         return list(association)
 
     def geometry_formatter(self, geometry):
         """
+        Formats a geoalchemy 2 WKB element into its WKT string representation.
 
-        :param geometry: A geoalchemy wkb element object which should be converted
-        :type geometry: WKBElement
-        :return: A WKT formatted string
-        :rtype: str
+        Args:
+            geometry (geoalchemy2.WKBElement): A geoalchemy wkb element object which should be converted.
+
+        Returns:
+            str: A WKT formatted string
         """
+
         return to_shape(geometry).wkt
 
     @staticmethod
     def float_formatter(number):
         """
+        Formats a floating point number to its pythonic correct float representation.
 
-        :param number: A floating point number be converted
-        :type number: decimal.Decimal
-        :return: The formatted float
-        :rtype: float
+        Args:
+            number (decimal.Decimal): A floating point number be converted.
+
+        Returns:
+            float: The formatted float.
         """
+
         return float(number)
 
 
 class RestfulGeoJson(RestfulJson):
     """
-        This represents an standard pyramid renderer which can consume a list of database instances and
+        This represents a standard pyramid renderer which can consume a list of database instances and
         renders them to json. It is important to use the Base which is provided by this package. Because
         this class delivers additional methods.
         """
@@ -319,6 +374,18 @@ class RestfulGeoJson(RestfulJson):
         super(RestfulGeoJson, self).__init__(info)
 
     def column_values_as_serializable(self, results):
+        """
+        The most important method in rendering process. Here the values are transformed to serializable
+        representations. It especially takes care of producing a valid GeoJSON FeatureCollection.
+
+        Args:
+            results (dict): The database records wrapped in a dictionary.
+
+        Returns:
+            dict: A dictionary in GeoJSON FeatureCollection style containing all records with serializable
+                values.
+        """
+
         serializable_results = []
         model_description = results.get('model_description', False)
         results = results.get('features', False)
@@ -351,21 +418,29 @@ class RestfulGeoJson(RestfulJson):
     @staticmethod
     def geometry_type_formatter(geometry):
         """
+        Delivers the shapely geometry type description of geoalchemy 2 WKB element.
 
-        :param geometry: A geoalchemy wkb element object which should be converted
-        :type geometry: WKBElement
-        :return: A string representing a shapely valid geometry type
-        :rtype: str
+        Args:
+            geometry (geoalchemy2.WKBElement): A geoalchemy wkb element object which should be converted.
+        Returns:
+            str: A string representing a shapely valid geometry type.
         """
+
         return to_shape(geometry).geom_type
 
     def geometry_formatter(self, geometry):
         """
+        Formats the passed geoalchemy2 geometry WKB element into its valid GeoJSON representation. This is a
+        list of coordinate tuples.
 
-        :param geometry: A geoalchemy wkb element object which should be converted
-        :type geometry: WKBElement
-        :return: A list of coordinates formatted string
-        :rtype: list
+        Args:
+            geometry (geoalchemy2.WKBElement): A geoalchemy wkb element object which should be converted.
+
+        Returns:
+            list: A list of coordinates formatted string
+
+        Raises:
+            HTTPServerError: If the geometry type is not supported.
         """
         shapely_object = to_shape(geometry)
         geom_type = shapely_object.geom_type
@@ -418,8 +493,8 @@ class RestfulGeoJson(RestfulJson):
             }
         else:
             raise HTTPServerError(
-                'You try to access a Dataset with a "{type}" geometry type. This is not supported in the moment. '
-                'Sorry...'.format(type=geom_type)
+                'You try to access a Dataset with a "{type}" geometry type. This is not supported in the '
+                'moment. Sorry...'.format(type=geom_type)
             )
 
 

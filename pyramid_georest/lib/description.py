@@ -27,19 +27,18 @@ __create_date__ = '21.09.16'
 def translate(string_to_translate, dictionary, lang='de'):
     """
     A method which is able to translate a string with a given dictionary path on the file system. It acts in
-    pyramid way.
-    See:
-    http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/i18n.html?highlight=translation
+    pyramid way. See: `pyramid i18 documentation
+    <http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/i18n.html?highlight=translation>`__
 
-    :param string_to_translate: The string which should be translated.
-    :type string_to_translate: str
-    :param dictionary: The dictionary which is used for translation.
-    :type dictionary: str
-    :param lang: The language to which the string should be translated.
-    :type lang: str
-    :return: The translated string
-    :rtype: str
+    Args:
+        string_to_translate (str): The string which should be translated.
+        dictionary (str): The dictionary which is used for translation.
+        lang (str): The language to which the string should be translated.
+
+    Returns:
+        str: The translated string
     """
+
     dictionary = load(open(AssetResolver().resolve(dictionary).abspath()))
     if string_to_translate in dictionary.get(lang):
         return dictionary.get(lang).get(string_to_translate)
@@ -51,17 +50,19 @@ class RelationDescription(object):
 
     def __init__(self, relationship, name, dictionary=None):
         """
-        A class to construct a description of a relationship property. It offers a method to get this description in a
-        machine readable way. => as_dict
+        A class to construct a description of a relationship property. It offers a method to get this
+        description in a machine readable way. => as_dict
 
-        :param relationship: The object which should be described
-        :type relationship: sqlalchemy.orm.properties.RelationshipProperty
-        :param name: The name of the element which should be described
-        :type name: str
-        :param dictionary: The pass to a dictionary. It has to be in the pyramid form:
-         => http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/i18n.html?highlight=translation
-        :type dictionary: str or None
+        Args:
+            relationship (sqlalchemy.orm.properties.RelationshipProperty): The object which should be
+                described
+            name (str): The name of the element which should be described
+            dictionary (str or None): The pass to a dictionary. It has to be in the `pyramid form
+                <http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/i18n.html?
+                highlight=translation>`__
+
         """
+
         self.relationship = relationship
 
         self.column_name = name
@@ -98,9 +99,10 @@ class RelationDescription(object):
         """
         Delivers the objects content as an dict.
 
-        :return: An dictionary representing a description of the relationship in a application readable way
-        :rtype: dict
+        Returns:
+            dict: An dictionary representing a description of the relationship in a application readable way
         """
+
         return {
             'column_name': self.column_name,
             'header': self.header,
@@ -120,20 +122,44 @@ class RelationDescription(object):
 
 
 class ColumnDescription(object):
+    """Simple to use object to hold all useful information about sqlalchemy column.
+
+    This class has several public attributes you can use:
+
+    Attributes:
+        column (sqlalchemy.schema.Column): The Column which should be the description for.
+        is_geometry_column (bool): The switch which gives info if this is a geometric column.
+        srid (int): Default is to 0 (zero). It is only set during init process when this is a geometric
+            column.
+        column_name (str): The name of represented column.
+        header (str): The translated name of column if a dictionary was provided otherwise its simply the
+            column_name. This might be useful if client side needs to show data in some table.
+        type (str): The description of column database type.
+        is_primary_key (bool): Whether this is primary key column or not.
+        has_foreign_keys (bool): Whether this column has foreign keys or not.
+        foreign_key_names (list): The names of the foreign keys. Obviously this is a empty list if
+            has_foreign_keys is false.
+        length (int): Information about the length of database type.
+        precision (int or None): Precision of floating point number if this is a float type.
+        scale (int or None): Scale of number type.
+        nullable (bool): Whether this column has NOTNULL constraint or not.
+        default (int or str or float): The database defined default value to use if this column value is
+            NULL/None.
+    """
 
     def __init__(self, column, name, dictionary=None):
         """
         A class to construct a description of a column. It offers a method to get this description in a
         machine readable way. => as_dict
 
-        :param column: The Column which should be the description for.
-        :type column: sqlalchemy.schema.Column
-        :param name: The column name
-        :type name: str
-        :param dictionary: The pass to a dictionary. It has to be in the pyramid form:
-         => http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/i18n.html?highlight=translation
-        :type dictionary: str or None
+        Args:
+            column (sqlalchemy.schema.Column): The Column which should be the description for.
+            name (str): The column name
+            dictionary (str or None): The pass to a dictionary. It has to be in the `pyramid form
+                <http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/i18n.html?
+                highlight=translation>`__
         """
+
         self.column = column
         self.is_geometry_column = False
         self.srid = 0
@@ -161,10 +187,12 @@ class ColumnDescription(object):
     def _column_fk(self):
         """
         Helper function, if column has foreign key relation.
-        :return: Tuple of first: has foreign key relation or not (true/false) and corresponding a list of
-            them or None
-        :rtype : (bool, list) or (bool, None)
+
+        Returns:
+            str or None: Tuple of first: has foreign key relation or not (true/false) and corresponding a
+                list of them or None.
         """
+
         if self.column.foreign_keys:
             is_fk = True
             fks = []
@@ -178,9 +206,11 @@ class ColumnDescription(object):
     def _column_length(self):
         """
         Helper function, to obtain the lenght of the column which was provided (if type supports).
-        :return: defined length for the passed column, None if so
-        :rtype : int
+
+        Returns:
+            int or None: Defined length for the passed column, None if so.
         """
+
         if hasattr(self.column.type, "length"):
             length = self.column.type.length
         else:
@@ -190,9 +220,11 @@ class ColumnDescription(object):
     def _column_precision(self):
         """
         Helper function, to obtain the precision of the column which was provided (if type supports).
-        :return: defined precision for the passed column, None if so
-        :rtype : int
+
+        Returns:
+            int or None: Defined precision for the passed column, None if so.
         """
+
         if hasattr(self.column.type, "precision"):
             precision = self.column.type.precision
         else:
@@ -202,9 +234,11 @@ class ColumnDescription(object):
     def _column_scale(self):
         """
         Helper function, to obtain the scale of the column which was provided (if type supports).
-        :return: defined scale for the passed column, None if so
-        :rtype : int
+
+        Returns:
+            int or None: Defined scale for the passed column, None if so.
         """
+
         if hasattr(self.column.type, "scale"):
             scale = self.column.type.scale
         else:
@@ -214,9 +248,11 @@ class ColumnDescription(object):
     def _column_default(self):
         """
         Helper function, to obtain the default value of the column which was provided (if type supports).
-        :return: the value which was set as default for the passed column
-        :rtype : int or str
+
+        Returns:
+            int or str: The value which was set as default for the passed column.
         """
+
         if self.column.default is None:
             default = None
         elif type(self.column.default) is ColumnDefault:
@@ -232,9 +268,10 @@ class ColumnDescription(object):
         """
         Delivers the objects content as an dict.
 
-        :return: An dictionary representing a description of the column in a application readable way
-        :rtype: dict
+        Returns:
+            dict: An dictionary representing a description of the column in a application readable way.
         """
+
         return {
             'column_name': self.column_name,
             'header': self.header,
@@ -257,15 +294,17 @@ class ModelDescription(object):
 
     def __init__(self, model, dictionary=None):
         """
-        A class to construct a description of a sqlalchemy model. It offers a method to get this description in a
-        machine readable way. => as_dict
+        A class to construct a description of a sqlalchemy model. It offers a method to get this description
+        in a machine readable way. => as_dict
 
-        :param model: The sqlalchemy model which should be described.
-        :type model: sqlalchemy.ext.declarative.DeclarativeMeta
-        :param dictionary: The pass to a dictionary. It has to be in the pyramid form:
-         => http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/i18n.html?highlight=translation
-        :type dictionary: str
+        Args:
+            model (sqlalchemy.ext.declarative.DeclarativeMeta): The sqlalchemy model which should be
+                described.
+            dictionary (:obj:`str`, optional): The pass to a dictionary. It has to be in the `pyramid form
+                <http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/i18n.html?
+                highlight=translation>`__
         """
+
         self.dictionary = dictionary
         self.model = model
         self.column_descriptions = {}
@@ -313,8 +352,8 @@ class ModelDescription(object):
         """
         Delivers the objects content as an dict.
 
-        :returns: An python dict with the description of the mapped database table
-        :rtype : dict
+        Returns:
+            dict: An python dict with the description of the mapped database table.
         """
         return {
             'name': '',

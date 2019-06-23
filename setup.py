@@ -37,7 +37,7 @@ requires = [
     'SQLAlchemy',
     'shapely',
     'dicttoxml',
-    'geoalchemy2',
+    'GeoAlchemy2',
     'transaction',
     'waitress',
     'pyramid_debugtoolbar',
@@ -49,12 +49,12 @@ requires = [
 
 setup(
     name='pyramid_georest',
-    version='3.1.0-rc5',
+    version='3.1.0',
     description='pyramid_georest, extension for pyramid web frame work to provide rest interface for '
                 'sql-alchemy mappers',
     long_description=README + '\n\n' + CHANGES,
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3.6",

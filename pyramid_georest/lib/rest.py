@@ -1,38 +1,18 @@
 # -*- coding: utf-8 -*-
-
-# Copyright (c) 2012 - 2015, GIS-Fachstelle des Amtes für Geoinformation des Kantons Basel-Landschaft
-# All rights reserved.
-#
-# This program is free software and completes the GeoMapFish License for the geoview.bl.ch specific
-# parts of the code. You can redistribute it and/or modify it under the terms of the GNU General
-# Public License as published by the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
-# even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-# General Public License for more details.
-#
-# The above copyright notice and this permission notice shall be included in all copies or substantial
-# portions of the Software.
 from __future__ import print_function
 import logging
 import transaction
 from pyramid.httpexceptions import HTTPNotFound, HTTPBadRequest
 from pyramid.renderers import render_to_response
-from pyramid.request import Request
 from pyramid_georest.lib.description import ModelDescription
 from pyramid_georest.lib.renderer import RenderProxy, AdapterProxy
 from pyramid_georest.lib.database import Connection
 from pyramid_georest.routes import create_api_routing, check_route_prefix
 from sqlalchemy import or_, and_, cast, String, desc, asc
 from sqlalchemy.sql.expression import text
-from sqlalchemy.orm import Session
 from sqlalchemy.orm.exc import MultipleResultsFound
 from geoalchemy2 import WKTElement
 from shapely.geometry import asShape
-
-__author__ = 'Clemens Rudert'
-__create_date__ = '29.07.2015'
 
 log = logging.getLogger('pyramid_georest')
 
@@ -114,9 +94,9 @@ class Clause(object):
         elif self.operator == 'IN':
             clause = self.column.in_(str(self.value).split(','))
         elif self.operator == 'NULL':
-            clause = self.column == None
+            clause = self.column == None  # noqa: E711
         elif self.operator == 'NOT_NULL':
-            clause = self.column != None
+            clause = self.column != None   # noqa: E711
         else:
             raise HTTPBadRequest('The operator "{operator}" you passed is not implemented.'.format(
                 operator=self.operator)
@@ -264,10 +244,10 @@ class Clause(object):
         contains multi geometries but the passed geometry does not.
         The multi geometry will be extracted to it's sub parts for operation.
 
-         Args:
+        Args:
             srid (int): The SRID/EPSG number to define the coordinate system of the geometry attribute.
-            db_path (str): The point separated string of schema_name.table_name.column_name from which we can
-                construct a correct SQL statement.
+            db_path (str): The point separated string of *schema_name.table_name.column_name* from which we
+                can construct a correct SQL statement.
 
         Returns:
             sqlalchemy.sql.elements.BooleanClauseList: The clause element.
@@ -275,6 +255,7 @@ class Clause(object):
         Raises:
             HTTPBadRequest
         """
+
         operator = self.decide_geometric_operator_(self.operator)
         sql_text_point = '{0}({1}, ST_CollectionExtract(ST_GeomFromText(\'{2}\', {3}), 1))'.format(
             operator,
@@ -307,10 +288,10 @@ class Clause(object):
         contains multi geometries but the passed geometry does not.
         The multi geometry will be extracted to it's sub parts for operation.
 
-         Args:
+        Args:
             srid (int): The SRID/EPSG number to define the coordinate system of the geometry attribute.
-            db_path (str): The point separated string of schema_name.table_name.column_name from which we can
-                construct a correct SQL statement.
+            db_path (str): The point separated string of *schema_name.table_name.column_name* from which we
+                can construct a correct SQL statement.
 
         Returns:
             sqlalchemy.sql.elements.BooleanClauseList: The clause element.
@@ -318,6 +299,7 @@ class Clause(object):
         Raises:
             HTTPBadRequest
         """
+
         operator = self.decide_geometric_operator_(self.operator)
         sql_text_point = '{0}(ST_CollectionExtract({1}, 1), ST_CollectionExtract(' \
                          'ST_GeomFromText(\'{2}\', {3}), 1))'.format(operator, db_path, self.value, srid)
@@ -343,11 +325,15 @@ class FilterBlock(object):
             definition (dict): The values which are assigned to the object. The definition of the Filter.
                 It has to be dict like {"mode": "OR/AND", "clauses": []}.
                 The clauses are also dict objects with the pattern:
+
+                .. code-block:: python
+
                     {
                         "column_name": "<name>",
                         "operator": "<see static method decide_operator for further detail>",
                         "value":<value>
                     }
+
                 It is possible to pack a definition of filter inside the clause array.
                 This enables complex queries.
             model_description (pyramid_georest.lib.description.ModelDescription): The description of the model
@@ -424,11 +410,15 @@ class Filter(object):
             definition (dict): The values which are assigned to the object. The definition of the Filter.
                 It has to be dict like {"mode": "OR/AND", "clauses": []}.
                 The clauses are also dict objects with the pattern:
+
+                .. code-block:: python
+
                     {
                         "column_name": "<name>",
                         "operator": "<see static method decide_operator for further detail>",
                         "value":<value>
                     }
+
                 It is possible to pack a definition of filter inside the clause array.
                 This enables complex queries.
             model_description (pyramid_georest.lib.description.ModelDescription): The description of the model
@@ -443,9 +433,10 @@ class Filter(object):
     def __str__(self):
         """
 
-        :return: The string representation of the object
-        :rtype: str
+        Returns:
+            str: The string representation of the object
         """
+
         filter_text = str(self.definition.clause)
         return "Filter: {filter_text}".format(filter_text=filter_text)
 
@@ -454,11 +445,12 @@ class Filter(object):
         The actual filter execution against the database via the constructed clause from the
         FilterDefinition object.
 
-        :param query: The query where the filter should be applied to.
-        :type query: sqlalchemy.orm.query.Query
-        :return: The query with the applied filter
-        :rtype: sqlalchemy.orm.query.Query
+        Args:
+            query (sqlalchemy.orm.query.Query): The query where the filter should be applied to.
+        Returns:
+            sqlalchemy.orm.query.Query: The query with the applied filter
         """
+
         # print self.definition.clause
         if self.definition.clause is not None:
             query = query.filter(self.definition.clause)
@@ -474,14 +466,14 @@ class Service(object):
         If some custom behaviour is wanted at all, you can achieve this by subclassing this class and
         adding some post or pre processing to the desired method.
 
-        :param model: The model for which the service will be created for.
-        :type model: sqlalchemy.ext.declarative.DeclarativeMeta
-        :param renderer_proxy: A renderer proxy may be passed to achieve custom rendering
-        :type renderer_proxy: RenderProxy or None
-        :param adapter_proxy: An adapter which provides special client side library handling. It is a
-            AdapterProxy per default.
-        :type adapter_proxy: AdapterProxy or None
+        Args:
+            model (sqlalchemy.ext.declarative.DeclarativeMeta): The model for which the service will be
+                created for.
+            renderer_proxy (RenderProxy or None): A renderer proxy may be passed to achieve custom rendering.
+            adapter_proxy (AdapterProxy or None): An adapter which provides special client side library
+                handling. It is a AdapterProxy per default.
         """
+
         self.orm_model = model
         self.model_description = ModelDescription(self.orm_model)
         self.primary_key_names = self.model_description.primary_key_column_names
@@ -504,13 +496,13 @@ class Service(object):
         """
         Little helper method to get a comma separated string of schema and table name.
 
-        :param schema_name: The schema name
-        :type schema_name: str
-        :param table_name: The table name
-        :type table_name: str
-        :return: schema name and table name concatenated in one string separated by comma.
-        :rtype: str
+        Args:
+            schema_name (str): The schema name
+            table_name (str): The table name
+        Returns:
+            str: schema name and table name concatenated in one string separated by comma.
         """
+
         return '{0},{1}'.format(
             schema_name,
             table_name
@@ -545,11 +537,12 @@ class Service(object):
         Method to assign values from passed json feature to the corresponding model object. It takes care of
         correctly handle geometry values.
 
-        :param orm_object: The orm model object which the values should be assigned to.
-        :type orm_object: sqlalchemy.ext.declarative.DeclarativeMeta
-        :param feature: The feature which contains the values to be assigned to model instance.
-        :type feature: dict
+        Args:
+            orm_object (sqlalchemy.ext.declarative.DeclarativeMeta): The orm model object which the values
+                should be assigned to.
+            feature (dict): The feature which contains the values to be assigned to model instance.
         """
+
         # At this moment there is no check for valid json data this leads to normal
         # behaving process, but no data will be written at all because the keys are not matching.
         for key in feature:
@@ -561,10 +554,10 @@ class Service(object):
         Method to assign values from passed geojson feature to the corresponding model object. It takes care
         of correctly handle geometry values.
 
-        :param orm_object: The orm model object which the values should be assigned to.
-        :type orm_object: sqlalchemy.ext.declarative.DeclarativeMeta
-        :param feature: The feature which contains the values to be assigned to model instance.
-        :type feature: dict
+        Args:
+            orm_object (sqlalchemy.ext.declarative.DeclarativeMeta): The orm model object which the values
+                should be assigned to.
+            feature (dict): The feature which contains the values to be assigned to model instance.
         """
         properties = feature.get('properties')
         for key in properties:
@@ -602,9 +595,9 @@ class Service(object):
                 present too.
             limit (int or None): The limit which is used for paging reason. It is only applied of offest is
                 present too.
-            order_by (unicode or None): The column name which the sort is assigned to. It is only used if
+            order_by (str or None): The column name which the sort is assigned to. It is only used if
                 direction is present too.
-            direction (unicode or None): The direction which is used for sorting. It is only used if order_by
+            direction (str or None): The direction which is used for sorting. It is only used if order_by
                 is present too.
 
         Returns:
@@ -614,7 +607,7 @@ class Service(object):
         query = session.query(self.orm_model)
         if rest_filter is not None:
             query = rest_filter.filter(query)
-        if isinstance(order_by, unicode) and isinstance(direction, unicode):
+        if isinstance(order_by, str) and isinstance(direction, str):
             column = self.model_description.column_classes.get(order_by)
             if direction in DIRECTION_ASC:
                 query = query.order_by(asc(column))
@@ -742,6 +735,7 @@ class Service(object):
              list of sqlalchemy.ext.declarative.DeclarativeMeta: A list of database records found for the
                 request.
         """
+
         result = self.record_by_primary_keys_(session, primary_keys)
         session.delete(result)
         session.flush()
@@ -752,22 +746,26 @@ class Service(object):
         The method which is used by the api to deliver a machine readable and serializable description of
         the underlying database table/model.
 
-        :param request: The request which comes all the way through the application from the client
-        :type request: pyramid.request.Request
-        :return: The model description of this service.
-        :rtype: pyramid_georest.lib.description.ModelDescription
+        Args:
+            request (pyramid.request.Request): The request which comes all the way through the application
+                    from the client
+        Returns:
+            pyramid_georest.lib.description.ModelDescription: The model description of this service.
         """
+
         return self.model_description
 
     def adapter(self, request):
         """
         The method which is used by the api to deliver a client side usable adapter to handle the REST API.
 
-        :param request: The request which comes all the way through the application from the client
-        :type request: pyramid.request.Request
-        :return: The model description of this service.
-        :rtype: pyramid_georest.lib.description.ModelDescription
+        Args:
+            request (pyramid.request.Request): The request which comes all the way through the application
+                from the client
+        Returns:
+            pyramid_georest.lib.description.ModelDescription: The model description of this service.
         """
+
         return self.model_description
 
 
@@ -783,27 +781,22 @@ class Api(object):
         In addition you can implement api wide behaviour like authorization be subclassing this class
         and adding some pre or post processing to the particular methods.
 
-        :param url: The connection string which is used to let the api connect with the desired database.
-        It must have the form as described here:
-        http://docs.sqlalchemy.org/en/latest/core/engines.html
-        :type url: str
-        :param config: The config of the hosting pyramid application.
-        :type config: pyramid.config.Configurator
-        :param name: The name which is used internally as an identifier of the api, to make it selectable
-        between other api's. This name must be unique all over the application. If not an error will be
-        thrown on application start up.
-        :type name: str
-        :param read_method: The HTTP method which is used to match the routing to the API.
-        :type read_method: str
-        :param read_filter_method: The HTTP method which is used to match the routing to the API.
-        :type read_filter_method: str
-        :param create_method: The HTTP method which is used to match the routing to the API.
-        :type create_method: str
-        :param update_method: The HTTP method which is used to match the routing to the API.
-        :type update_method: str
-        :param delete_method: The HTTP method which is used to match the routing to the API.
-        :type delete_method: str
-        :raises: LookupError
+        Args:
+            url (str): The connection string which is used to let the api connect with the desired database.
+            It must have the form as described here:
+                http://docs.sqlalchemy.org/en/latest/core/engines.html
+            config (pyramid.config.Configurator): The config of the hosting pyramid application.
+            name (str): The name which is used internally as an identifier of the api, to make it selectable
+                between other api's. This name must be unique all over the application. If not an error will
+                be thrown on application start up.
+            read_method (str): The HTTP method which is used to match the routing to the API.
+            read_filter_method (str): The HTTP method which is used to match the routing to the API.
+            create_method (str): The HTTP method which is used to match the routing to the API.
+            update_method (str): The HTTP method which is used to match the routing to the API.
+            delete_method (str): The HTTP method which is used to match the routing to the API.
+
+        Raises:
+            LookupError
         """
         self.read_method = read_method
         self.read_filter_method = read_filter_method
@@ -841,10 +834,13 @@ class Api(object):
         """
         Add's a service to the api.
 
-        :param service: The service which should be added to the api.
-        :type service: Service
-        :raises: LookupError
+        Args:
+            service (Service): The service which should be added to the api.
+
+        Raises:
+            LookupError
         """
+
         if service.name not in self.services:
             self.services[service.name] = service
         else:
@@ -860,12 +856,12 @@ class Api(object):
         This method provides a usable SQLAlchemy session instance. It is ensured, that this session is doomed
         independent from the behavior of the request (it installs a finished listener to the request)
 
-
-        :param request: The request of the pyramid web framework
-        :type request: Request
-        :return: a usable instance of a SQLAlchemy Session
-        :rtype : Session
+        Args:
+            request (pyramid.request.Request): The request of the pyramid web framework
+        Returns:
+            Session: a usable instance of a SQLAlchemy Session
         """
+
         session_instance = self.connection.session()
         inner_scoped_session = self.connection.session
 
@@ -885,23 +881,30 @@ class Api(object):
         Little helper method to obtain a service from the api's service list by it's unique schema+table name
         combination.
 
-        :param schema_name: str
-        :param table_name: str
-        :return: Service or None
-        :rtype: Service
+        Args:
+            schema_name (str): The database schema name the service is configured for.
+            table_name (str): The database table name the service is configured for.
+        Returns:
+            Service or None: The found service.
         """
+
         return self.services.get(Service.name_from_definition(schema_name, table_name))
 
     def find_service_by_request(self, request):
         """
         Little helper method to scrabble the requested service directly from the url which was requested.
 
-        :param request: The request which comes all the way through the application from the client
-        :type request: pyramid.request.Request
-        :return: The service.
-        :rtype: Service
-        :raises: HTTPNotFound
+        Args:
+            request (pyramid.request.Request): The request which comes all the way through the application
+                from the client
+
+        Returns:
+            Service: The found service.
+
+        Raises:
+            HTTPNotFound
         """
+
         schema_name = request.matchdict['schema_name']
         table_name = request.matchdict['table_name']
         service = self.find_service_by_definition(schema_name, table_name)
@@ -925,10 +928,12 @@ class Api(object):
         influence on the whole api. To have influence on special services please see the service class
         implementations read method.
 
-        :param request: The request which comes all the way through the application from the client
-        :type request: pyramid.request.Request
-        :return: An pyramid response object
-        :rtype: pyramid.response.Response
+        Args:
+            request (pyramid.request.Request): The request which comes all the way through the application
+                from the client.
+
+        Returns:
+            pyramid.response.Response: An pyramid response object
         """
         service = self.find_service_by_request(request)
         request.registry.pyramid_georest_requested_api = self
@@ -960,11 +965,11 @@ class Api(object):
             limit = None
 
         if order_by and direction:
-            if not isinstance(order_by, unicode):
+            if not isinstance(order_by, str):
                 hint_txt = 'Value for order_by has to be string.'
                 log.error(hint_txt)
                 raise HTTPBadRequest(hint_txt)
-            if not isinstance(direction, unicode):
+            if not isinstance(direction, str):
                 hint_txt = 'Value for direction has to be string.'
                 log.error(hint_txt)
                 raise HTTPBadRequest(hint_txt)
@@ -994,10 +999,12 @@ class Api(object):
         influence on the whole api. To have influence on special services please see the service class
         implementations read method.
 
-        :param request: The request which comes all the way through the application from the client
-        :type request: pyramid.request.Request
-        :return: An pyramid response object
-        :rtype: pyramid.response.Response
+        Args:
+            request (pyramid.request.Request): The request which comes all the way through the application
+                from the client.
+
+        Returns:
+            pyramid.response.Response: An pyramid response object
         """
         service = self.find_service_by_request(request)
         request.registry.pyramid_georest_requested_api = self
@@ -1016,10 +1023,12 @@ class Api(object):
         which has influence on the whole api. To have influence on special services please see the service
         class implementations show method.
 
-        :param request: The request which comes all the way through the application from the client
-        :type request: pyramid.request.Request
-        :return: An pyramid response object
-        :rtype: pyramid.response.Response
+        Args:
+            request (pyramid.request.Request): The request which comes all the way through the application
+                from the client.
+
+        Returns:
+            pyramid.response.Response: An pyramid response object
         """
         service = self.find_service_by_request(request)
         request.registry.pyramid_georest_requested_api = self
@@ -1036,10 +1045,12 @@ class Api(object):
         has influence on the whole api. To have influence on special services please see the service class
         implementations create method.
 
-        :param request: The request which comes all the way through the application from the client
-        :type request: pyramid.request.Request
-        :return: An pyramid response object
-        :rtype: pyramid.response.Response
+        Args:
+            request (pyramid.request.Request): The request which comes all the way through the application
+                from the client.
+
+        Returns:
+            pyramid.response.Response: An pyramid response object
         """
         service = self.find_service_by_request(request)
         request.registry.pyramid_georest_requested_api = self
@@ -1061,10 +1072,12 @@ class Api(object):
         influence on the whole api. To have influence on special services please see the service class
         implementations delete method.
 
-        :param request: The request which comes all the way through the application from the client
-        :type request: pyramid.request.Request
-        :return: An pyramid response object
-        :rtype: pyramid.response.Response
+        Args:
+            request (pyramid.request.Request): The request which comes all the way through the application
+                from the client.
+
+        Returns:
+            pyramid.response.Response: An pyramid response object
         """
         service = self.find_service_by_request(request)
         request.registry.pyramid_georest_requested_api = self
@@ -1081,10 +1094,12 @@ class Api(object):
         influence on the whole api. To have influence on special services please see the service class
         implementations update method.
 
-        :param request: The request which comes all the way through the application from the client
-        :type request: pyramid.request.Request
-        :return: An pyramid response object
-        :rtype: pyramid.response.Response
+        Args:
+            request (pyramid.request.Request): The request which comes all the way through the application
+                from the client.
+
+        Returns:
+            pyramid.response.Response: An pyramid response object
         """
         service = self.find_service_by_request(request)
         request.registry.pyramid_georest_requested_api = self
@@ -1107,11 +1122,15 @@ class Api(object):
         has influence on the whole api. To have influence on special services please see the service class
         implementations model method.
 
-        :param request: The request which comes all the way through the application from the client
-        :type request: pyramid.request.Request
-        :return: An pyramid response object
-        :rtype: pyramid.response.Response
-        :raises: HTTPNotFound
+        Args:
+            request (pyramid.request.Request): The request which comes all the way through the application
+                from the client.
+
+        Returns:
+            pyramid.response.Response: An pyramid response object
+
+        Raises:
+            HTTPNotFound
         """
         service = self.find_service_by_request(request)
         request.registry.pyramid_georest_requested_api = self
@@ -1146,10 +1165,12 @@ class Api(object):
         has influence on the whole api. To have influence on special services please see the service class
         implementations adapter method.
 
-        :param request: The request which comes all the way through the application from the client
-        :type request: pyramid.request.Request
-        :return: An pyramid response object
-        :rtype: pyramid.response.Response
+        Args:
+            request (pyramid.request.Request): The request which comes all the way through the application
+                from the client.
+
+        Returns:
+            pyramid.response.Response: An pyramid response object
         """
         service = self.find_service_by_request(request)
         request.registry.pyramid_georest_requested_api = self
