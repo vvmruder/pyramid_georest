@@ -13,31 +13,29 @@ Well... Then probably this library is exactly what you are looking for.
 Its easy to install:
 
 ```bash
-
-  pip install pyramid_georest
+pip install pyramid_georest
 ```
 
 Easy to setup:
 
 ```python
+from pyramid_georest.lib.rest import Api, Service
+from application.model import YourSQLAlchemyModel
+# Or you can use a GeoAlchemy2Model as well
 
-  from pyramid_georest.lib.rest import Api, Service
-  from application.model import YourSQLAlchemyModel
-  # Or you can use a GeoAlchemy2Model as well
-  
-  def main(global_config, **settings):
-     """ This function returns a Pyramid WSGI application."""
-     config = Configurator(settings=settings)
-     config.include('pyramid_georest', route_prefix='api')
-     test_api = Api(
-        'postgresql://postgres:password@localhost:5432/test',
-        config,
-        'test_api'
-     )
-     test_service = Service(YourSQLAlchemyModel)
-     test_api.add_service(test_service)
-     config.scan()
-     return config.make_wsgi_app()
+def main(global_config, **settings):
+   """ This function returns a Pyramid WSGI application."""
+   config = Configurator(settings=settings)
+   config.include('pyramid_georest', route_prefix='api')
+   test_api = Api(
+      'postgresql://postgres:password@localhost:5432/test',
+      config,
+      'test_api'
+   )
+   test_service = Service(YourSQLAlchemyModel)
+   test_api.add_service(test_service)
+   config.scan()
+   return config.make_wsgi_app()
 ```
 
 Run your pyramid application => Thats it!
