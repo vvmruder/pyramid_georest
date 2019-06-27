@@ -42,8 +42,6 @@ Run your pyramid application => Thats it!
 
 To see your data point browser to:
 
-```
-http://127.0.0.1:6543/test_api/schema_name/table_name/read/json
-```
+`http://127.0.0.1:6543/test_api/schema_name/table_name/read/json`
 
 To learn more about this project and its abilities please refer to the detailed [documentation](https://vvmruder.github.io/pyramid_georest 'documentation').
