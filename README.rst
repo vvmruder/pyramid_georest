@@ -12,13 +12,14 @@ Well... Then probably this library is exactly what you are looking for.
 
 Its easy to install:
 
-.. code-block: bash
+```bash
 
   pip install pyramid_georest
+```
 
 Easy to setup:
 
-.. code-block: python
+```python
 
   from pyramid_georest.lib.rest import Api, Service
   from application.model import YourSQLAlchemyModel
@@ -37,13 +38,14 @@ Easy to setup:
      test_api.add_service(test_service)
      config.scan()
      return config.make_wsgi_app()
+```
 
 Run your pyramid application => Thats it!
 
 To see your data point browser to:
 
-.. parsed-literal:
-
+```
   http://127.0.0.1:6543/test_api/schema_name/table_name/read/json
+```
 
 To learn more about this project and its abilities please refer to the detailed [documentation](https://vvmruder.github.io/pyramid_georest 'documentation').
