@@ -2,7 +2,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
-from zope.sqlalchemy import ZopeTransactionExtension
+from zope.sqlalchemy import register
 
 
 class Connection:
@@ -21,4 +21,5 @@ class Connection:
             self.engine = create_engine(self.url, pool_size=1, coerce_to_unicode=True)
         else:
             self.engine = create_engine(self.url, pool_size=1)
-        self.session = scoped_session(sessionmaker(bind=self.engine, extension=ZopeTransactionExtension()))
+        self.session = scoped_session(sessionmaker(bind=self.engine))
+        register(self.session)
