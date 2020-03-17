@@ -1,6 +1,6 @@
 # Check if running on CI
 ifeq ($(CI),true)
-  VENV_BIN=.venv/bin
+  VENV_BIN=.venv/bin/
   PIP_COMMAND=pip
 else
   VENV_BIN=.venv/bin/
