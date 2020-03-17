@@ -77,12 +77,8 @@ test: .venv/requirements.timestamp $(SRC_PY) $(CONFIG_FILE)
 	$(VENV_BIN)python setup.py develop
 	$(VENV_BIN)py.test -vv --cov-config .coveragerc --cov $(PKG) --cov-report term-missing:skip-covered test/py
 
-.PHONY: tox
-tox: .venv/requirements.timestamp tox.ini $(SRC_PY) $(CONFIG_FILE)
-	$(VENV_BIN)tox --recreate --skip-missing-interpreters
-
 .PHONY: check
-check: git-attributes lint tox
+check: git-attributes lint test
 
 .PHONY: build
 build: $(BUILD_DEPS) .venv/requirements.timestamp
