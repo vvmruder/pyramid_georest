@@ -1,7 +1,7 @@
 # Check if running on CI
 ifeq ($(CI),true)
   VENV_BIN=.venv/bin/
-  PIP_COMMAND=pip
+  PIP_COMMAND=pip3
 else
   VENV_BIN=.venv/bin/
   PIP_COMMAND=pip3
