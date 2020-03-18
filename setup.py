@@ -21,9 +21,9 @@ __author__ = 'Clemens Rudert'
 __create_date__ = '30.07.2015'
 
 here = os.path.abspath(os.path.dirname(__file__))
-with open(os.path.join(here, 'README.rst')) as f:
+with open(os.path.join(here, 'README.md')) as f:
     README = f.read()
-with open(os.path.join(here, 'CHANGES.rst')) as f:
+with open(os.path.join(here, 'CHANGES.md')) as f:
     CHANGES = f.read()
 
 tests_require = [
@@ -49,7 +49,7 @@ requires = [
 
 setup(
     name='pyramid_georest',
-    version='3.1.1',
+    version='4.0.0',
     description='pyramid_georest, extension for pyramid web frame work to provide rest interface for '
                 'sql-alchemy mappers',
     long_description=README + '\n\n' + CHANGES,
