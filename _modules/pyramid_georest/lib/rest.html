@@ -162,22 +162,21 @@
             
   <h1>Source code for pyramid_georest.lib.rest</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 
 <span class="kn">import</span> <span class="nn">six</span>
 <span class="kn">import</span> <span class="nn">transaction</span>
-<span class="kn">from</span> <span class="nn">pyramid.httpexceptions</span> <span class="k">import</span> <span class="n">HTTPNotFound</span><span class="p">,</span> <span class="n">HTTPBadRequest</span>
-<span class="kn">from</span> <span class="nn">pyramid.renderers</span> <span class="k">import</span> <span class="n">render_to_response</span>
-<span class="kn">from</span> <span class="nn">pyramid_georest.lib.description</span> <span class="k">import</span> <span class="n">ModelDescription</span>
-<span class="kn">from</span> <span class="nn">pyramid_georest.lib.renderer</span> <span class="k">import</span> <span class="n">RenderProxy</span><span class="p">,</span> <span class="n">AdapterProxy</span>
-<span class="kn">from</span> <span class="nn">pyramid_georest.lib.database</span> <span class="k">import</span> <span class="n">Connection</span>
-<span class="kn">from</span> <span class="nn">pyramid_georest.routes</span> <span class="k">import</span> <span class="n">create_api_routing</span><span class="p">,</span> <span class="n">check_route_prefix</span>
-<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="k">import</span> <span class="n">or_</span><span class="p">,</span> <span class="n">and_</span><span class="p">,</span> <span class="n">cast</span><span class="p">,</span> <span class="n">String</span><span class="p">,</span> <span class="n">desc</span><span class="p">,</span> <span class="n">asc</span>
-<span class="kn">from</span> <span class="nn">sqlalchemy.sql.expression</span> <span class="k">import</span> <span class="n">text</span>
-<span class="kn">from</span> <span class="nn">sqlalchemy.orm.exc</span> <span class="k">import</span> <span class="n">MultipleResultsFound</span>
-<span class="kn">from</span> <span class="nn">geoalchemy2</span> <span class="k">import</span> <span class="n">WKTElement</span>
-<span class="kn">from</span> <span class="nn">shapely.geometry</span> <span class="k">import</span> <span class="n">asShape</span>
+<span class="kn">from</span> <span class="nn">pyramid.httpexceptions</span> <span class="kn">import</span> <span class="n">HTTPNotFound</span><span class="p">,</span> <span class="n">HTTPBadRequest</span>
+<span class="kn">from</span> <span class="nn">pyramid.renderers</span> <span class="kn">import</span> <span class="n">render_to_response</span>
+<span class="kn">from</span> <span class="nn">pyramid_georest.lib.description</span> <span class="kn">import</span> <span class="n">ModelDescription</span>
+<span class="kn">from</span> <span class="nn">pyramid_georest.lib.renderer</span> <span class="kn">import</span> <span class="n">RenderProxy</span><span class="p">,</span> <span class="n">AdapterProxy</span>
+<span class="kn">from</span> <span class="nn">pyramid_georest.lib.database</span> <span class="kn">import</span> <span class="n">Connection</span>
+<span class="kn">from</span> <span class="nn">pyramid_georest.routes</span> <span class="kn">import</span> <span class="n">create_api_routing</span><span class="p">,</span> <span class="n">check_route_prefix</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">or_</span><span class="p">,</span> <span class="n">and_</span><span class="p">,</span> <span class="n">cast</span><span class="p">,</span> <span class="n">String</span><span class="p">,</span> <span class="n">desc</span><span class="p">,</span> <span class="n">asc</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.sql.expression</span> <span class="kn">import</span> <span class="n">text</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm.exc</span> <span class="kn">import</span> <span class="n">MultipleResultsFound</span>
+<span class="kn">from</span> <span class="nn">geoalchemy2</span> <span class="kn">import</span> <span class="n">WKTElement</span>
+<span class="kn">from</span> <span class="nn">shapely.geometry</span> <span class="kn">import</span> <span class="n">asShape</span>
 
 <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pyramid_georest&#39;</span><span class="p">)</span>
 
@@ -187,7 +186,7 @@
 
 <div class="viewcode-block" id="Clause"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.rest.Clause">[docs]</a><span class="k">class</span> <span class="nc">Clause</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
-<div class="viewcode-block" id="Clause.__init__"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.rest.Clause.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">definition</span><span class="p">,</span> <span class="n">model_description</span><span class="p">):</span>
+<div class="viewcode-block" id="Clause.__init__"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.rest.Clause.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">definition</span><span class="p">,</span> <span class="n">model_description</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The class which represents the clause block.</span>
 
@@ -482,7 +481,7 @@
 
 <div class="viewcode-block" id="FilterBlock"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.rest.FilterBlock">[docs]</a><span class="k">class</span> <span class="nc">FilterBlock</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
-<div class="viewcode-block" id="FilterBlock.__init__"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.rest.FilterBlock.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_description</span><span class="p">,</span> <span class="n">definition</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="FilterBlock.__init__"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.rest.FilterBlock.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_description</span><span class="p">,</span> <span class="n">definition</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The class which represents the filter block.</span>
 
@@ -567,7 +566,7 @@
 
 <div class="viewcode-block" id="Filter"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.rest.Filter">[docs]</a><span class="k">class</span> <span class="nc">Filter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
-<div class="viewcode-block" id="Filter.__init__"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.rest.Filter.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_description</span><span class="p">,</span> <span class="n">definition</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Filter.__init__"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.rest.Filter.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_description</span><span class="p">,</span> <span class="n">definition</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The class which represents the filter.</span>
 
@@ -595,7 +594,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">definition</span> <span class="o">=</span> <span class="n">FilterBlock</span><span class="p">(</span><span class="n">model_description</span><span class="p">,</span> <span class="n">definition</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Returns:</span>
@@ -624,7 +623,7 @@
 
 <div class="viewcode-block" id="Service"><a class="viewcode-back" href="../../../main_classes.html#pyramid_georest.lib.rest.Service">[docs]</a><span class="k">class</span> <span class="nc">Service</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
-<div class="viewcode-block" id="Service.__init__"><a class="viewcode-back" href="../../../main_classes.html#pyramid_georest.lib.rest.Service.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">renderer_proxy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">adapter_proxy</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Service.__init__"><a class="viewcode-back" href="../../../main_classes.html#pyramid_georest.lib.rest.Service.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">renderer_proxy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">adapter_proxy</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A object which represents an restful service. It offers all the necessary methods and is able to</span>
 <span class="sd">        consume a renderer proxy. This way we assure a plug able system to use custom renderers.</span>
@@ -936,7 +935,7 @@
 
 <div class="viewcode-block" id="Api"><a class="viewcode-back" href="../../../main_classes.html#pyramid_georest.lib.rest.Api">[docs]</a><span class="k">class</span> <span class="nc">Api</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
-<div class="viewcode-block" id="Api.__init__"><a class="viewcode-back" href="../../../main_classes.html#pyramid_georest.lib.rest.Api.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">read_method</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">read_filter_method</span><span class="o">=</span><span class="s1">&#39;POST&#39;</span><span class="p">,</span> <span class="n">create_method</span><span class="o">=</span><span class="s1">&#39;POST&#39;</span><span class="p">,</span>
+<div class="viewcode-block" id="Api.__init__"><a class="viewcode-back" href="../../../main_classes.html#pyramid_georest.lib.rest.Api.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">read_method</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">read_filter_method</span><span class="o">=</span><span class="s1">&#39;POST&#39;</span><span class="p">,</span> <span class="n">create_method</span><span class="o">=</span><span class="s1">&#39;POST&#39;</span><span class="p">,</span>
                  <span class="n">update_method</span><span class="o">=</span><span class="s1">&#39;PUT&#39;</span><span class="p">,</span> <span class="n">delete_method</span><span class="o">=</span><span class="s1">&#39;DELETE&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A Object which holds the connection to the database and arbitrary numbers of services. It works</span>

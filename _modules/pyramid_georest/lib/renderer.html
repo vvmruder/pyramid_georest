@@ -162,36 +162,19 @@
             
   <h1>Source code for pyramid_georest.lib.renderer</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
-
-<span class="c1"># Copyright (c) 2012 - 2015, GIS-Fachstelle des Amtes für Geoinformation des Kantons Basel-Landschaft</span>
-<span class="c1"># All rights reserved.</span>
-<span class="c1">#</span>
-<span class="c1"># This program is free software and completes the GeoMapFish License for the geoview.bl.ch specific</span>
-<span class="c1"># parts of the code. You can redistribute it and/or modify it under the terms of the GNU General</span>
-<span class="c1"># Public License as published by the Free Software Foundation, either version 3 of the License, or</span>
-<span class="c1"># (at your option) any later version.</span>
-<span class="c1">#</span>
-<span class="c1"># This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without</span>
-<span class="c1"># even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU</span>
-<span class="c1"># General Public License for more details.</span>
-<span class="c1">#</span>
-<span class="c1"># The above copyright notice and this permission notice shall be included in all copies or substantial</span>
-<span class="c1"># portions of the Software.</span>
 <span class="kn">import</span> <span class="nn">decimal</span>
 <span class="kn">import</span> <span class="nn">simplejson</span>
 <span class="kn">import</span> <span class="nn">datetime</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 
 <span class="kn">import</span> <span class="nn">dicttoxml</span>
-<span class="kn">from</span> <span class="nn">geoalchemy2</span> <span class="k">import</span> <span class="n">WKBElement</span>
-<span class="kn">from</span> <span class="nn">geoalchemy2.shape</span> <span class="k">import</span> <span class="n">to_shape</span>
-<span class="kn">from</span> <span class="nn">pyramid.httpexceptions</span> <span class="k">import</span> <span class="n">HTTPNotFound</span><span class="p">,</span> <span class="n">HTTPServerError</span>
-<span class="kn">from</span> <span class="nn">pyramid.renderers</span> <span class="k">import</span> <span class="n">JSON</span><span class="p">,</span> <span class="n">render_to_response</span>
+<span class="kn">from</span> <span class="nn">geoalchemy2</span> <span class="kn">import</span> <span class="n">WKBElement</span>
+<span class="kn">from</span> <span class="nn">geoalchemy2.shape</span> <span class="kn">import</span> <span class="n">to_shape</span>
+<span class="kn">from</span> <span class="nn">pyramid.httpexceptions</span> <span class="kn">import</span> <span class="n">HTTPNotFound</span><span class="p">,</span> <span class="n">HTTPServerError</span>
+<span class="kn">from</span> <span class="nn">pyramid.renderers</span> <span class="kn">import</span> <span class="n">JSON</span><span class="p">,</span> <span class="n">render_to_response</span>
 
-<span class="kn">from</span> <span class="nn">sqlalchemy.ext.associationproxy</span> <span class="k">import</span> <span class="n">_AssociationList</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.ext.associationproxy</span> <span class="kn">import</span> <span class="n">_AssociationList</span>
 
-<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Clemens Rudert&#39;</span>
-<span class="n">__create_date__</span> <span class="o">=</span> <span class="s1">&#39;29.07.2015&#39;</span>
 
 <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pyramid_georest&#39;</span><span class="p">)</span>
 
@@ -205,7 +188,7 @@
 
 <div class="viewcode-block" id="RenderProxy"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.renderer.RenderProxy">[docs]</a><span class="k">class</span> <span class="nc">RenderProxy</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
-<div class="viewcode-block" id="RenderProxy.__init__"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.renderer.RenderProxy.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="RenderProxy.__init__"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.renderer.RenderProxy.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A proxy which matches a renderer to a format which is passed in the url. It implements some basic</span>
 <span class="sd">        renderers but is fully extend able. You can add renderers via the add renderer method.</span>
@@ -291,7 +274,7 @@
 
 <div class="viewcode-block" id="AdapterProxy"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.renderer.AdapterProxy">[docs]</a><span class="k">class</span> <span class="nc">AdapterProxy</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
-<div class="viewcode-block" id="AdapterProxy.__init__"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.renderer.AdapterProxy.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="AdapterProxy.__init__"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.renderer.AdapterProxy.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A proxy which matches a client side adapter script to a adapter name which is passed in the url as</span>
 <span class="sd">        format parameter. It implements some basic adapters but is fully extend able. You can add renderers</span>
@@ -382,7 +365,7 @@
 <span class="sd">    delivers additional methods.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="RestfulJson.__init__"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.renderer.RestfulJson.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+<div class="viewcode-block" id="RestfulJson.__init__"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.renderer.RestfulJson.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Constructor: info will be an object having the</span>
 <span class="sd">        following attributes: name (the renderer name), package</span>
 <span class="sd">        (the package that was &#39;current&#39; at the time the</span>
@@ -390,7 +373,7 @@
 <span class="sd">        name), registry (the current application registry) and</span>
 <span class="sd">        settings (the deployment settings dictionary). &quot;&quot;&quot;</span></div>
 
-    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Call the renderer implementation with the value</span>
 <span class="sd">        and the system value passed in as arguments and return</span>
 <span class="sd">        the result (a string or unicode object).  The value is</span>
@@ -527,7 +510,7 @@
 <span class="sd">        this class delivers additional methods.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="RestfulGeoJson.__init__"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.renderer.RestfulGeoJson.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+<div class="viewcode-block" id="RestfulGeoJson.__init__"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.renderer.RestfulGeoJson.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Constructor: info will be an object having the</span>
 <span class="sd">        following attributes: name (the renderer name), package</span>
 <span class="sd">        (the package that was &#39;current&#39; at the time the</span>
@@ -668,7 +651,7 @@
 <span class="sd">    delivers additional methods.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Constructor: info will be an object having the</span>
 <span class="sd">        following attributes: name (the renderer name), package</span>
 <span class="sd">        (the package that was &#39;current&#39; at the time the</span>
@@ -677,7 +660,7 @@
 <span class="sd">        settings (the deployment settings dictionary). &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">RestfulXML</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Call the renderer implementation with the value</span>
 <span class="sd">        and the system value passed in as arguments and return</span>
 <span class="sd">        the result (a string or unicode object).  The value is</span>
@@ -713,7 +696,7 @@
 <span class="sd">    delivers additional methods.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Constructor: info will be an object having the</span>
 <span class="sd">        following attributes: name (the renderer name), package</span>
 <span class="sd">        (the package that was &#39;current&#39; at the time the</span>
@@ -721,7 +704,7 @@
 <span class="sd">        name), registry (the current application registry) and</span>
 <span class="sd">        settings (the deployment settings dictionary). &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_description</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_description</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Call the renderer implementation with the value</span>
 <span class="sd">        and the system value passed in as arguments and return</span>
 <span class="sd">        the result (a string or unicode object).  The value is</span>
@@ -752,7 +735,7 @@
 <span class="sd">    delivers additional methods.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Constructor: info will be an object having the</span>
 <span class="sd">        following attributes: name (the renderer name), package</span>
 <span class="sd">        (the package that was &#39;current&#39; at the time the</span>
@@ -760,7 +743,7 @@
 <span class="sd">        name), registry (the current application registry) and</span>
 <span class="sd">        settings (the deployment settings dictionary). &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_description</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_description</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Call the renderer implementation with the value</span>
 <span class="sd">        and the system value passed in as arguments and return</span>
 <span class="sd">        the result (a string or unicode object).  The value is</span>

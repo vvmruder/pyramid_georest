@@ -162,29 +162,11 @@
             
   <h1>Source code for pyramid_georest.lib.description</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
-
-<span class="c1"># Copyright (c) 2012 - 2016, GIS-Fachstelle des Amtes für Geoinformation des Kantons Basel-Landschaft</span>
-<span class="c1"># All rights reserved.</span>
-<span class="c1">#</span>
-<span class="c1"># This program is free software and completes the GeoMapFish License for the geoview.bl.ch specific</span>
-<span class="c1"># parts of the code. You can redistribute it and/or modify it under the terms of the GNU General</span>
-<span class="c1"># Public License as published by the Free Software Foundation, either version 3 of the License, or</span>
-<span class="c1"># (at your option) any later version.</span>
-<span class="c1">#</span>
-<span class="c1"># This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without</span>
-<span class="c1"># even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU</span>
-<span class="c1"># General Public License for more details.</span>
-<span class="c1">#</span>
-<span class="c1"># The above copyright notice and this permission notice shall be included in all copies or substantial</span>
-<span class="c1"># portions of the Software.</span>
-<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="k">import</span> <span class="n">ColumnDefault</span>
-<span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="k">import</span> <span class="n">RelationshipProperty</span>
-<span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="k">import</span> <span class="n">class_mapper</span>
-<span class="kn">from</span> <span class="nn">yaml</span> <span class="k">import</span> <span class="n">load</span>
-<span class="kn">from</span> <span class="nn">pyramid.path</span> <span class="k">import</span> <span class="n">AssetResolver</span>
-
-<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Clemens Rudert&#39;</span>
-<span class="n">__create_date__</span> <span class="o">=</span> <span class="s1">&#39;21.09.16&#39;</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">ColumnDefault</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="kn">import</span> <span class="n">RelationshipProperty</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="kn">import</span> <span class="n">class_mapper</span>
+<span class="kn">from</span> <span class="nn">yaml</span> <span class="kn">import</span> <span class="n">load</span>
+<span class="kn">from</span> <span class="nn">pyramid.path</span> <span class="kn">import</span> <span class="n">AssetResolver</span>
 
 
 <div class="viewcode-block" id="translate"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.description.translate">[docs]</a><span class="k">def</span> <span class="nf">translate</span><span class="p">(</span><span class="n">string_to_translate</span><span class="p">,</span> <span class="n">dictionary</span><span class="p">,</span> <span class="n">lang</span><span class="o">=</span><span class="s1">&#39;de&#39;</span><span class="p">):</span>
@@ -211,7 +193,7 @@
 
 <div class="viewcode-block" id="RelationDescription"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.description.RelationDescription">[docs]</a><span class="k">class</span> <span class="nc">RelationDescription</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
-<div class="viewcode-block" id="RelationDescription.__init__"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.description.RelationDescription.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">relationship</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">dictionary</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="RelationDescription.__init__"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.description.RelationDescription.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">relationship</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">dictionary</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A class to construct a description of a relationship property. It offers a method to get this</span>
 <span class="sd">        description in a machine readable way. =&gt; as_dict</span>
@@ -310,7 +292,7 @@
 <span class="sd">            NULL/None.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="ColumnDescription.__init__"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.description.ColumnDescription.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">dictionary</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="ColumnDescription.__init__"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.description.ColumnDescription.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">dictionary</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A class to construct a description of a column. It offers a method to get this description in a</span>
 <span class="sd">        machine readable way. =&gt; as_dict</span>
@@ -455,7 +437,7 @@
 
 <div class="viewcode-block" id="ModelDescription"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.description.ModelDescription">[docs]</a><span class="k">class</span> <span class="nc">ModelDescription</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
-<div class="viewcode-block" id="ModelDescription.__init__"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.description.ModelDescription.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">dictionary</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="ModelDescription.__init__"><a class="viewcode-back" href="../../../special_classes.html#pyramid_georest.lib.description.ModelDescription.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">dictionary</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A class to construct a description of a sqlalchemy model. It offers a method to get this description</span>
 <span class="sd">        in a machine readable way. =&gt; as_dict</span>
