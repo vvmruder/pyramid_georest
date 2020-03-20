@@ -517,5 +517,3 @@ class OpenApi(dict):
         self['paths'] = {}
         for path in paths:
             self['paths'][path.service_path] = path
-
-
