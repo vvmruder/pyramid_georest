@@ -2,7 +2,6 @@
 
 import os
 from setuptools import setup, find_packages
-from pyramid_georest import VERSION
 
 here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, 'README.md')) as f:
@@ -33,7 +32,7 @@ requires = [
 
 setup(
     name='pyramid_georest',
-    version=VERSION,
+    version="4.0.0",
     description='pyramid_georest, extension for pyramid web frame work to provide rest interface for '
                 'sql-alchemy mappers',
     long_description=README + '\n\n' + CHANGES,

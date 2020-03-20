@@ -5,7 +5,6 @@ import six
 import transaction
 from pyramid.httpexceptions import HTTPNotFound, HTTPBadRequest
 from pyramid.renderers import render_to_response
-from pyramid_georest import VERSION
 from pyramid_georest.lib.description import ModelDescription
 from pyramid_georest.lib.openapi import Contact, License, OpenApi, Info, Server, Paths, PathItems, Operation, \
     Responses, Response
@@ -775,7 +774,7 @@ class Service(object):
 
 class Api(object):
 
-    def __init__(self, url, config, name, title, read_method='GET', read_filter_method='POST',
+    def __init__(self, url, config, name, title, version, read_method='GET', read_filter_method='POST',
                  create_method='POST', update_method='PUT', delete_method='DELETE', description=None,
                  terms_of_service=None, contact=None, api_license=None, server_description=None):
         """
@@ -795,7 +794,8 @@ class Api(object):
                 between other api's. This name must be unique all over the application. If not an error will
                 be thrown on application start up.
             title (str): The title of the API. This can be a speaking title in the terms of
-                spec.openapis.org/oas/v3.0.3
+                https://spec.openapis.org/oas/v3.0.3#info-object
+            version (str): https://spec.openapis.org/oas/v3.0.3#info-object
             read_method (str): The HTTP method which is used to match the routing to the API.
             read_filter_method (str): The HTTP method which is used to match the routing to the API.
             create_method (str): The HTTP method which is used to match the routing to the API.
@@ -819,7 +819,7 @@ class Api(object):
         self.create_method = create_method
         self.update_method = update_method
         self.delete_method = delete_method
-        self.version = VERSION
+        self.version = version
         self.title = title
         self.description = description
         self.terms_of_service = terms_of_service
