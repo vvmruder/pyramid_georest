@@ -9,6 +9,8 @@ from pyramid_mako import add_mako_renderer
 
 log = logging.getLogger('pyramid_georest')
 
+VERSION = "4.0.0"
+
 
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application. This is necessary for development of
