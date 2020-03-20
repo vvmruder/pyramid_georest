@@ -6,8 +6,8 @@ import transaction
 from pyramid.httpexceptions import HTTPNotFound, HTTPBadRequest
 from pyramid.renderers import render_to_response
 from pyramid_georest.lib.description import ModelDescription
-from pyramid_georest.lib.openapi import Contact, License, OpenApi, Info, Server, Paths, PathItems, Operation, \
-    Responses, Response
+from pyramid_georest.lib.openapi import Contact, License, OpenApi, Info, Server, Paths, PathItems, \
+    Operation, Responses, Response
 from pyramid_georest.lib.renderer import RenderProxy, AdapterProxy
 from pyramid_georest.lib.database import Connection
 from pyramid_georest.routes import create_api_routing, check_route_prefix
@@ -967,11 +967,12 @@ class Api(object):
             pyramid.response.Response: An pyramid response object
         """
         paths = []
-        for service in self.services:
+        for service_key in self.services.keys():
+            service = self.services[service_key]
             for render_format in service.renderer_proxy._format_to_renderer.keys():
                 paths.append(Paths('/{schema_name}/{table_name}/read/{format}'.format(
-                    schema_name=service.name.split(',')[0],
-                    table_name=service.name.split(',')[1],
+                    schema_name=service_key.split(',')[0],
+                    table_name=service_key.split(',')[1],
                     format=render_format
                 ), PathItems(
                     summary='Reads a defined ammount of records from {}.{} table.'.format(
