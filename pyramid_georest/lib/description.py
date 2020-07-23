@@ -5,6 +5,8 @@ from sqlalchemy.orm import class_mapper
 from yaml import load
 from pyramid.path import AssetResolver
 
+from pyramid_georest.lib.openapi import Schema
+
 
 def translate(string_to_translate, dictionary, lang='de'):
     """
@@ -361,3 +363,17 @@ class ModelDescription(object):
             return True
         else:
             return False
+
+    def open_api(self):
+        description = self.as_dict()
+        schema = {
+            'type': 'object',
+            'properties': {}
+        }
+        required = []
+        for column_name in description['columns'].keys():
+            if not description['columns'][column_name]['nullable']:
+                required.append(column_name)
+        if len(required) > 0:
+            schema['required'] = required
+        return Schema(schema)

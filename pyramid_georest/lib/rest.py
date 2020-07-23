@@ -16,6 +16,7 @@ from sqlalchemy.sql.expression import text
 from sqlalchemy.orm.exc import MultipleResultsFound
 from geoalchemy2 import WKTElement
 from shapely.geometry import asShape
+from pyramid_georest.lib.openapi3 import OpenApiDocument
 
 log = logging.getLogger('pyramid_georest')
 
@@ -771,6 +772,28 @@ class Service(object):
 
         return self.model_description
 
+    def open_api(self):
+        paths = []
+        for render_format in self.renderer_proxy._format_to_renderer.keys():
+            paths.append(Paths('/{schema_name}/{table_name}/read/{format}'.format(
+                schema_name=self.model_description.schema_name,
+                table_name=self.model_description.table_name,
+                format=render_format
+            ), PathItems(
+                summary='Reads a defined ammount of records from {}.{} table.'.format(
+                    self.model_description.schema_name,
+                    self.model_description.table_name
+                ),
+                description='JadaJada',
+                get=Operation(
+                    Responses([
+                        Response('200', 'Delivers desired records as {}'.format(render_format)),
+                        Response('400', 'In case of errors.')
+                    ])
+                )
+            )))
+        return paths
+
 
 class Api(object):
 
@@ -996,7 +1019,7 @@ class Api(object):
                 self.contact,
                 self.license
             ), [
-                Server(request.route_path(self.name), description=self.server_description)
+                Server(request.route_url(self.name), description=self.server_description)
             ],
             paths
         )

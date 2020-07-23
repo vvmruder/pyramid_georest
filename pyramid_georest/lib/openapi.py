@@ -7,12 +7,13 @@ class Contact(dict):
 
     def __init__(self, name=None, url=None, email=None):
         """
-        Implementation of https://spec.openapis.org/oas/v3.0.3#contactObject
+        Implementation of
+            https://github.com/OAI/OpenAPI-Specification/blob/v3.0.3-dev/versions/3.0.3.md#contactObject
 
         Args:
-            name (str or None): see https://spec.openapis.org/oas/v3.0.3
-            url (str or None): see https://spec.openapis.org/oas/v3.0.3
-            email (str ro None): see https://spec.openapis.org/oas/v3.0.3
+            name (str or None): see doc link above
+            url (str or None): see doc link above
+            email (str ro None): see doc link above
         """
         super().__init__()
         if name:
@@ -26,11 +27,12 @@ class Contact(dict):
 class License(dict):
     def __init__(self, name=None, url=None):
         """
-        Implementation of https://spec.openapis.org/oas/v3.0.3#licenseObject
+        Implementation of
+            https://github.com/OAI/OpenAPI-Specification/blob/v3.0.3-dev/versions/3.0.3.md#licenseObject
 
         Args:
-            name (str or None): see https://spec.openapis.org/oas/v3.0.3
-            url (str or None): see https://spec.openapis.org/oas/v3.0.3
+            name (str or None): see doc link above
+            url (str or None): see doc link above
         """
         super().__init__()
         if name:
@@ -44,15 +46,16 @@ class Info(dict):
     def __init__(self, title, version, description=None, terms_of_service=None, contact=None,
                  api_license=None):
         """
-        Implementation of https://spec.openapis.org/oas/v3.0.3#infoObject
+        Implementation of
+            https://github.com/OAI/OpenAPI-Specification/blob/v3.0.3-dev/versions/3.0.3.md#infoObject
 
         Args:
-            title (str): see https://spec.openapis.org/oas/v3.0.3#infoObject
-            version (str): see https://spec.openapis.org/oas/v3.0.3#infoObject
-            description (str or None): see https://spec.openapis.org/oas/v3.0.3#infoObject
-            terms_of_service (str or None): see https://spec.openapis.org/oas/v3.0.3#infoObject
-            contact (Contact or None): see https://spec.openapis.org/oas/v3.0.3#infoObject
-            api_license (License or None): see https://spec.openapis.org/oas/v3.0.3#infoObject
+            title (str): see doc link above
+            version (str): see doc link above
+            description (str or None): see doc link above
+            terms_of_service (str or None): see doc link above
+            contact (Contact or None): see doc link above
+            api_license (License or None): see doc link above
         """
         super().__init__()
         self['title'] = title
@@ -71,13 +74,15 @@ class ServerVariable(dict):
 
     def __init__(self, key, default, enum=None, description=None):
         """
-        Implementation of https://spec.openapis.org/oas/v3.0.3#server-variable-object
+        Implementation of
+            https://github.com/OAI/OpenAPI-Specification/blob/v3.0.3-dev/versions/3.0.3.md
+            #serverVariableObject
 
         Args:
             key (str): The key which is used then as key for parent elements.
-            default (str): see https://spec.openapis.org/oas/v3.0.3#server-variable-object
-            enum (list of str or None): see https://spec.openapis.org/oas/v3.0.3#server-variable-object
-            description (str or None): see https://spec.openapis.org/oas/v3.0.3#server-variable-object
+            default (str): see doc link above
+            enum (list of str or None): see doc link above
+            description (str or None): see doc link above
         """
         super().__init__()
         self.key = key
@@ -92,12 +97,13 @@ class Server(dict):
 
     def __init__(self, url, description=None, variables=None):
         """
-        Implementation of https://spec.openapis.org/oas/v3.0.3#server-object
+        Implementation of
+            https://github.com/OAI/OpenAPI-Specification/blob/v3.0.3-dev/versions/3.0.3.md#serverObject
 
         Args:
-            url (str): see https://spec.openapis.org/oas/v3.0.3#server-object
-            description (str or None): see https://spec.openapis.org/oas/v3.0.3#server-object
-            variables (list of ServerVariable or None): see https://spec.openapis.org/oas/v3.0.3#server-object
+            url (str): see doc link above
+            description (str or None): see doc link above
+            variables (list of ServerVariable or None): see doc link above
         """
         super().__init__()
         self['url'] = url
@@ -110,7 +116,20 @@ class Server(dict):
 
 
 class Schema(dict):
-    pass
+
+    def __init__(self, definition):
+        """
+        Implementation of
+            https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.3.md#schemaObject
+        We simply offer full dictionary freedom here since the schemaObject almost does. So please rely on the
+        documentation strongly!
+
+        This definition is added only to have a library internal point of wrapping.
+
+        Args:
+            definition (dict): The schema definition as a python dict. Please rely to the docs linked above.
+        """
+        super().__init__(definition)
 
 
 class Header(dict):
@@ -120,27 +139,27 @@ class Header(dict):
                  allow_empty_value=False, style=None, explode=False, allow_reserved=False, schema=None,
                  example=None, examples=None, content=None):
         """
-        Implementation of https://spec.openapis.org/oas/v3.0.3#parameter-object
+        Implementation of
+            https://github.com/OAI/OpenAPI-Specification/blob/v3.0.3-dev/versions/3.0.3.md#parameterObject
 
         Args:
             key (str): The key which is used then as key for parent elements.
-            name (str or None): see https://spec.openapis.org/oas/v3.0.3#parameter-object
-            in_location (str or None): see https://spec.openapis.org/oas/v3.0.3#parameter-object
-            description (str or None): see
-                https://spec.openapis.org/oas/v3.0.3#external-documentation-object
-            required (bool): see https://spec.openapis.org/oas/v3.0.3#parameter-object
-            deprecated (bool): see https://spec.openapis.org/oas/v3.0.3#parameter-object
-            allow_empty_value (bool): see https://spec.openapis.org/oas/v3.0.3#parameter-object
-            style (str or None): see https://spec.openapis.org/oas/v3.0.3#parameter-object
-            explode (bool): see https://spec.openapis.org/oas/v3.0.3#parameter-object
-            allow_reserved (bool): see https://spec.openapis.org/oas/v3.0.3#parameter-object
-            schema (Schema or None): see https://spec.openapis.org/oas/v3.0.3#parameter-object
-            example (str or None): see https://spec.openapis.org/oas/v3.0.3#parameter-object
-            examples (list of Example or None): see https://spec.openapis.org/oas/v3.0.3#parameter-object
-            content (list of MediaType or None): see https://spec.openapis.org/oas/v3.0.3#parameter-object
+            name (str or None): see doc link above
+            in_location (str or None): see doc link above
+            description (str or None): see doc link above
+            required (bool): see doc link above
+            deprecated (bool): see doc link above
+            allow_empty_value (bool): see doc link above
+            style (str or None): see doc link above
+            explode (bool): see doc link above
+            allow_reserved (bool): see doc link above
+            schema (Schema or None): see doc link above
+            example (str or None): see doc link above
+            examples (list of Example or None): see doc link above
+            content (list of MediaType or None): see doc link above
         """
         # TODO: implement correct behaviour like it is described in
-        #  https://spec.openapis.org/oas/v3.0.3#parameter-object
+        #  https://github.com/OAI/OpenAPI-Specification/blob/v3.0.3-dev/versions/3.0.3.md#parameterObject
         super().__init__()
         self.key = key
         self['name'] = name
@@ -178,14 +197,15 @@ class Example(dict):
 
     def __init__(self, key, summary=None, description=None, value=None, external_value=None):
         """
-        Implementation of https://spec.openapis.org/oas/v3.0.3#example-object
+        Implementation of
+            https://github.com/OAI/OpenAPI-Specification/blob/v3.0.3-dev/versions/3.0.3.md#exampleObject
 
         Args:
             key (str): The key which is used then as key for parent elements.
-            summary (str or None): see https://spec.openapis.org/oas/v3.0.3#example-object
-            description (str or None): see https://spec.openapis.org/oas/v3.0.3#example-object
-            value (str or None): see https://spec.openapis.org/oas/v3.0.3#example-object
-            external_value (str or None): see https://spec.openapis.org/oas/v3.0.3#example-object
+            summary (str or None): see doc link above
+            description (str or None): see doc link above
+            value (str or None): see doc link above
+            external_value (str or None): see doc link above
         """
         super().__init__()
         self.key = key
@@ -203,14 +223,15 @@ class Encoding(dict):
     def __init__(self, key, content_type=None, headers=None, style=None, explode=False,
                  allow_reserved=False):
         """
-        Implementation of https://spec.openapis.org/oas/v3.0.3#encodingObject
+        Implementation of
+            https://github.com/OAI/OpenAPI-Specification/blob/v3.0.3-dev/versions/3.0.3.md#encodingObject
 
         Args:
             key (str): The key which is used then as key for parent elements.
-            content_type (str or None): see https://spec.openapis.org/oas/v3.0.3#encodingObject
-            headers (list of Header or None): see https://spec.openapis.org/oas/v3.0.3#encodingObject
-            style (str or None): see https://spec.openapis.org/oas/v3.0.3#encodingObject
-            explode (bool): see https://spec.openapis.org/oas/v3.0.3#encodingObject
+            content_type (str or None): see doc link above
+            headers (list of Header or None): see doc link above
+            style (str or None): see doc link above
+            explode (bool): see doc link above
         """
         super().__init__()
         self.key = key
@@ -229,14 +250,15 @@ class Encoding(dict):
 class MediaType(dict):
     def __init__(self, key, schema=None, example=None, examples=None, encoding=None):
         """
-        Implementation of https://spec.openapis.org/oas/v3.0.3#media-type-object
+        Implementation of
+            https://github.com/OAI/OpenAPI-Specification/blob/v3.0.3-dev/versions/3.0.3.md#mediaTypeObject
 
         Args:
             key (str): The key which is used then as key for parent elements.
-            schema (Schema or None): see https://spec.openapis.org/oas/v3.0.3#media-type-object
-            example (str or None): see https://spec.openapis.org/oas/v3.0.3#media-type-object
-            examples (list of Example or None): see https://spec.openapis.org/oas/v3.0.3#media-type-object
-            encoding (list of Encoding or None): see https://spec.openapis.org/oas/v3.0.3#media-type-object
+            schema (Schema or None): see doc link above
+            example (str or None): see doc link above
+            examples (list of Example or None): see doc link above
+            encoding (list of Encoding or None): see doc link above
         """
         super().__init__()
         self.key = key
@@ -261,15 +283,16 @@ class Link(dict):
 class Response(dict):
     def __init__(self, code, description, headers=None, content=None, links=None):
         """
-        Implementation of https://spec.openapis.org/oas/v3.0.3#response-object
+        Implementation of
+            https://github.com/OAI/OpenAPI-Specification/blob/v3.0.3-dev/versions/3.0.3.md#responseObject
 
         Args:
-            code (str): see https://spec.openapis.org/oas/v3.0.3#http-status-codes and
-                https://spec.openapis.org/oas/v3.0.3#responses-object
-            description (str): see https://spec.openapis.org/oas/v3.0.3#response-object
-            headers (list of Header or None): see https://spec.openapis.org/oas/v3.0.3#response-object
-            content (list of MediaType or None): see https://spec.openapis.org/oas/v3.0.3#response-object
-            links (list of Link or None): see https://spec.openapis.org/oas/v3.0.3#response-object
+            code (str): see doc link above and
+                https://github.com/OAI/OpenAPI-Specification/blob/v3.0.3-dev/versions/3.0.3.md#httpCodes
+            description (str): see doc link above
+            headers (list of Header or None): see doc link above
+            content (list of MediaType or None): see doc link above
+            links (list of Link or None): see doc link above
         """
         super().__init__()
         self.code = code
@@ -291,11 +314,12 @@ class Response(dict):
 class Responses(dict):
     def __init__(self, responses, default=None):
         """
-        Implementation of https://spec.openapis.org/oas/v3.0.3#responses-object
+        Implementation of
+            https://github.com/OAI/OpenAPI-Specification/blob/v3.0.3-dev/versions/3.0.3.md#responsesObject
 
         Args:
-            responses (list of Response): see https://spec.openapis.org/oas/v3.0.3#responses-object
-            default (Response or None): see https://spec.openapis.org/oas/v3.0.3#responses-object
+            responses (list of Response): see doc link above
+            default (Response or None): see doc link above
         """
         super().__init__()
         if len(responses) < 1:
@@ -309,12 +333,13 @@ class Responses(dict):
 class ExternalDocumentation(dict):
     def __init__(self, url, description=None):
         """
-        Implementation of https://spec.openapis.org/oas/v3.0.3#external-documentation-object
+        Implementation of
+            https://github.com/OAI/OpenAPI-Specification/blob/v3.0.3-dev/versions/3.0.3.md
+            #externalDocumentationObject
 
         Args:
-            url (str): see https://spec.openapis.org/oas/v3.0.3#external-documentation-object
-            description (str or None): see
-                https://spec.openapis.org/oas/v3.0.3#external-documentation-object
+            url (str): see doc link above
+            description (str or None): see doc link above
         """
         super().__init__()
         self['url'] = url
@@ -329,23 +354,23 @@ class Parameter(Header):
                  allow_empty_value=False, style=None, explode=False, allow_reserved=False, schema=None,
                  example=None, examples=None, content=None):
         """
-        Implementation of https://spec.openapis.org/oas/v3.0.3#parameter-object
+        Implementation of
+            https://github.com/OAI/OpenAPI-Specification/blob/v3.0.3-dev/versions/3.0.3.md#parameterObject
 
         Args:
-            name (str): see https://spec.openapis.org/oas/v3.0.3#parameter-object
-            in_location (str): see https://spec.openapis.org/oas/v3.0.3#parameter-object
-            description (str or None): see
-                https://spec.openapis.org/oas/v3.0.3#external-documentation-object
-            required (bool): see https://spec.openapis.org/oas/v3.0.3#parameter-object
-            deprecated (bool): see https://spec.openapis.org/oas/v3.0.3#parameter-object
-            allow_empty_value (bool): see https://spec.openapis.org/oas/v3.0.3#parameter-object
-            style (str or None): see https://spec.openapis.org/oas/v3.0.3#parameter-object
-            explode (bool): see https://spec.openapis.org/oas/v3.0.3#parameter-object
-            allow_reserved (bool): see https://spec.openapis.org/oas/v3.0.3#parameter-object
-            schema (Schema or None): see https://spec.openapis.org/oas/v3.0.3#parameter-object
-            example (str or None): see https://spec.openapis.org/oas/v3.0.3#parameter-object
-            examples (list of Example or None): see https://spec.openapis.org/oas/v3.0.3#parameter-object
-            content (list of MediaType or None): see https://spec.openapis.org/oas/v3.0.3#parameter-object
+            name (str): see doc link above
+            in_location (str): see doc link above
+            description (str or None): see doc link above
+            required (bool): see doc link above
+            deprecated (bool): see doc link above
+            allow_empty_value (bool): see doc link above
+            style (str or None): see doc link above
+            explode (bool): see doc link above
+            allow_reserved (bool): see doc link above
+            schema (Schema or None): see doc link above
+            example (str or None): see doc link above
+            examples (list of Example or None): see doc link above
+            content (list of MediaType or None): see doc link above
         """
         super().__init__('', name, in_location, description=description, required=required,
                          deprecated=deprecated, allow_empty_value=allow_empty_value, style=style,
@@ -356,12 +381,13 @@ class Parameter(Header):
 class RequestBody(dict):
     def __init__(self, content, description=None, required=False):
         """
-        Implementation of https://spec.openapis.org/oas/v3.0.3#request-body-object
+        Implementation of
+            https://github.com/OAI/OpenAPI-Specification/blob/v3.0.3-dev/versions/3.0.3.md#requestBodyObject
 
         Args:
-            content (list of MediaType): see https://spec.openapis.org/oas/v3.0.3#request-body-object
-            description (str or None): see https://spec.openapis.org/oas/v3.0.3#request-body-object
-            required (bool): see https://spec.openapis.org/oas/v3.0.3#request-body-object
+            content (list of MediaType): see doc link above
+            description (str or None): see doc link above
+            required (bool): see doc link above
         """
         super().__init__()
         self['required'] = required
@@ -373,12 +399,14 @@ class RequestBody(dict):
 
 
 class Callback(dict):
-    # TODO: implement like described here: https://spec.openapis.org/oas/v3.0.3#callback-object
+    # TODO: implement like described here:
+    #  https://github.com/OAI/OpenAPI-Specification/blob/v3.0.3-dev/versions/3.0.3.md#callbackObject
     pass
 
 
 class SecurityRequirement(dict):
-    # TODO: implement like described here: http://spec.openapis.org/oas/v3.0.3#security-requirement-object
+    # TODO: implement like described here:
+    #  http://spec.openapis.org/oas/v3.0.3#securityRequirementObject
     pass
 
 
@@ -388,23 +416,22 @@ class Operation(dict):
                  operation_id=None, parameters=None, request_body=None, callbacks=None, deprecated=False,
                  security=None, servers=None):
         """
-        Implementation of https://spec.openapis.org/oas/v3.0.3#operation-object
+        Implementation of
+            https://github.com/OAI/OpenAPI-Specification/blob/v3.0.3-dev/versions/3.0.3.md#operationObject
 
         Args:
-            responses (Responses) : see https://spec.openapis.org/oas/v3.0.3#operation-object
-            tags (list of str or None): see https://spec.openapis.org/oas/v3.0.3#operation-object
-            summary (str or None): see https://spec.openapis.org/oas/v3.0.3#operation-object
-            description (str or None): see https://spec.openapis.org/oas/v3.0.3#operation-object
-            external_docs (ExternalDocumentation or None: see
-                https://spec.openapis.org/oas/v3.0.3#operation-object
-            operation_id (str or None): see https://spec.openapis.org/oas/v3.0.3#operation-object
-            parameters (list of Parameter or None): see https://spec.openapis.org/oas/v3.0.3#operation-object
-            request_body (RequestBody or None): see https://spec.openapis.org/oas/v3.0.3#operation-object
-            callbacks(list of Callback or None): see https://spec.openapis.org/oas/v3.0.3#operation-object
-            deprecated (bool): see https://spec.openapis.org/oas/v3.0.3#operation-object
-            security (list of SecurityRequirement or None): see
-                https://spec.openapis.org/oas/v3.0.3#operation-object
-            servers (list of Server or None): see https://spec.openapis.org/oas/v3.0.3#operation-object
+            responses (Responses) : see doc link above
+            tags (list of str or None): see doc link above
+            summary (str or None): see doc link above
+            description (str or None): see doc link above
+            external_docs (ExternalDocumentation or None: see doc link above
+            operation_id (str or None): see doc link above
+            parameters (list of Parameter or None): see doc link above
+            request_body (RequestBody or None): see doc link above
+            callbacks(list of Callback or None): see doc link above
+            deprecated (bool): see doc link above
+            security (list of SecurityRequirement or None): see doc link above
+            servers (list of Server or None): see doc link above
         """
         super().__init__()
         self['responses'] = responses
@@ -438,22 +465,23 @@ class PathItems(dict):
     def __init__(self, ref=None, summary=None, description=None, get=None, put=None, post=None, delete=None,
                  options=None, head=None, patch=None, trace=None, servers=None, parameters=None):
         """
-        Implementation of https://spec.openapis.org/oas/v3.0.3#path-item-object
+        Implementation of
+            https://github.com/OAI/OpenAPI-Specification/blob/v3.0.3-dev/versions/3.0.3.md#pathItemObject
 
         Args:
-            ref (str or None): see https://spec.openapis.org/oas/v3.0.3#path-item-object
-            summary (str or None): see https://spec.openapis.org/oas/v3.0.3#path-item-object
-            description (str or None): see https://spec.openapis.org/oas/v3.0.3#path-item-object
-            get (Operation or None): see https://spec.openapis.org/oas/v3.0.3#path-item-object
-            put (Operation or None): see https://spec.openapis.org/oas/v3.0.3#path-item-object
-            post (Operation or None): see https://spec.openapis.org/oas/v3.0.3#path-item-object
-            delete (Operation or None): see https://spec.openapis.org/oas/v3.0.3#path-item-object
-            options (Operation or None): see https://spec.openapis.org/oas/v3.0.3#path-item-object
-            head (Operation or None): see https://spec.openapis.org/oas/v3.0.3#path-item-object
-            patch (Operation or None): see https://spec.openapis.org/oas/v3.0.3#path-item-object
-            trace (Operation or None): see https://spec.openapis.org/oas/v3.0.3#path-item-object
-            servers (list of Server or None): see https://spec.openapis.org/oas/v3.0.3#path-item-object
-            parameters (list of Parameter or None): see https://spec.openapis.org/oas/v3.0.3#path-item-object
+            ref (str or None): see doc link above
+            summary (str or None): see doc link above
+            description (str or None): see doc link above
+            get (Operation or None): see doc link above
+            put (Operation or None): see doc link above
+            post (Operation or None): see doc link above
+            delete (Operation or None): see doc link above
+            options (Operation or None): see doc link above
+            head (Operation or None): see doc link above
+            patch (Operation or None): see doc link above
+            trace (Operation or None): see doc link above
+            servers (list of Server or None): see doc link above
+            parameters (list of Parameter or None): see doc link above
         """
         super().__init__()
         if ref:
@@ -488,27 +516,58 @@ class Paths(dict):
 
     def __init__(self, service_path, path_item):
         """
-        Implementation of https://spec.openapis.org/oas/v3.0.3#paths-object
+        Implementation of
+            https://github.com/OAI/OpenAPI-Specification/blob/v3.0.3-dev/versions/3.0.3.md#pathsObject
 
         Args:
             service_path (str): The sub path of the service. It is used as key to store all available
                 operations below.
-            path_item (PathItem): see https://spec.openapis.org/oas/v3.0.3#paths-object
+            path_item (PathItem): see doc link above
         """
         super().__init__(path_item)
         self.service_path = service_path
 
 
-class OpenApi(dict):
+class Components(dict):
+    pass
 
-    def __init__(self, info, servers, paths):
+
+class Tag(dict):
+
+    def __init__(self, name, description=None, external_docs=None):
         """
-        Implementation of https://spec.openapis.org/oas/v3.0.3#openapi-object
+        Implemenation of
+            https://github.com/OAI/OpenAPI-Specification/blob/v3.0.3-dev/versions/3.0.3.md#tagObject
 
         Args:
-            info (Info): see https://spec.openapis.org/oas/v3.0.3#openapi-object
-            servers (list of Server): see https://spec.openapis.org/oas/v3.0.3#openapi-object
-            paths (list of Paths): see https://spec.openapis.org/oas/v3.0.3#openapi-object
+            name (str): see doc link above
+            description (str): see doc link above
+            external_docs (ExternalDocumentation): see doc link above
+        """
+        super().__init__()
+        self['name'] = name
+        if description:
+            self['description'] = description
+        if external_docs:
+            self['externalDocs'] = external_docs
+
+
+class OpenApi(dict):
+
+    def __init__(self, info, servers, paths, components=None, external_docs=None, security=None, tags=None):
+        """
+        Implementation of
+            https://github.com/OAI/OpenAPI-Specification/blob/v3.0.3-dev/versions/3.0.3.md#oasObject
+
+        Args:
+            info (Info): see doc link above
+            servers (list of Server): see doc link above
+            paths (list of Paths): see doc link above
+            components (Components): see doc link above
+            external_docs (ExternalDocumentation): see doc link above
+            security (list of SecurityRequirement): see doc link above
+            tags (list of Tag): see doc link above
+
         """
         super().__init__()
         self['openapi'] = VERSION
@@ -517,3 +576,11 @@ class OpenApi(dict):
         self['paths'] = {}
         for path in paths:
             self['paths'][path.service_path] = path
+        if components:
+            self['components'] = components
+        if external_docs:
+            self['externalDocs'] = external_docs
+        if security:
+            self['security'] = security
+        if tags:
+            self['tags'] = tags
