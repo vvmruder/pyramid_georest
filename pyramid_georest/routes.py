@@ -1,4 +1,4 @@
-# -*- coding: iso-8859-1 -*-
+# -*- coding: utf-8 -*-
 
 
 def check_route_prefix(route_prefix):
@@ -17,6 +17,19 @@ def create_api_routing(config, api):
         config (pyramid.config.Configurator): The pyramid apps config object
         api (pyramid_georest.lib.rest.Api): The Api which the routing is bound to.
     """
+
+    # delivers multiple records/filtered
+    config.add_route(
+        api.name,
+        '/' + api.pure_name
+    )
+    config.add_view(
+        api,
+        route_name=api.name,
+        attr='open_api',
+        request_method=api.read_method,
+        renderer='json'
+    )
 
     # delivers multiple records/filtered
     config.add_route(

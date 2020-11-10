@@ -8,10 +8,12 @@ import dicttoxml
 from geoalchemy2 import WKBElement
 from geoalchemy2.shape import to_shape
 from pyramid.httpexceptions import HTTPNotFound, HTTPServerError
-from pyramid.renderers import JSON, render_to_response
+from pyramid.renderers import JSON, render_to_response, RendererHelper
+from pyramid.path import caller_package
 
 from sqlalchemy.ext.associationproxy import _AssociationList
 
+from pyramid_georest.lib.openapi import MediaType
 
 log = logging.getLogger('pyramid_georest')
 
@@ -46,6 +48,34 @@ class RenderProxy(object):
             'xml': 'geo_restful_xml',
             'geojson': 'geo_restful_geo_json'
         }
+
+    def open_api(self, request, model_description):
+        """
+        Delivers information about renderers. This is used to provide openapi description.
+
+        Args:
+            request (pyramid.request.Request): The request which comes all the way through the application
+                from the client
+            model_description (pyramid_georest.lib.description.ModelDescription): The description object of
+                the data set which will be rendered.
+
+        Returns:
+            list of pyramid_georest.lib.openapi.MediaType: A list of all available media types delivered by
+                this API.
+        """
+        media_types = []
+        try:
+            registry = request.registry
+        except AttributeError:
+            registry = None
+        for format_key in self._format_to_renderer.keys():
+            helper = RendererHelper(
+                name=self._format_to_renderer[format_key],
+                package=caller_package(),
+                registry=registry
+            )
+            renderer = helper.get_renderer()
+            media_types.append(MediaType(renderer.content_type, ))
 
     def render(self, request, result, model_description):
         """
@@ -201,6 +231,7 @@ class RestfulJson(JSON):
     them to json. It is important to use the Base which is provided by this package. Because this class
     delivers additional methods.
     """
+    content_type = 'application/json'
 
     def __init__(self, info):
         """ Constructor: info will be an object having the
@@ -224,18 +255,10 @@ class RestfulJson(JSON):
 
         request = system['request']
         # here the results will be serialized!!!!
-        val = self.to_str(results)
-
-        callback = request.GET.get('callback')
-        if callback is None:
-            ct = 'application/json'
-            body = val
-        else:
-            ct = 'application/javascript'
-            body = '%s(%s);' % (callback, val)
+        body = self.to_str(results)
         response = request.response
         if response.content_type == response.default_content_type:
-            response.content_type = ct
+            response.content_type = self.content_type
         return body
 
     def to_str(self, results):
@@ -346,6 +369,7 @@ class RestfulGeoJson(RestfulJson):
         renders them to json. It is important to use the Base which is provided by this package. Because
         this class delivers additional methods.
         """
+    content_type = 'application/json'
 
     def __init__(self, info):
         """ Constructor: info will be an object having the
@@ -487,6 +511,7 @@ class RestfulXML(RestfulJson):
     them to xml. It is important to use the Base which is provided by this package. Because this class
     delivers additional methods.
     """
+    content_type = 'application/xml'
 
     def __init__(self, info):
         """ Constructor: info will be an object having the

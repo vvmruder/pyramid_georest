@@ -6,6 +6,8 @@ import transaction
 from pyramid.httpexceptions import HTTPNotFound, HTTPBadRequest
 from pyramid.renderers import render_to_response
 from pyramid_georest.lib.description import ModelDescription
+from pyramid_georest.lib.openapi import Contact, License, OpenApi, Info, Server, Paths, PathItems, \
+    Operation, Responses, Response
 from pyramid_georest.lib.renderer import RenderProxy, AdapterProxy
 from pyramid_georest.lib.database import Connection
 from pyramid_georest.routes import create_api_routing, check_route_prefix
@@ -14,6 +16,7 @@ from sqlalchemy.sql.expression import text
 from sqlalchemy.orm.exc import MultipleResultsFound
 from geoalchemy2 import WKTElement
 from shapely.geometry import asShape
+from pyramid_georest.lib.openapi3 import OpenApiDocument
 
 log = logging.getLogger('pyramid_georest')
 
@@ -769,11 +772,34 @@ class Service(object):
 
         return self.model_description
 
+    def open_api(self):
+        paths = []
+        for render_format in self.renderer_proxy._format_to_renderer.keys():
+            paths.append(Paths('/{schema_name}/{table_name}/read/{format}'.format(
+                schema_name=self.model_description.schema_name,
+                table_name=self.model_description.table_name,
+                format=render_format
+            ), PathItems(
+                summary='Reads a defined ammount of records from {}.{} table.'.format(
+                    self.model_description.schema_name,
+                    self.model_description.table_name
+                ),
+                description='JadaJada',
+                get=Operation(
+                    Responses([
+                        Response('200', 'Delivers desired records as {}'.format(render_format)),
+                        Response('400', 'In case of errors.')
+                    ])
+                )
+            )))
+        return paths
+
 
 class Api(object):
 
-    def __init__(self, url, config, name, read_method='GET', read_filter_method='POST', create_method='POST',
-                 update_method='PUT', delete_method='DELETE'):
+    def __init__(self, url, config, name, title, version, read_method='GET', read_filter_method='POST',
+                 create_method='POST', update_method='PUT', delete_method='DELETE', description=None,
+                 terms_of_service=None, contact=None, api_license=None, server_description=None):
         """
         A Object which holds the connection to the database and arbitrary numbers of services. It works
         like a proxy for the request. It decides which service will be finally called by reading
@@ -790,20 +816,51 @@ class Api(object):
             name (str): The name which is used internally as an identifier of the api, to make it selectable
                 between other api's. This name must be unique all over the application. If not an error will
                 be thrown on application start up.
+            title (str): The title of the API. This can be a speaking title in the terms of
+                https://spec.openapis.org/oas/v3.0.3#info-object
+            version (str): https://spec.openapis.org/oas/v3.0.3#info-object
             read_method (str): The HTTP method which is used to match the routing to the API.
             read_filter_method (str): The HTTP method which is used to match the routing to the API.
             create_method (str): The HTTP method which is used to match the routing to the API.
             update_method (str): The HTTP method which is used to match the routing to the API.
             delete_method (str): The HTTP method which is used to match the routing to the API.
+            description (str or None): The description if API in terms of spec.openapis.org/oas/v3.0.3
+            terms_of_service (str or None): The terms of usage. See spec.openapis.org/oas/v3.0.3
+            contact (Contact or None): The contact data in terms of spec.openapis.org/oas/v3.0.3
+            api_license (License or None): The license which is offered by this API in terms of
+                spec.openapis.org/oas/v3.0.3
+            server_description (str or None): The description which is used for the server. This is a meta
+                into since at the api point of view there is always only one server supported in the moment.
+                Please see information about this here http://spec.openapis.org/oas/v3.0.3#server-object
 
         Raises:
             LookupError
+            AttributeError
         """
         self.read_method = read_method
         self.read_filter_method = read_filter_method
         self.create_method = create_method
         self.update_method = update_method
         self.delete_method = delete_method
+        self.version = version
+        self.title = title
+        self.description = description
+        self.terms_of_service = terms_of_service
+        if not isinstance(contact, Contact) and contact is not None:
+            raise AttributeError(
+                'Wrong type for contact was passed {}. '
+                'Allowed is only pyramid_georest.lib.openapi.Contact or None.'.format(type(contact))
+            )
+        else:
+            self.contact = contact
+        if not isinstance(api_license, License) and contact is not None:
+            raise AttributeError(
+                'Wrong type for license was passed {}. '
+                'Allowed is only pyramid_georest.lib.openapi.License or None.'.format(type(api_license))
+            )
+        else:
+            self.license = api_license
+        self.server_description = server_description
 
         connection_already_exists = False
         connections = config.registry.pyramid_georest_database_connections
@@ -920,6 +977,52 @@ class Api(object):
             )
         request.registry.pyramid_georest_requested_service = service
         return service
+
+    def open_api(self, request):
+        """
+        The api method to receive the openapi document.
+
+        Args:
+            request (pyramid.request.Request): The request which comes all the way through the application
+                from the client.
+
+        Returns:
+            pyramid.response.Response: An pyramid response object
+        """
+        paths = []
+        for service_key in self.services.keys():
+            service = self.services[service_key]
+            for render_format in service.renderer_proxy._format_to_renderer.keys():
+                paths.append(Paths('/{schema_name}/{table_name}/read/{format}'.format(
+                    schema_name=service_key.split(',')[0],
+                    table_name=service_key.split(',')[1],
+                    format=render_format
+                ), PathItems(
+                    summary='Reads a defined ammount of records from {}.{} table.'.format(
+                        service.name.split(',')[0],
+                        service.name.split(',')[1]
+                    ),
+                    description='JadaJada',
+                    get=Operation(
+                        Responses([
+                            Response('200', 'Delivers desired records as {}'.format(render_format)),
+                            Response('400', 'In case of errors.')
+                        ])
+                    )
+                )))
+        return OpenApi(
+            Info(
+                self.title,
+                self.version,
+                self.description,
+                self.terms_of_service,
+                self.contact,
+                self.license
+            ), [
+                Server(request.route_url(self.name), description=self.server_description)
+            ],
+            paths
+        )
 
     def read(self, request):
         """
